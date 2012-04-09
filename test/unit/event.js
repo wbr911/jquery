@@ -1097,7 +1097,7 @@ test("trigger(eventObject, [data], [fn])", function() {
 	$child.trigger(event);
 
 	// test with a literal object
-	$child.trigger({type: "foo", secret: "boo!"});
+	$child.trigger(/** @type {jQuery.Event} */ ( {type: "foo", secret: "boo!"} ));
 
 	$parent.unbind();
 

@@ -51,6 +51,10 @@ if ( !jQuery.support.htmlSerialize ) {
 }
 
 jQuery.fn.extend({
+	/**
+	 * @param {(string|function(number,string))=} value
+	 * @return {(string|!jQuery)}
+	 */
 	text: function( value ) {
 		return jQuery.access( this, function( value ) {
 			return value === undefined ?
@@ -59,10 +63,14 @@ jQuery.fn.extend({
 		}, null, value, arguments.length );
 	},
 
+	/**
+	 * @param {(string|Element|Window|Document|jQuery|function(this:Node,number))} html
+	 * @return {!jQuery}
+	 */
 	wrapAll: function( html ) {
 		if ( jQuery.isFunction( html ) ) {
 			return this.each(function(i) {
-				jQuery(this).wrapAll( html.call(this, i) );
+				jQuery(this).wrapAll( /** @type {function(this:Node,number)} */ ( html ).call(this, i) );
 			});
 		}
 
@@ -88,6 +96,10 @@ jQuery.fn.extend({
 		return this;
 	},
 
+	/**
+	 * @param {(string|function(number))} html
+	 * @return {!jQuery}
+	 */
 	wrapInner: function( html ) {
 		if ( jQuery.isFunction( html ) ) {
 			return this.each(function(i) {
@@ -108,6 +120,10 @@ jQuery.fn.extend({
 		});
 	},
 
+	/**
+	 * @param {(string|Element|Window|Document|jQuery|function(number))} html
+	 * @return {!jQuery}
+	 */
 	wrap: function( html ) {
 		var isFunction = jQuery.isFunction( html );
 
@@ -116,6 +132,7 @@ jQuery.fn.extend({
 		});
 	},
 
+	/** @return {!jQuery} */
 	unwrap: function() {
 		return this.parent().each(function() {
 			if ( !jQuery.nodeName( this, "body" ) ) {
@@ -127,7 +144,7 @@ jQuery.fn.extend({
 	/**
 	 * @param {(string|Element|Array.<Element>|jQuery|function(number,string))} content
 	 * @param {...(string|Element|Array.<Element>|jQuery)} content2
-	 * @return {jQuery}
+	 * @return {!jQuery}
 	 */
 	append: function( content , content2 ) {
 		return this.domManip(arguments, true, function( elem ) {
@@ -140,7 +157,7 @@ jQuery.fn.extend({
 	/**
 	 * @param {(string|Element|jQuery|function(number))} content
 	 * @param {(string|Element|Array.<Element>|jQuery)=} content2
-	 * @return {jQuery}
+	 * @return {!jQuery}
 	 */
 	prepend: function( content, content2 ) {
 		return this.domManip(arguments, true, function( elem ) {
@@ -151,9 +168,9 @@ jQuery.fn.extend({
 	},
 
 	/**
-	 * @param {(string|Element|jQuery|function())} content
+	 * @param {(string|Element|jQuery|function(this:Node,number=,Node=))} content
 	 * @param {(string|Element|Array.<Element>|jQuery)=} content2
-	 * @return {jQuery|undefined}
+	 * @return {!jQuery|undefined}
 	 */
 	before: function( content, content2 ) {
 		if ( this[0] && this[0].parentNode ) {
@@ -170,7 +187,7 @@ jQuery.fn.extend({
 	/**
 	 * @param {(string|Element|jQuery|function(number))} content
 	 * @param {(string|Element|Array.<Element>|jQuery)=} content2
-	 * @return {jQuery|undefined}
+	 * @return {!jQuery|undefined}
 	 */
 	after: function( content, content2 ) {
 		if ( this[0] && this[0].parentNode ) {
@@ -184,7 +201,11 @@ jQuery.fn.extend({
 		}
 	},
 
-	// keepData is for internal use only--do not document
+	/**
+	 * @param {string=} selector
+	 * @param {boolean=} keepData is for internal use only--do not document
+	 * @return {!jQuery}
+	 */
 	remove: function( selector, keepData ) {
 		for ( var i = 0, elem; (elem = this[i]) != null; i++ ) {
 			if ( !selector || jQuery.filter( selector, [ elem ] ).length ) {
@@ -202,6 +223,7 @@ jQuery.fn.extend({
 		return this;
 	},
 
+	/** @return {!jQuery} */
 	empty: function() {
 		for ( var i = 0, elem; (elem = this[i]) != null; i++ ) {
 			// Remove element nodes and prevent memory leaks
@@ -218,6 +240,12 @@ jQuery.fn.extend({
 		return this;
 	},
 
+	/**
+	 * @param {boolean=} dataAndEvents
+	 * @param {boolean=} deepDataAndEvents
+	 * @return {!jQuery}
+	 * @suppress {checkTypes} see closure-compiler issue 583
+	 */
 	clone: function( dataAndEvents, deepDataAndEvents ) {
 		dataAndEvents = dataAndEvents == null ? false : dataAndEvents;
 		deepDataAndEvents = deepDataAndEvents == null ? dataAndEvents : deepDataAndEvents;
@@ -227,6 +255,10 @@ jQuery.fn.extend({
 		});
 	},
 
+	/**
+	 * @param {(string|function(number,string))=} value
+	 * @return {(string|!jQuery)}
+	 */
 	html: function( value ) {
 		return jQuery.access( this, function( value ) {
 			var elem = this[0] || {},
@@ -268,6 +300,10 @@ jQuery.fn.extend({
 		}, null, value, arguments.length );
 	},
 
+	/**
+	 * @param {(string|Element|jQuery|function(number=,string=):(jQuery|Node|NodeList))} value
+	 * @return {!jQuery}
+	 */
 	replaceWith: function( value ) {
 		if ( this[0] && this[0].parentNode ) {
 			// Make sure that the elements are removed from the DOM before they are inserted
@@ -275,7 +311,7 @@ jQuery.fn.extend({
 			if ( jQuery.isFunction( value ) ) {
 				return this.each(function(i) {
 					var self = jQuery(this), old = self.html();
-					self.replaceWith( value.call( this, i, old ) );
+					self.replaceWith(/** @type {Element} */ ( /** @type {function(number=,string=):(jQuery|Node|NodeList)} */ ( value ).call( this, i, /** @type {string} */ ( old ) ) ) );
 				});
 			}
 
@@ -290,18 +326,22 @@ jQuery.fn.extend({
 				jQuery( this ).remove();
 
 				if ( next ) {
-					jQuery(next).before( value );
+					jQuery(next).before( /** @type {Element} */ ( value )  );
 				} else {
-					jQuery(parent).append( value );
+					jQuery(parent).append( /** @type {Element} */ ( value ) );
 				}
 			});
 		} else {
 			return this.length ?
-				this.pushStack( jQuery(jQuery.isFunction(value) ? value() : value), "replaceWith", value ) :
+				this.pushStack( jQuery(jQuery.isFunction(value) ? /** @type {function(number=,string=):(jQuery|Node|NodeList)} */ ( value )() : value), "replaceWith", value ) :
 				this;
 		}
 	},
 
+	/**
+	 * @param {(Element|Window|Document)=} selector
+	 * @return {!jQuery}
+	 */
 	detach: function( selector ) {
 		return this.remove( selector, true );
 	},
@@ -557,6 +597,10 @@ jQuery.expandedEach({
 	insertAfter: jQuery.fn.after,
 	replaceAll: jQuery.fn.replaceWith
 }, function( name, original ) {
+	/**
+	 * @param {(string|Element|Window|Document|jQuery)} selector
+	 * @return {!jQuery}
+	 */
 	jQuery.fn[ name ] = function( selector ) {
 		var ret = [],
 			insert = jQuery( selector ),

@@ -997,7 +997,7 @@ test("replaceWith(Function)", function() {
 
 	var y = jQuery("#yahoo")[0];
 
-	jQuery(y).replaceWith(function(){
+	jQuery(y).replaceWith(/** @type {function(number=,string=)} */ function(a,b){
 		equal( this, y, "Make sure the context is coming in correctly." );
 	});
 
