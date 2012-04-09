@@ -16,6 +16,10 @@ var runtil = /Until$/,
 	};
 
 jQuery.fn.extend({
+	/**
+	 * @param {string|Document|Window|jQuery|Element} selector
+	 * @return {!jQuery}
+	 */
 	find: function( selector ) {
 		var self = this,
 			i, l;
@@ -53,6 +57,10 @@ jQuery.fn.extend({
 		return ret;
 	},
 
+	/**
+	 * @param {string|Element|Document|Window|jQuery|NodeList} target
+	 * @return {!jQuery}
+	 */
 	has: function( target ) {
 		var targets = jQuery( target );
 		return this.filter(function() {
@@ -64,14 +72,26 @@ jQuery.fn.extend({
 		});
 	},
 
+	/**
+	 * @param {string|Element|Document|Window|Array.<Element>|function(number)|jQuery|NodeList} selector
+	 * @return {!jQuery}
+	 */
 	not: function( selector ) {
 		return this.pushStack( winnow(this, selector, false), "not", selector);
 	},
 
+	/**
+	 * @param {string|Document|Window|function(number)|Element|jQuery|Array.<Element>|NodeList} selector
+	 * @return {!jQuery}
+	 */
 	filter: function( selector ) {
 		return this.pushStack( winnow(this, selector, true), "filter", selector );
 	},
 
+	/**
+	 * @param {string|Document|Window|function(number)|jQuery|Element} selector
+	 * @return {boolean}
+	 */
 	is: function( selector ) {
 		return !!selector && (
 			typeof selector === "string" ?

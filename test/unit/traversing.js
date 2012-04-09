@@ -37,7 +37,7 @@ test("find(node|jQuery object)", function() {
 
 });
 
-test("is(String|undefined)", function() {
+test("is(String|undefined)", /** @suppress {checkTypes} */ function() {
 	expect(30);
 	ok( jQuery("#form").is("form"), "Check for element: A form must be a form" );
 	ok( !jQuery("#form").is("div"), "Check for element: A form is not a div" );
@@ -182,7 +182,7 @@ test("index(Object|String|undefined)", function() {
 	equal( jQuery("#radio2").index("#form :text") , -1, "Check for index not found within a selector" );
 });
 
-test("filter(Selector|undefined)", function() {
+test("filter(Selector|undefined)", /** @suppress {checkTypes} */ function() {
 	expect(9);
 	deepEqual( jQuery("#form input").filter(":checked").get(), q("radio2", "check1"), "filter(String)" );
 	deepEqual( jQuery("p").filter("#ap, #sndp").get(), q("ap", "sndp"), "filter('String, String')" );
@@ -327,7 +327,7 @@ test("closest(jQuery)", function() {
 	ok( $child.closest( $body.add($parent) ).is("#nothiddendiv"), "Closest ancestor retrieved." );
 });
 
-test("not(Selector|undefined)", function() {
+test("not(Selector|undefined)", /** @suppress {checkTypes} */ function() {
 	expect(11);
 	equal( jQuery("#qunit-fixture > p#ap > a").not("#google").length, 2, "not('selector')" );
 	deepEqual( jQuery("p").not(".result").get(), q("firstp", "ap", "sndp", "en", "sap", "first"), "not('.class')" );
