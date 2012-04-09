@@ -361,7 +361,7 @@ jQuery.fn.extend({
 			// timers currently will call their complete callbacks, which will dequeue
 			// but only if they were gotoEnd
 			if ( !( gotoEnd && hadTimers ) ) {
-				jQuery.dequeue( this, type );
+				jQuery.dequeue( this, /** @type {string} */ ( type ) );
 			}
 		});
 	}

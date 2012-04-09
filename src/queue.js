@@ -48,6 +48,12 @@ jQuery.extend({
 		}
 	},
 
+	/**
+	 * @param {Element} elem
+	 * @param {string=} type
+	 * @param {(Array.<function()>|function(function()))=} data
+	 * @return {undefined|string|Array.<function()>|!jQuery}
+	 */
 	queue: function( elem, type, data ) {
 		var q;
 		if ( elem ) {
@@ -66,6 +72,10 @@ jQuery.extend({
 		}
 	},
 
+	/**
+	 * @param {Element} elem
+	 * @param {string=} type
+	 */
 	dequeue: function( elem, type ) {
 		type = type || "fx";
 
@@ -99,6 +109,11 @@ jQuery.extend({
 });
 
 jQuery.fn.extend({
+	/**
+	 * @param {(string|Array.<function()>|function(function()))=} type
+	 * @param {(Array.<function()>|function(function()))=} data
+	 * @return {(Array.<Element>|!jQuery)}
+	 */
 	queue: function( type, data ) {
 		var setter = 2;
 
@@ -109,28 +124,39 @@ jQuery.fn.extend({
 		}
 
 		if ( arguments.length < setter ) {
-			return jQuery.queue( this[0], type );
+			return /** @type {!jQuery} */ ( jQuery.queue( this[0], type ) );
 		}
 
 		return data === undefined ?
 			this :
 			this.each(function() {
-				var queue = jQuery.queue( this, type, data );
+				var queue = jQuery.queue( this, /** @type {string} */ ( type ), data );
 
 				if ( type === "fx" && queue[0] !== "inprogress" ) {
 					jQuery.dequeue( this, type );
 				}
 			});
 	},
+	
+	/**
+	 * @param {string=} type
+	 * @return {!jQuery}
+	 */
 	dequeue: function( type ) {
 		return this.each(function() {
 			jQuery.dequeue( this, type );
 		});
 	},
-	// Based off of the plugin by Clint Helfers, with permission.
-	// http://blindsignals.com/index.php/2009/07/jquery-delay/
+	
+	/**
+	 * Based off of the plugin by Clint Helfers, with permission.
+	 * @see http://blindsignals.com/index.php/2009/07/jquery-delay/
+	 * @param {number} time
+	 * @param {string=} type
+	 * @return {!jQuery}
+	 */
 	delay: function( time, type ) {
-		time = jQuery.fx ? jQuery.fx.speeds[ time ] || time : time;
+		time = jQuery.fx ? jQuery.fx.speeds[ /** @type {string} */ ( time ) ] || time : time;
 		type = type || "fx";
 
 		return this.queue( type, function( next, hooks ) {
@@ -140,11 +166,20 @@ jQuery.fn.extend({
 			};
 		});
 	},
+	/**
+	 * @param {string=} type
+	 * @return {!jQuery}
+	 */
 	clearQueue: function( type ) {
 		return this.queue( type || "fx", [] );
 	},
-	// Get a promise resolved when queues of a certain type
-	// are emptied (fx is the type by default)
+	/**
+	 * Get a promise resolved when queues of a certain type
+	 * are emptied (fx is the type by default)
+	 * @param {(string|Object)=} type
+	 * @param {Object=} object
+	 * @return {jQuery.Promise}
+	 */
 	promise: function( type, object ) {
 		if ( typeof type !== "string" ) {
 			object = type;
