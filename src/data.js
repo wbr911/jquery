@@ -33,7 +33,7 @@ jQuery.extend({
 
 	/**
 	 * @param {Node|Element|Window|Document|Object} elem
-	 * @param {(string|Object.<string, *>)=} name 
+	 * @param {(string|Object.<string, *>)=} name
 	 * @param {*=} data
 	 * @param {boolean=} pvt
 	 * @return {*}
