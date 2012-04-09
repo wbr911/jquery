@@ -172,6 +172,7 @@ jQuery.offset = {
 
 jQuery.fn.extend({
 
+	/** @return {?{left:number,top:number}} */
 	position: function() {
 		if ( !this[0] ) {
 			return null;
@@ -203,6 +204,7 @@ jQuery.fn.extend({
 		};
 	},
 
+	/** @return {!jQuery} */
 	offsetParent: function() {
 		return this.map(function() {
 			var offsetParent = this.offsetParent || document.body;
@@ -219,6 +221,10 @@ jQuery.fn.extend({
 jQuery.expandedEach( {scrollLeft: "pageXOffset", scrollTop: "pageYOffset"}, function( method, prop ) {
 	var top = /Y/.test( prop );
 
+	/**
+	 * @param {number=} val
+	 * @return {(number|!jQuery)}
+	 */
 	jQuery.fn[ method ] = function( val ) {
 		return jQuery.access( this, function( elem, method, val ) {
 			var win = getWindow( elem );
