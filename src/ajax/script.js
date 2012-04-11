@@ -56,12 +56,14 @@ jQuery.ajaxTransport( "script",
 				script.src = s.url;
 
 				// Attach handlers for all browsers
-				script.onload = script.onreadystatechange = /** @type {(function(Event, boolean)|null)} */ (function( _, isAbort ) {
+				script.onload = script.onreadystatechange = /** @type {(function(Event)|null)} */ (function( _ ) {
+					/** @type {boolean} */
+					var isAbort = arguments[1];
 
 					if ( isAbort || !script.readyState || /loaded|complete/.test( script.readyState ) ) {
 
 						// Handle memory leak in IE
-						script.onload = script.onreadystatechange = /** @type {function(Event, boolean)} */ (null);
+						script.onload = script.onreadystatechange = /** @type {function(Event)} */ (null);
 
 						// Remove the script
 						if ( head && script.parentNode ) {
@@ -84,7 +86,7 @@ jQuery.ajaxTransport( "script",
 
 			abort: function() {
 				if ( script ) {
-					script.onload( 0, 1 );
+					script.onload.apply( script, [0, 1] );
 				}
 			}
 		};
