@@ -1,40 +1,37 @@
 (function( jQuery ) {
 
-jQuery.support = (function() {
+var all,
+	a,
+	select,
+	opt,
+	input,
+	fragment,
+	tds,
+	events,
+	eventName,
+	i,
+	isSupported,
+	div = document.createElement( "div" ),
+	documentElement = document.documentElement;
 
-	var support,
-		all,
-		a,
-		select,
-		opt,
-		input,
-		fragment,
-		tds,
-		events,
-		eventName,
-		i,
-		isSupported,
-		div = document.createElement( "div" ),
-		documentElement = document.documentElement;
+// Preliminary tests
+div.setAttribute("className", "t");
+div.innerHTML = "   <link/><table></table><a href='/a' style='top:1px;float:left;opacity:.55;'>a</a><input type='checkbox'/>";
 
-	// Preliminary tests
-	div.setAttribute("className", "t");
-	div.innerHTML = "   <link/><table></table><a href='/a' style='top:1px;float:left;opacity:.55;'>a</a><input type='checkbox'/>";
+all = div.getElementsByTagName( "*" );
+a = div.getElementsByTagName( "a" )[ 0 ];
 
-	all = div.getElementsByTagName( "*" );
-	a = div.getElementsByTagName( "a" )[ 0 ];
+jQuery.support = {};
 
-	// Can't get basic test support
-	if ( !all || !all.length || !a ) {
-		return {};
-	}
+// Can't get basic test support
+if ( all && all.length && a ) {
 
 	// First batch of supports tests
 	select = document.createElement( "select" );
 	opt = select.appendChild( document.createElement("option") );
 	input = div.getElementsByTagName( "input" )[ 0 ];
 
-	support = {
+	jQuery.support = {
 		// IE strips leading whitespace when .innerHTML is used
 		leadingWhitespace: ( div.firstChild.nodeType === 3 ),
 
@@ -95,30 +92,30 @@ jQuery.support = (function() {
 	};
 
 	// jQuery.boxModel DEPRECATED in 1.3, use jQuery.support.boxModel instead
-	jQuery.boxModel = support.boxModel = (document.compatMode === "CSS1Compat");
+	jQuery.boxModel = jQuery.support.boxModel = (document.compatMode === "CSS1Compat");
 
 	// Make sure checked status is properly cloned
 	input.checked = true;
-	support.noCloneChecked = input.cloneNode( true ).checked;
+	jQuery.support.noCloneChecked = input.cloneNode( true ).checked;
 
 	// Make sure that the options inside disabled selects aren't marked as disabled
 	// (WebKit marks them as disabled)
 	select.disabled = true;
-	support.optDisabled = !opt.disabled;
+	jQuery.support.optDisabled = !opt.disabled;
 
 	// Test to see if it's possible to delete an expando from an element
 	// Fails in Internet Explorer
 	try {
 		delete div["test"];
 	} catch( e ) {
-		support.deleteExpando = false;
+		jQuery.support.deleteExpando = false;
 	}
 
 	if ( !div.addEventListener && div.attachEvent && div.fireEvent ) {
 		div.attachEvent( "onclick", function() {
 			// Cloning a node shouldn't copy over any
 			// bound event handlers (IE does this)
-			support.noCloneEvent = false;
+			jQuery.support.noCloneEvent = false;
 		});
 		div.cloneNode( true ).fireEvent( "onclick" );
 	}
@@ -128,7 +125,7 @@ jQuery.support = (function() {
 	input = document.createElement("input");
 	input.value = "t";
 	input.setAttribute("type", "radio");
-	support.radioValue = input.value === "t";
+	jQuery.support.radioValue = input.value === "t";
 
 	input.setAttribute("checked", "checked");
 
@@ -140,11 +137,11 @@ jQuery.support = (function() {
 	fragment.appendChild( div.lastChild );
 
 	// WebKit doesn't clone checked state correctly in fragments
-	support.checkClone = fragment.cloneNode( true ).cloneNode( true ).lastChild.checked;
+	jQuery.support.checkClone = fragment.cloneNode( true ).cloneNode( true ).lastChild.checked;
 
 	// Check if a disconnected checkbox will retain its checked
 	// value of true after appended to the DOM (IE6/7)
-	support.appendChecked = input.checked;
+	jQuery.support.appendChecked = input.checked;
 
 	fragment.removeChild( input );
 	fragment.appendChild( div );
@@ -167,7 +164,7 @@ jQuery.support = (function() {
 				div.setAttribute( eventName, "return;" );
 				isSupported = ( typeof div[ eventName ] === "function" );
 			}
-			support[ i + "Bubbles" ] = isSupported;
+			jQuery.support[ i + "Bubbles" ] = isSupported;
 		}
 	}
 
@@ -221,7 +218,7 @@ jQuery.support = (function() {
 
 		// Check if empty table cells still have offsetWidth/Height
 		// (IE <= 8 fail this test)
-		support.reliableHiddenOffsets = isSupported && ( tds[ 0 ].offsetHeight === 0 );
+		jQuery.support.reliableHiddenOffsets = isSupported && ( tds[ 0 ].offsetHeight === 0 );
 
 		// Check if div with explicit width and no margin-right incorrectly
 		// gets computed margin-right based on width of container. For more
@@ -235,7 +232,7 @@ jQuery.support = (function() {
 			marginDiv.style.marginRight = "0";
 			div.style.width = "2px";
 			div.appendChild( marginDiv );
-			support.reliableMarginRight =
+			jQuery.support.reliableMarginRight =
 				( parseInt( ( window.getComputedStyle( marginDiv, null ) || { marginRight: 0 } ).marginRight, 10 ) || 0 ) === 0;
 		}
 
@@ -250,14 +247,14 @@ jQuery.support = (function() {
 			div.style.overflow = "hidden";
 			div.style.display = "inline";
 			div.style.zoom = 1;
-			support.inlineBlockNeedsLayout = ( div.offsetWidth === 3 );
+			jQuery.support.inlineBlockNeedsLayout = ( div.offsetWidth === 3 );
 
 			// Check if elements with layout shrink-wrap their children
 			// (IE 6 does this)
 			div.style.display = "block";
 			div.style.overflow = "visible";
 			div.innerHTML = "<div style='width:5px;'></div>";
-			support.shrinkWrapBlocks = ( div.offsetWidth !== 3 );
+			jQuery.support.shrinkWrapBlocks = ( div.offsetWidth !== 3 );
 		}
 
 		div.style.cssText = positionTopLeftWidthHeight + paddingMarginBorderVisibility;
@@ -287,7 +284,7 @@ jQuery.support = (function() {
 
 		if ( window.getComputedStyle ) {
 			div.style.marginTop = "1%";
-			support.pixelMargin = ( window.getComputedStyle( div, null ) || { marginTop: 0 } ).marginTop !== "1%";
+			jQuery.support.pixelMargin = ( window.getComputedStyle( div, null ) || { marginTop: 0 } ).marginTop !== "1%";
 		}
 
 		if ( typeof container.style.zoom !== "undefined" ) {
@@ -297,10 +294,8 @@ jQuery.support = (function() {
 		body.removeChild( container );
 		marginDiv = div = container = null;
 
-		jQuery.extend( support, offsetSupport );
+		jQuery.extend( jQuery.support, offsetSupport );
 	});
-
-	return support;
-})();
+}
 
 })( jQuery );
