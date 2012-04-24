@@ -1,5 +1,7 @@
 (function( jQuery ) {
 
+if (!jQuery.ASSUME_NO_AJAX) {
+
 var jsc = jQuery.now(),
 	jsre = /(\=)\?(&|$)|\?\?/i;
 
@@ -74,5 +76,7 @@ jQuery.ajaxPrefilter( "json jsonp", function( s, originalSettings, jqXHR ) {
 		return "script";
 	}
 });
+
+}
 
 })( jQuery );

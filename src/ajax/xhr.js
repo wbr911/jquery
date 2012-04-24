@@ -1,5 +1,7 @@
 (function( jQuery ) {
 
+if (!jQuery.ASSUME_NO_AJAX) {
+
 var /**
 	 * #5280: Internet Explorer will keep connections alive if we don't abort on unload
 	 * @type {function(jQuery.Event=)|boolean}
@@ -226,6 +228,8 @@ if ( jQuery.support.ajax ) {
 			};
 		}
 	});
+}
+
 }
 
 })( jQuery );

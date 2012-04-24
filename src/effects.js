@@ -1,5 +1,7 @@
 (function( jQuery ) {
 
+if (!jQuery.ASSUME_NO_EFFECTS) {
+
 var elemdisplay = {},
 	iframe, iframeDoc,
 	fxmap = {},
@@ -784,6 +786,8 @@ function defaultDisplay( nodeName ) {
 	}
 
 	return elemdisplay[ nodeName ];
+}
+
 }
 
 })( jQuery );

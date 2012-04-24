@@ -21,6 +21,12 @@ var jQuery = function( selector, context ) {
 	};
 
 
+/** @define {boolean} */
+jQuery.ASSUME_NO_AJAX = false;
+
+/** @define {boolean} */
+jQuery.ASSUME_NO_EFFECTS = false;
+
 // A central reference to the root jQuery(document)
 var rootjQuery,
 

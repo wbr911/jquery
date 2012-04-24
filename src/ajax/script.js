@@ -1,5 +1,7 @@
 (function( jQuery ) {
 
+if (!jQuery.ASSUME_NO_AJAX) {
+
 // Install script dataType
 jQuery.ajaxSetup(/** @type {jQuery.AjaxSettings} */{
 	accepts: {
@@ -92,5 +94,7 @@ jQuery.ajaxTransport( "script",
 		};
 	}
 });
+
+}
 
 })( jQuery );
