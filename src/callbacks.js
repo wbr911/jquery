@@ -15,6 +15,13 @@ function createFlags( flags ) {
 }
 
 /**
+ * Actual Callbacks object
+ * @constructor
+ * @private
+ */
+jQuery.callbacks = function() {};
+
+/**
  * Create a callback list using the following parameters:
  *
  *	@param {string=} flags:	an optional list of space-separated flags that will change how
@@ -109,121 +116,162 @@ jQuery.Callbacks = function( flags ) {
 					list = [];
 				}
 			}
-		},
-		// Actual Callbacks object
-		self = /** @type {jQuery.callbacks} */ {
-			// Add a callback or a collection of callbacks to the list
-			add: function() {
-				if ( list ) {
-					var length = list.length;
-					add( arguments );
-					// Do we need to add the callbacks to the
-					// current firing batch?
-					if ( firing ) {
-						firingLength = list.length;
-					// With memory, if we're not firing then
-					// we should call right away, unless previous
-					// firing was halted (stopOnFalse)
-					} else if ( memory && memory !== true ) {
-						firingStart = length;
-						fire( memory[ 0 ], memory[ 1 ] );
-					}
+		};
+	
+	jQuery.callbacks.prototype = {
+		/**
+		 * Add a callback or a collection of callbacks to the list
+		 * @param {...Function|Array.<Function>} callbacks
+		 * @return {Object}
+		 */
+		add: function(callbacks) {
+			if ( list ) {
+				var length = list.length;
+				add( arguments );
+				// Do we need to add the callbacks to the
+				// current firing batch?
+				if ( firing ) {
+					firingLength = list.length;
+				// With memory, if we're not firing then
+				// we should call right away, unless previous
+				// firing was halted (stopOnFalse)
+				} else if ( memory && memory !== true ) {
+					firingStart = length;
+					fire( memory[ 0 ], memory[ 1 ] );
 				}
-				return this;
-			},
-			// Remove a callback from the list
-			remove: function() {
-				if ( list ) {
-					var args = arguments,
-						argIndex = 0,
-						argLength = args.length;
-					for ( ; argIndex < argLength ; argIndex++ ) {
-						for ( var i = 0; i < list.length; i++ ) {
-							if ( args[ argIndex ] === list[ i ] ) {
-								// Handle firingIndex and firingLength
-								if ( firing ) {
-									if ( i <= firingLength ) {
-										firingLength--;
-										if ( i <= firingIndex ) {
-											firingIndex--;
-										}
+			}
+			return this;
+		},
+		/**
+		 * Remove a callback from the list
+		 * @param {...Function|Array.<Function>} callbacks
+		 * @return {Object}
+		 */
+		remove: function(callbacks) {
+			if ( list ) {
+				var args = arguments,
+					argIndex = 0,
+					argLength = args.length;
+				for ( ; argIndex < argLength ; argIndex++ ) {
+					for ( var i = 0; i < list.length; i++ ) {
+						if ( args[ argIndex ] === list[ i ] ) {
+							// Handle firingIndex and firingLength
+							if ( firing ) {
+								if ( i <= firingLength ) {
+									firingLength--;
+									if ( i <= firingIndex ) {
+										firingIndex--;
 									}
 								}
-								// Remove the element
-								list.splice( i--, 1 );
-								// If we have some unicity property then
-								// we only need to do this once
-								if ( flags["unique"] ) {
-									break;
-								}
+							}
+							// Remove the element
+							list.splice( i--, 1 );
+							// If we have some unicity property then
+							// we only need to do this once
+							if ( flags["unique"] ) {
+								break;
 							}
 						}
 					}
 				}
-				return this;
-			},
-			// Control if a given callback is in the list
-			has: function( fn ) {
-				if ( list ) {
-					var i = 0,
-						length = list.length;
-					for ( ; i < length; i++ ) {
-						if ( fn === list[ i ] ) {
-							return true;
-						}
-					}
-				}
-				return false;
-			},
-			// Remove all callbacks from the list
-			empty: function() {
-				list = [];
-				return this;
-			},
-			// Have the list do nothing anymore
-			disable: function() {
-				list = stack = memory = undefined;
-				return this;
-			},
-			// Is it disabled?
-			disabled: function() {
-				return !list;
-			},
-			// Lock the list in its current state
-			lock: function() {
-				stack = undefined;
-				if ( !memory || memory === true ) {
-					self.disable();
-				}
-				return this;
-			},
-			// Is it locked?
-			locked: function() {
-				return !stack;
-			},
-			// Call all callbacks with the given context and arguments
-			fireWith: function( context, args ) {
-				if ( stack ) {
-					if ( firing ) {
-						if ( !flags["once"] ) {
-							stack.push( [ context, args ] );
-						}
-					} else if ( !( flags["once"] && memory ) ) {
-						fire( context, args );
-					}
-				}
-				return this;
-			},
-			// Call all the callbacks with the given arguments
-			fire: function() {
-				self.fireWith( this, arguments );
-				return this;
-			},
-			// To know if the callbacks have already been called at least once
-			fired: function() {
-				return !!fired;
 			}
-		};
+			return this;
+		},
+		/**
+		 * Control if a given callback is in the list
+		 * @param {Function} fn
+		 * @return {boolean}
+		 */
+		has: function( fn ) {
+			if ( list ) {
+				var i = 0,
+					length = list.length;
+				for ( ; i < length; i++ ) {
+					if ( fn === list[ i ] ) {
+						return true;
+					}
+				}
+			}
+			return false;
+		},
+		/**
+		 * Remove all callbacks from the list
+		 * @return {Object}
+		 */
+		empty: function() {
+			list = [];
+			return this;
+		},
+		/**
+		 * Have the list do nothing anymore
+		 * @return {Object}
+		 */
+		disable: function() {
+			list = stack = memory = undefined;
+			return this;
+		},
+		/**
+		 * Is it disabled?
+		 * @return {boolean}
+		 */
+		disabled: function() {
+			return !list;
+		},
+		/**
+		 * Lock the list in its current state
+		 * @return {Object}
+		 */
+		lock: function() {
+			stack = undefined;
+			if ( !memory || memory === true ) {
+				self.disable();
+			}
+			return this;
+		},
+		/**
+		 * Is it locked?
+		 * @return {boolean}
+		 */
+		locked: function() {
+			return !stack;
+		},
+		/**
+		 * Call all callbacks with the given context and arguments
+		 * @param {Object} context
+		 * @param {...*} args
+		 * @return {Object}
+		 */
+		fireWith: function( context, args ) {
+			if ( stack ) {
+				if ( firing ) {
+					if ( !flags["once"] ) {
+						stack.push( [ context, args ] );
+					}
+				} else if ( !( flags["once"] && memory ) ) {
+					fire( context, args );
+				}
+			}
+			return this;
+		},
+		/**
+		 * Call all the callbacks with the given arguments
+		 * @param {...*} args
+		 * @return {Object}
+		 */
+		fire: function(args) {
+			self.fireWith( this, arguments );
+			return this;
+		},
+		/**
+		 * To know if the callbacks have already been called at least once
+		 * @return {boolean}
+		 */
+		fired: function() {
+			return !!fired;
+		}
+	};
+
+	var self = new jQuery.callbacks;
 
 	return self;
 };
