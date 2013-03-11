@@ -16,13 +16,20 @@
 	</style>
 </head>
 <body>
-	<div>
-		<script src="../../jquery.js"></script>
+	<div><script>
+		if ( parent.location.search.search( /(\?|&)closureCompiler=true/ ) >= 0 ) {
+			document.write( "<script src='../../../build/closure-compiler/jquery_compiled.js'><\/script>" );
+		} else {
+			document.write( "<script src='../../../dist/jquery.min.js'><\/script>" );
+		}
+	</script>
 	</div>
 	<script>
-		jQuery(function() {
-			window.parent.iframeCallback( jQuery( "body" ).css( "backgroundColor" ), jQuery.support );
-		});
+		if ( parent.location.search.search( /(\?|&)closureCompiler=true/ ) >= 0 ) {
+			document.write( "<script src='../../../build/closure-compiler/bodyBackground_data.js'><\/script>" );
+		} else {
+			document.write( "<script src='bodyBackground.js'><\/script>" );
+		}
 	</script>
 </body>
 </html>

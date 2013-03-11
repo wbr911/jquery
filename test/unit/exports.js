@@ -1,4 +1,4 @@
-module("exports", { teardown: moduleTeardown });
+module("exports", { "teardown": moduleTeardown });
 
 test("amdModule", function() {
 	expect(1);

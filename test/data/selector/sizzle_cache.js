@@ -1,0 +1,1 @@
+window["$cached"] = jQuery.noConflict(true);

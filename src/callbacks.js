@@ -40,32 +40,32 @@ jQuery.Callbacks = function( options ) {
 		( optionsCache[ options ] || createOptions( options ) ) :
 		jQuery.extend( {}, options );
 
-	var // Last fire value (for non-forgettable lists)
+	var // Flag to know if list is currently firing
+		firing,
+		// Last fire value (for non-forgettable lists)
 		memory,
 		// Flag to know if list was already fired
 		fired,
-		// Flag to know if list is currently firing
-		firing,
-		// First callback to fire (used internally by add and fireWith)
-		firingStart,
 		// End of the loop when firing
 		firingLength,
 		// Index of currently firing callback (modified by remove if needed)
 		firingIndex,
+		// First callback to fire (used internally by add and fireWith)
+		firingStart,
 		// Actual callback list
 		list = [],
 		// Stack of fire calls for repeatable lists
-		stack = !options.once && [],
+		stack = !options["once"] && [],
 		// Fire callbacks
 		fire = function( data ) {
-			memory = options.memory && data;
+			memory = options["memory"] && data;
 			fired = true;
 			firingIndex = firingStart || 0;
 			firingStart = 0;
 			firingLength = list.length;
 			firing = true;
 			for ( ; list && firingIndex < firingLength; firingIndex++ ) {
-				if ( list[ firingIndex ].apply( data[ 0 ], data[ 1 ] ) === false && options.stopOnFalse ) {
+				if ( list[ firingIndex ].apply( data[ 0 ], data[ 1 ] ) === false && options["stopOnFalse"] ) {
 					memory = false; // To prevent further calls using add
 					break;
 				}
@@ -94,7 +94,7 @@ jQuery.Callbacks = function( options ) {
 						jQuery.each( args, function( _, arg ) {
 							var type = jQuery.type( arg );
 							if ( type === "function" ) {
-								if ( !options.unique || !self.has( arg ) ) {
+								if ( !options["unique"] || !self.has( arg ) ) {
 									list.push( arg );
 								}
 							} else if ( arg && arg.length && type !== "string" ) {
@@ -145,7 +145,6 @@ jQuery.Callbacks = function( options ) {
 			// Remove all callbacks from the list
 			empty: function() {
 				list = [];
-				firingLength = 0;
 				return this;
 			},
 			// Have the list do nothing anymore

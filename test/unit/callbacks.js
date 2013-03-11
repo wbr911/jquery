@@ -1,5 +1,5 @@
 module( "callbacks", {
-	teardown: moduleTeardown
+	"teardown": moduleTeardown
 });
 
 (function() {
@@ -91,22 +91,6 @@ jQuery.each( tests, function( strFlags, resultString ) {
 					strictEqual( output, "X", "Adding a callback after disabling" );
 					cblist.fire("A");
 					strictEqual( output, "X", "Firing after disabling" );
-
-					// #13517 - Emptying while firing
-					cblist = jQuery.Callbacks( flags );
-					cblist.add( cblist.empty );
-					cblist.add( function() {
-						ok( false, "not emptied" );
-					} );
-					cblist.fire();
-
-					// Disabling while firing
-					cblist = jQuery.Callbacks( flags );
-					cblist.add( cblist.disable );
-					cblist.add( function() {
-						ok( false, "not disabled" );
-					} );
-					cblist.fire();
 
 					// Basic binding and firing (context, arguments)
 					output = "X";

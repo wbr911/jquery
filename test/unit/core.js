@@ -1,4 +1,4 @@
-module("core", { teardown: moduleTeardown });
+module("core", { "teardown": moduleTeardown });
 
 test("Unit Testing Environment", function () {
 	expect(2);
@@ -28,12 +28,13 @@ test("jQuery()", function() {
 
 	var elem, i,
 		obj = jQuery("div"),
+		main = jQuery("#qunit-fixture"),
 		code = jQuery("<code/>"),
 		img = jQuery("<img/>"),
 		div = jQuery("<div/><hr/><code/><b/>"),
 		exec = false,
 		lng = "",
-		expected = 20,
+		expected = 21,
 		attrObj = {
 			"text": "test",
 			"class": "test2",
@@ -76,6 +77,8 @@ test("jQuery()", function() {
 
 	// can actually yield more than one, when iframes are included, the window is an array as well
 	equal( jQuery(window).length, 1, "Correct number of elements generated for jQuery(window)" );
+
+	deepEqual( jQuery("div p", main).get(), q("sndp", "en", "sap"), "Basic selector with jQuery object as context" );
 
 /*
 	// disabled since this test was doing nothing. i tried to fix it but i'm not sure
@@ -151,13 +154,6 @@ test("jQuery()", function() {
 	}
 });
 
-test("jQuery(selector, context)", function() {
-	expect(3);
-	deepEqual( jQuery("div p", "#qunit-fixture").get(), q("sndp", "en", "sap"), "Basic selector with string as context" );
-	deepEqual( jQuery("div p", q("qunit-fixture")[0]).get(), q("sndp", "en", "sap"), "Basic selector with element as context" );
-	deepEqual( jQuery("div p", jQuery("#qunit-fixture")).get(), q("sndp", "en", "sap"), "Basic selector with jQuery object as context" );
-});
-
 test( "selector state", function() {
 	expect( 18 );
 
@@ -206,13 +202,13 @@ test( "globalEval", function() {
 	Globals.register("globalEvalTest");
 
 	jQuery.globalEval("globalEvalTest = 1;");
-	equal( window.globalEvalTest, 1, "Test variable assignments are global" );
+	equal( window["globalEvalTest"], 1, "Test variable assignments are global" );
 
 	jQuery.globalEval("var globalEvalTest = 2;");
-	equal( window.globalEvalTest, 2, "Test variable declarations are global" );
+	equal( window["globalEvalTest"], 2, "Test variable declarations are global" );
 
 	jQuery.globalEval("this.globalEvalTest = 3;");
-	equal( window.globalEvalTest, 3, "Test context (this) is the window object" );
+	equal( window["globalEvalTest"], 3, "Test context (this) is the window object" );
 });
 
 test("noConflict", function() {
@@ -344,7 +340,7 @@ asyncTest("isPlainObject", function() {
 	ok( pass, "Does not throw exceptions on host objects" );
 
 	// Objects from other windows should be matched
-	window.iframeCallback = function( otherObject, detail ) {
+	window["iframeCallback"] = function( otherObject, detail ) {
 		window.iframeCallback = undefined;
 		iframe.parentNode.removeChild( iframe );
 		ok( jQuery.isPlainObject(new otherObject()), "new otherObject" + ( detail ? " - " + detail : "" ) );
@@ -804,12 +800,12 @@ test("jQuery.map", function() {
 	});
 	equal( result.join(""), "345", "Map the values from an array" );
 
-	result = jQuery.map( { a: 1, b: 2 }, function( v, k ) {
+	result = jQuery.map( { "a": 1, "b": 2 }, function( v, k ) {
 		return k;
 	});
 	equal( result.join(""), "ab", "Map the keys from an object" );
 
-	result = jQuery.map( { a: 1, b: 2 }, function( v, k ) {
+	result = jQuery.map( { "a": 1, "b": 2 }, function( v, k ) {
 		return v;
 	});
 	equal( result.join(""), "12", "Map the values from an object" );
@@ -819,7 +815,7 @@ test("jQuery.map", function() {
 	});
 	equal( result.join(""), "ab", "Array iteration does not include undefined/null results" );
 
-	result = jQuery.map( { a: "a", b: undefined, c: null, d: "b" }, function( v, k ) {
+	result = jQuery.map( { "a": "a", "b": undefined, "c": null, "d": "b" }, function( v, k ) {
 		return v;
 	});
 	equal( result.join(""), "ab", "Object iteration does not include undefined/null results" );
@@ -834,7 +830,7 @@ test("jQuery.map", function() {
 	};
 	for ( i in result ) {
 		label = i;
-		result[ i ].foo = "bar";
+		result[ i ]["foo"] = "bar";
 		jQuery.map( result[ i ], callback );
 	}
 
@@ -945,8 +941,8 @@ test("jQuery.extend(Object, Object)", function() {
 	ok( jQuery.extend(true, {}, nestedarray)["arr"] !== arr, "Deep extend of object must clone child array" );
 
 	// #5991
-	ok( jQuery.isArray( jQuery.extend(true, { "arr": {} }, nestedarray)["arr"] ), "Cloned array have to be an Array" );
-	ok( jQuery.isPlainObject( jQuery.extend(true, { "arr": arr }, { "arr": {} })["arr"] ), "Cloned object have to be an plain object" );
+	ok( jQuery.isArray( jQuery.extend(true, { "arr": {} }, nestedarray)["arr"] ), "Cloned array heve to be an Array" );
+	ok( jQuery.isPlainObject( jQuery.extend(true, { "arr": arr }, { "arr": {} })["arr"] ), "Cloned object heve to be an plain object" );
 
 	var empty = {};
 	var optionsWithLength = { "foo": { "length": -1 } };
@@ -974,7 +970,7 @@ test("jQuery.extend(Object, Object)", function() {
 
 	var MyNumber = Number;
 	var ret = jQuery.extend(true, { "foo": 4 }, { "foo": new MyNumber(5) } );
-	ok( ret.foo == 5, "Wrapped numbers copy correctly" );
+	ok( ret["foo"] == 5, "Wrapped numbers copy correctly" );
 
 	var nullUndef;
 	nullUndef = jQuery.extend({}, options, { "xnumber2": null });
@@ -992,10 +988,10 @@ test("jQuery.extend(Object, Object)", function() {
 	deepEqual( target, { bar:5 }, "Check to make sure a recursive obj doesn't go never-ending loop by not copying it over" );
 
 	ret = jQuery.extend(true, { foo: [] }, { foo: [0] } ); // 1907
-	equal( ret.foo.length, 1, "Check to make sure a value with coercion 'false' copies over when necessary to fix #1907" );
+	equal( ret.foo.length, 1, "Check to make sure a value with coersion 'false' copies over when necessary to fix #1907" );
 
 	ret = jQuery.extend(true, { foo: "1,2,3" }, { foo: [1, 2, 3] } );
-	ok( typeof ret.foo != "string", "Check to make sure values equal with coercion (but not actually equal) overwrite correctly" );
+	ok( typeof ret.foo != "string", "Check to make sure values equal with coersion (but not actually equal) overwrite correctly" );
 
 	ret = jQuery.extend(true, { foo:"bar" }, { foo:null } );
 	ok( typeof ret.foo !== "undefined", "Make sure a null value doesn't crash with deep extend, for #1908" );
@@ -1021,27 +1017,6 @@ test("jQuery.extend(Object, Object)", function() {
 	deepEqual( defaults, defaultsCopy, "Check if not modified: options1 must not be modified" );
 	deepEqual( options1, options1Copy, "Check if not modified: options1 must not be modified" );
 	deepEqual( options2, options2Copy, "Check if not modified: options2 must not be modified" );
-});
-
-test("jQuery.extend(true,{},{a:[], o:{}}); deep copy with array, followed by object", function() {
-	expect(2);
-
-	var result, initial = {
-		// This will make "copyIsArray" true
-		array: [ 1, 2, 3, 4 ],
-		// If "copyIsArray" doesn't get reset to false, the check
-		// will evaluate true and enter the array copy block
-		// instead of the object copy block. Since the ternary in the
-		// "copyIsArray" block will will evaluate to false
-		// (check if operating on an array with ), this will be
-		// replaced by an empty array.
-		object: {}
-	};
-
-	result = jQuery.extend( true, {}, initial );
-
-	deepEqual( result, initial, "The [result] and [initial] have equal shape and values" );
-	ok( !jQuery.isArray( result.object ), "result.object wasn't paved with an empty array" );
 });
 
 test("jQuery.each(Object,Function)", function() {
@@ -1071,23 +1046,23 @@ test("jQuery.each(Object,Function)", function() {
 	deepEqual( seen, [ 1, 2 ] , "Broken array iteration" );
 
 	seen = [];
-	jQuery.each( {"a": 1, "b": 2,"c": 3 }, function( k, v ) {
+	jQuery.each( {"a": 1, "b": 2, "c": 3 }, function( k, v ) {
 		seen.push( v );
 		return false;
 	});
 	deepEqual( seen, [ 1 ], "Broken object iteration" );
 
 	seen = {
-		Zero: function() {},
-		One: function( a ) {},
-		Two: function( a, b ) {}
+		"Zero": function() {},
+		"One": function( a ) {},
+		"Two": function( a, b ) {}
 	};
 	callback = function( k, v ) {
 		equal( k, "foo", label + "-argument function treated like object" );
 	};
 	for ( i in seen ) {
 		label = i;
-		seen[ i ].foo = "bar";
+		seen[ i ]["foo"] = "bar";
 		jQuery.each( seen[ i ], callback );
 	}
 
@@ -1274,13 +1249,11 @@ test("jQuery.parseHTML", function() {
 	equal( jQuery.parseHTML(" <div/> ")[0].nodeType, 3, "Leading spaces are treated as text nodes (#11290)" );
 
 	html = jQuery.parseHTML( "<div>test div</div>" );
-
 	equal( html[ 0 ].parentNode.nodeType, 11, "parentNode should be documentFragment" );
 	equal( html[ 0 ].innerHTML, "test div", "Content should be preserved" );
 
 	equal( jQuery.parseHTML("<span><span>").length, 1, "Incorrect html-strings should not break anything" );
-	equal( jQuery.parseHTML("<td><td>")[ 1 ].parentNode.nodeType, 11,
-		"parentNode should be documentFragment for wrapMap (variable in manipulation module) elements too" );
+	equal( jQuery.parseHTML("<td><td>")[ 1 ].parentNode.nodeType, 11, "parentNode should be documentFragment" );
 });
 
 test("jQuery.parseJSON", function(){

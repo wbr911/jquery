@@ -1,6 +1,6 @@
 if ( jQuery.fn.width ) {
 
-module("dimensions", { teardown: moduleTeardown });
+module("dimensions", { "teardown": moduleTeardown });
 
 var pass = function( val ) {
 	return val;
@@ -68,7 +68,7 @@ test("width(Function(args))", function() {
 
 	var $div = jQuery("#nothiddendiv");
 	$div.width( 30 ).width(function(i, width) {
-		equal( width, 30, "Make sure previous value is correct." );
+		equal( width, 30, "Make sure previous value is corrrect." );
 		return width + 1;
 	});
 
@@ -119,7 +119,7 @@ test("height(Function(args))", function() {
 
 	var $div = jQuery("#nothiddendiv");
 	$div.height( 30 ).height(function(i, height) {
-		equal( height, 30, "Make sure previous value is correct." );
+		equal( height, 30, "Make sure previous value is corrrect." );
 		return height + 1;
 	});
 
@@ -271,7 +271,7 @@ test("child of a hidden elem (or unconnected node) has accurate inner/outer/Widt
 	$divNormal.remove();
 });
 
-test("getting dimensions shouldn't modify runtimeStyle see #9233", function() {
+test("getting dimensions shouldnt modify runtimeStyle see #9233", function() {
 	expect( 1 );
 
 	var $div = jQuery( "<div>" ).appendTo( "#qunit-fixture" ),
@@ -288,7 +288,7 @@ test("getting dimensions shouldn't modify runtimeStyle see #9233", function() {
 	if ( runtimeStyle ) {
 		equal( div.runtimeStyle.left, "11em", "getting dimensions modifies runtimeStyle, see #9233" );
 	} else {
-		ok( true, "this browser doesn't support runtimeStyle, see #9233" );
+		ok( true, "this browser doesnt support runtimeStyle, see #9233" );
 	}
 
 	$div.remove();
@@ -296,8 +296,8 @@ test("getting dimensions shouldn't modify runtimeStyle see #9233", function() {
 
 test( "table dimensions", 2, function() {
 	var table = jQuery("<table><colgroup><col/><col/></colgroup><tbody><tr><td></td><td>a</td></tr><tr><td></td><td>a</td></tr></tbody></table>").appendTo("#qunit-fixture"),
-		tdElem = table.find("td").first(),
-		colElem = table.find("col").first().width( 300 );
+		tdElem = table.find("tr:eq(0) td:eq(0)"),
+		colElem = table.find("col:eq(1)").width( 300 );
 
 	table.find("td").css({ "margin": 0, "padding": 0 });
 

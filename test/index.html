@@ -16,7 +16,28 @@
 	<script src="qunit/qunit/qunit.js"></script>
 	<script>
 		(function() {
-			var src = "../dist/jquery.min.js";
+			var src = "../dist/jquery.min.js",
+				tests = [
+					"unit/core.js",
+					"unit/callbacks.js",
+					"unit/deferred.js",
+					"unit/support.js",
+					"unit/data.js",
+					"unit/queue.js",
+					"unit/attributes.js",
+					"unit/event.js",
+					"unit/selector.js",
+					"unit/traversing.js",
+					"unit/manipulation.js",
+					"unit/css.js",
+					"unit/serialize.js",
+					"unit/ajax.js",
+					"unit/effects.js",
+					"unit/offset.js",
+					"unit/dimensions.js",
+					"unit/deprecated.js",
+					"unit/exports.js"
+				];
 
 			// Config parameter to use minified jQuery
 			QUnit.config.urlConfig.push({
@@ -26,6 +47,18 @@
 			});
 			if ( QUnit.urlParams.dev ) {
 				src = "../dist/jquery.js";
+			}
+
+			// Config parameter to use minified jQuery
+			QUnit.config.urlConfig.push({
+				id: "closureCompiler",
+				label: "Load compiled",
+				tooltip: "Load the closure-compiler tests"
+			});
+			
+			if ( QUnit.urlParams.closureCompiler ) {
+				src = "../build/closure-compiler/jquery_compiled.js";
+				tests = ["../build/closure-compiler/tests_compiled.js"];
 			}
 
 			// Config parameter to force basic code paths
@@ -41,31 +74,13 @@
 			}
 
 			// Load jQuery
-			document.write( "<script id='jquery-js' src='" + src + "'><\x2Fscript>" );
+			document.write( "<script src='" + src + "'><\/script>" );
+			document.write( "<script src='data/testrunner.js'><\/script>" );
+			for(var i = 0; i < tests.length; i++) {
+				document.write( "<script src='" + tests[i] + "'><\/script>" );
+			}
 		})();
 	</script>
-	<script src="data/testrunner.js"></script>
-
-	<script src="unit/core.js"></script>
-	<script src="unit/callbacks.js"></script>
-	<script src="unit/deferred.js"></script>
-	<script src="unit/support.js"></script>
-	<script src="unit/data.js"></script>
-	<script src="unit/queue.js"></script>
-	<script src="unit/attributes.js"></script>
-	<script src="unit/event.js"></script>
-	<script src="unit/selector.js"></script>
-	<script src="unit/traversing.js"></script>
-	<script src="unit/manipulation.js"></script>
-	<script src="unit/css.js"></script>
-	<script src="unit/serialize.js"></script>
-	<script src="unit/ajax.js"></script>
-	<script src="unit/effects.js"></script>
-	<script src="unit/offset.js"></script>
-	<script src="unit/dimensions.js"></script>
-	<script src="unit/deprecated.js"></script>
-	<script src="unit/exports.js"></script>
-
 	<!-- Subproject tests must be last because they replace our test fixture -->
 	<script>
 		testSubproject( "Sizzle", "../src/sizzle/test/", /^unit\/.*\.js$/ );
@@ -247,7 +262,7 @@ Z</textarea>
 					<input type="checkbox" name="checkedtestcheckboxes" />
 				</div>
 			</form>
-			<div id="nonnodes"><span id="nonnodesElement">hi</span> there <!-- mon ami --></div>
+			<div id="nonnodes"><span>hi</span> there <!-- mon ami --></div>
 			<div id="t2037">
 				<div><div class="hidden">hidden</div></div>
 			</div>

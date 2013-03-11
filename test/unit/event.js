@@ -1,4 +1,4 @@
-module("event", { teardown: moduleTeardown });
+module("event", { "teardown": moduleTeardown });
 
 test("null or undefined handler", function() {
 	expect(2);
@@ -43,7 +43,7 @@ test("Handler changes and .trigger() order", function() {
 	path = "";
 
 	markup
-		.find( "*" ).addBack().on( "click", function( e ) {
+		.find( "*" ).andSelf().on( "click", function( e ) {
 			path += this.nodeName.toLowerCase() + " ";
 		})
 		.filter( "b" ).on( "click", function( e ) {
@@ -310,10 +310,8 @@ test("bind/one/unbind(Object)", function(){
 test("on/off(Object), delegate/undelegate(String, Object)", function() {
 	expect(6);
 
-	var clickCounter = 0,
-		mouseoverCounter = 0,
-		$p = jQuery("#firstp"),
-		$a = $p.find("a").eq(0);
+	var clickCounter = 0, mouseoverCounter = 0,
+		$p = jQuery("#firstp"), $a = $p.find("a:first");
 
 	var events = {
 		"click": function( event ) {
@@ -328,7 +326,7 @@ test("on/off(Object), delegate/undelegate(String, Object)", function() {
 		$a.trigger("click").trigger("mouseover");
 	}
 
-	jQuery( document ).on( events, "#firstp a" );
+	jQuery( document ).on( events, "#firstp a:first" );
 	$p.delegate( "a", events, 2 );
 
 	trigger();
@@ -341,7 +339,7 @@ test("on/off(Object), delegate/undelegate(String, Object)", function() {
 	equal( clickCounter, 4, "undelegate" );
 	equal( mouseoverCounter, 4, "undelegate" );
 
-	jQuery( document ).off( events, "#firstp a" );
+	jQuery( document ).off( events, "#firstp a:first" );
 
 	trigger();
 	equal( clickCounter, 4, "off" );
@@ -351,21 +349,19 @@ test("on/off(Object), delegate/undelegate(String, Object)", function() {
 test("on/delegate immediate propagation", function() {
 	expect(2);
 
-	var lastClick,
-		$p = jQuery("#firstp"),
-		$a = $p.find("a").eq(0);
+	var $p = jQuery("#firstp"), $a = $p.find("a:first"), lastClick;
 
 	lastClick = "";
-	jQuery( document ).on( "click", "#firstp a", function(e) {
+	jQuery( document ).on( "click", "#firstp a:first", function(e) {
 		lastClick = "click1";
 		e.stopImmediatePropagation();
 	});
-	jQuery( document ).on( "click", "#firstp a", function(e) {
+	jQuery( document ).on( "click", "#firstp a:first", function(e) {
 		lastClick = "click2";
 	});
 	$a.trigger( "click" );
 	equal( lastClick, "click1", "on stopImmediatePropagation" );
-	jQuery( document ).off( "click", "#firstp a" );
+	jQuery( document ).off( "click", "#firstp a:first" );
 
 	lastClick = "";
 	$p.delegate( "a", "click", function(e) {
@@ -494,7 +490,7 @@ test("bind(), namespaced events, cloned events", 18, function() {
 
 	// Make sure events stick with appendTo'd elements (which are cloned) #2027
 	jQuery("<a href='#fail' class='test'>test</a>").on( "click", function(){ return false; }).appendTo("#qunit-fixture");
-	ok( jQuery("a.test").eq(0).triggerHandler("click") === false, "Handler is bound to appendTo'd elements" );
+	ok( jQuery("a.test:first").triggerHandler("click") === false, "Handler is bound to appendTo'd elements" );
 });
 
 test("bind(), multi-namespaced events", function() {
@@ -553,22 +549,6 @@ test("bind(), multi-namespaced events", function() {
 
 	// Trigger the remaining fn (1)
 	jQuery("#firstp").trigger("custom");
-});
-
-test("namespace-only event binding is a no-op", function(){
-	expect(2);
-
-	jQuery("#firstp")
-		.on( ".whoops", function() {
-			ok( false, "called a namespace-only event" );
-		})
-		.on( "whoops", function() {
-			ok( true, "called whoops" );
-		})
-		.trigger("whoops")	// 1
-		.off(".whoops")
-		.trigger("whoops")	// 2
-		.off("whoops");
 });
 
 test("bind(), with same function", function() {
@@ -1001,7 +981,7 @@ test("trigger(type, [data], [fn])", function() {
 
 	jQuery( document ).off( "mouseenter mouseleave", "#firstp");
 
-	// Triggers handlers and native
+	// Triggers handlrs and native
 	// Trigger 5
 	$elem.bind("click", handler).trigger("click", [1, "2", "abc"]);
 
@@ -1016,7 +996,7 @@ test("trigger(type, [data], [fn])", function() {
 
 	var pass = true, elem2;
 	try {
-		elem2 = jQuery("#form input").eq(0);
+		elem2 = jQuery("#form input:first");
 		elem2.get(0).style.display = "none";
 		elem2.trigger("focus");
 	} catch(e) {
@@ -1026,7 +1006,7 @@ test("trigger(type, [data], [fn])", function() {
 
 	pass = true;
 	try {
-		jQuery("#qunit-fixture table").eq(0).bind("test:test", function(){}).trigger("test:test");
+		jQuery("#qunit-fixture table:first").bind("test:test", function(){}).trigger("test:test");
 	} catch (e) {
 		pass = false;
 	}
@@ -1157,12 +1137,12 @@ test("trigger(eventObject, [data], [fn])", function() {
 		equal( e.type, "foo", "Verify event type when passed passing an event object" );
 		equal( e.target.id, "child", "Verify event.target when passed passing an event object" );
 		equal( e.currentTarget.id, "par", "Verify event.currentTarget when passed passing an event object" );
-		equal( e.secret, "boo!", "Verify event object's custom attribute when passed passing an event object" );
+		equal( e["secret"], "boo!", "Verify event object's custom attribute when passed passing an event object" );
 	});
 
 	// test with an event object
 	event = new jQuery.Event("foo");
-	event.secret = "boo!";
+	event["secret"] = "boo!";
 	$child.trigger(event);
 
 	// test with a literal object
@@ -1391,20 +1371,75 @@ test("Submit event can be stopped (#11049)", function() {
 
 // Test beforeunload event only if it supported (i.e. not Opera)
 if ( window.onbeforeunload === null ) {
-	asyncTest("on(beforeunload)", 1, function() {
-		var iframe = jQuery(jQuery.parseHTML("<iframe src='data/event/onbeforeunload.html'><iframe>"));
+	asyncTest("on(beforeunload)", 4, function() {
+		var win,
+			forIE6 = 0,
+			fired = false,
+			iframe = jQuery("<iframe src='data/iframe.html' />");
 
-		window.onmessage = function( event ) {
-			var payload = JSON.parse( event.data );
+		iframe.appendTo("#qunit-fixture").one( "load", function() {
+			win = this.contentWindow || this.contentDocument;
 
-			ok( payload.event, "beforeunload", "beforeunload event" );
+			jQuery( win ).on( "beforeunload", function() {
+				fired = true;
+				ok( true, "beforeunload event is fired" );
+			});
 
-			iframe.remove();
-			window.onmessage = null;
-			start();
-		};
+			strictEqual( win.onbeforeunload, null, "onbeforeunload property on window object still equals null" );
 
-		iframe.appendTo("#qunit-fixture");
+			// In old Safari beforeunload event will not fire on iframes
+			jQuery( win ).on( "unload", function() {
+				if ( !fired ) {
+					ok( true, "This is suppose to be true only in old Safari" );
+					checker();
+				}
+			});
+
+			jQuery( win ).on( "beforeunload", function() {
+
+				// On iframe in IE6 beforeunload event will not fire if event is binded through window object,
+				// nevertheless, test should continue
+				window.setTimeout(function() {
+					if ( !forIE6 ) {
+						checker();
+					}
+				});
+			});
+
+			win.onbeforeunload = function() {
+				if ( !forIE6 ) {
+					forIE6++;
+					checker();
+				}
+			};
+
+			function checker() {
+				ok( true, "window.onbeforeunload handler is called" );
+				iframe = jQuery("<iframe src='data/iframe.html' />");
+
+				iframe.appendTo("#qunit-fixture").one( "load", function() {
+					win = iframe[ 0 ].contentWindow || iframe[ 0 ].contentDocument;
+
+					jQuery( win ).on( "beforeunload", function() {
+						strictEqual( win.onbeforeunload, null, "Event handler is fired, even when onbeforeunload property on window is nulled" );
+
+						start();
+					});
+
+					jQuery( win ).on( "unload", function() {
+						if ( !fired ) {
+							jQuery( win ).trigger("beforeunload");
+						}
+					});
+
+					win.onbeforeunload = null;
+
+					win.location.reload();
+				});
+			}
+
+			win.location.reload();
+		});
 	});
 }
 
@@ -1432,42 +1467,21 @@ test("jQuery.Event( type, props )", function() {
 
 });
 
-test("jQuery.Event properties", function(){
-	expect(12);
+test("jQuery.Event.currentTarget", function(){
+	expect(2);
 
-	var handler,
-		$structure = jQuery("<div id='ancestor'><p id='delegate'><span id='target'>shiny</span></p></div>"),
-		$target = $structure.find("#target");
-
-	handler = function( e ) {
-		strictEqual( e.currentTarget, this, "currentTarget at " + this.id );
-		equal( e.isTrigger, 3, "trigger at " + this.id );
-	};
-	$structure.one( "click", handler );
-	$structure.one( "click", "p", handler );
-	$target.one( "click", handler );
-	$target[0].onclick = function( e ) {
-		strictEqual( e.currentTarget, this, "currentTarget at target (native handler)" );
-		equal( e.isTrigger, 3, "trigger at target (native handler)" );
-	};
-	$target.trigger("click");
-
-	$target.one( "click", function( e ) {
-		equal( e.isTrigger, 2, "triggerHandler at target" );
-	});
-	$target[0].onclick = function( e ) {
-		equal( e.isTrigger, 2, "triggerHandler at target (native handler)" );
-	};
-	$target.triggerHandler("click");
-
-	handler = function( e ) {
-		strictEqual( e.isTrigger, undefined, "native event at " + this.id );
-	};
-	$target.one( "click", handler );
-	$target[0].onclick = function( e ) {
-		strictEqual( e.isTrigger, undefined, "native event at target (native handler)" );
-	};
-	fireNative( $target[0], "click" );
+	jQuery("<div><p><button>shiny</button></p></div>")
+		.on( "click", "p", function( e ){
+				equal( e.currentTarget, this, "Check delegated currentTarget on event" );
+		})
+		.find( "button" )
+			.on( "click", function( e ){
+				equal( e.currentTarget, this, "Check currentTarget on event" );
+			})
+			.trigger("click")
+			.off( "click" )
+		.end()
+		.off( "click" );
 });
 
 test(".delegate()/.undelegate()", function() {
@@ -1536,7 +1550,7 @@ test(".delegate()/.undelegate()", function() {
 	equal( livea, 1, "undelegate Click on inner div" );
 	equal( liveb, 0, "undelegate Click on inner div" );
 
-	// Make sure that stopPropagation doesn't stop live events
+	// Make sure that stopPropgation doesn't stop live events
 	submit = 0; div = 0; livea = 0; liveb = 0;
 	jQuery("#body").delegate("div#nothiddendivchild", "click", function(e){ liveb++; e.stopPropagation(); });
 	jQuery("div#nothiddendivchild").trigger("click");
@@ -1589,8 +1603,8 @@ test(".delegate()/.undelegate()", function() {
 
 	// Test binding with different this object, event data, and trigger data
 	jQuery("#body").delegate("#foo", "click", true, jQuery.proxy(function(e, data){
-		equal( e.data, true, "delegate with with different this object, event data, and trigger data" );
-		equal( this.foo, "bar", "delegate with with different this object, event data, and trigger data" );
+		equal( e["data"], true, "delegate with with different this object, event data, and trigger data" );
+		equal( this["foo"], "bar", "delegate with with different this object, event data, and trigger data" );
 		equal( data, true, "delegate with with different this object, event data, and trigger data");
 	}, { "foo": "bar" }));
 	jQuery("#foo").trigger("click", true);
@@ -1667,7 +1681,7 @@ test(".delegate()/.undelegate()", function() {
 	// Cleanup
 	jQuery("#body").undelegate("#nothiddendivchild", "click");
 
-	// Verify that .live() occurs and cancel bubble in the same order as
+	// Verify that .live() ocurs and cancel buble in the same order as
 	// we would expect .bind() and .click() without delegation
 	var lived = 0, livee = 0;
 
@@ -1758,24 +1772,10 @@ test("jQuery.off using dispatched jQuery.Event", function() {
 
 test( "delegated event with delegateTarget-relative selector", function() {
 	expect(3);
-	var markup = jQuery("<div><ul><li><a id=\"a0\"></a><ul id=\"ul0\"><li class=test><a id=\"a0_0\"></a></li><li><a id=\"a0_1\"></a></li></ul></li></ul></div>").appendTo("#qunit-fixture");
-
-	// Non-positional selector (#12383)
-	markup.find("#ul0")
-		.on( "click", "div li a", function() {
-			ok( false, "div is ABOVE the delegation point!" );
-		})
-		.on( "click", "ul a", function() {
-			ok( false, "ul IS the delegation point!" );
-		})
-		.on( "click", "li.test a", function() {
-			ok( true, "li.test is below the delegation point." );
-		})
-		.find("#a0_0").trigger("click").end()
-		.off("click");
+	var markup = jQuery("<ul><li><a id=\"a0\"></a><ul id=\"ul0\"><li class=test><a id=\"a0_0\"></a></li><li><a id=\"a0_1\"></a></li></ul></li></ul>").appendTo("#qunit-fixture");
 
 	// Positional selector (#11315)
-	markup.find("ul").eq(0)
+	markup
 		.on( "click", ">li>a", function() {
 			ok( this.id === "a0", "child li was clicked" );
 		})
@@ -1786,6 +1786,21 @@ test( "delegated event with delegateTarget-relative selector", function() {
 		.end()
 		.find("a").trigger("click").end()
 		.find("#ul0").off();
+
+	// Non-positional selector (#12383)
+	markup = markup.wrap("<div />").parent();
+	markup
+		.find("#ul0")
+		.on( "click", "div li a", function() {
+			ok( false, "div is ABOVE the delegation point!" );
+		})
+		.on( "click", "ul a", function() {
+			ok( false, "ul is the delegation point!" );
+		})
+		.on( "click", "li.test a", function() {
+			ok( true, "li.test is below the delegation point." );
+		})
+		.find("#a0_0").trigger("click");
 
 	markup.remove();
 });
@@ -1802,6 +1817,17 @@ test( "delegated event with selector matching Object.prototype property (#13203)
 	jQuery("#anchor2").trigger("click");
 
 	equal( matched, 0, "Nothing matched 'toString'" );
+});
+
+test( "delegated event with intermediate DOM manipulation (#13208)", function() {
+	expect(1);
+
+	jQuery("#foo").on( "click", "#sap", function() {});
+	jQuery("#sap").on( "click", "#anchor2", function() {
+		jQuery( this.parentNode ).remove();
+		ok( true, "Element removed" );
+	});
+	jQuery("#anchor2").trigger("click");
 });
 
 test("stopPropagation() stops directly-bound events on delegated target", function() {
@@ -2552,7 +2578,7 @@ test( "Namespace preserved when passed an Event (#12739)", function() {
 				e.handled = true;
 				equal( e.namespace, "bar", "namespace is bar" );
 				jQuery( e.target ).find("div").each(function() {
-					jQuery( this ).triggerHandler( e );
+				  jQuery( this ).triggerHandler( e );
 				});
 			}
 		})
@@ -2562,7 +2588,7 @@ test( "Namespace preserved when passed an Event (#12739)", function() {
 
 	markup.trigger("foo.bar");
 	markup.trigger( jQuery.Event("foo.bar") );
-	fooEvent = jQuery.Event("foo");
+	fooEvent = new jQuery.Event("foo");
 	fooEvent.namespace = "bar";
 	markup.trigger( fooEvent );
 	markup.remove();
@@ -2598,12 +2624,12 @@ test( "make sure events cloned correctly", 18, function() {
 
 	clone = fixture.clone( true );
 
-	clone.find("p").eq(0).trigger( "click", true ); // 3 events should fire
+	clone.find("p:first").trigger( "click", true ); // 3 events should fire
 	clone.find("#check1").trigger( "change", true ); // 3 events should fire
 	clone.remove();
 
 	clone = fixture.clone( true, true );
-	clone.find("p").eq(0).trigger( "click", true ); // 3 events should fire
+	clone.find("p:first").trigger( "click", true ); // 3 events should fire
 	clone.find("#check1").trigger( "change", true ); // 3 events should fire
 
 	fixture.off();
@@ -2613,11 +2639,11 @@ test( "make sure events cloned correctly", 18, function() {
 	p.trigger("click"); // 0 should be fired
 	checkbox.trigger("change"); // 0 should be fired
 
-	clone.find("p").eq(0).trigger( "click", true );  // 3 events should fire
+	clone.find("p:first").trigger( "click", true );  // 3 events should fire
 	clone.find("#check1").trigger( "change", true ); // 3 events should fire
 	clone.remove();
 
-	clone.find("p").eq(0).trigger("click");  // 0 should be fired
+	clone.find("p:first").trigger("click");  // 0 should be fired
 	clone.find("#check1").trigger("change"); // 0 events should fire
 });
 

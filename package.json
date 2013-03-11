@@ -30,7 +30,8 @@
 		"grunt-contrib-jshint": "0.1.1rc6",
 		"grunt-contrib-uglify": "0.1.1rc6",
 		"grunt": "0.4.0rc5",
-		"testswarm": "0.2.2"
+		"testswarm": "0.2.2",
+		"grunt-closure-compiler": "0.0.15"
 	},
 	"keywords": []
 }

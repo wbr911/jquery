@@ -13,8 +13,15 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<title>CSP Test Page</title>
-	<script src="../../jquery.js"></script>
-	<script src="csp.js"></script>
+	<script>
+		if ( parent.location.search.search( /(\?|&)closureCompiler=true/ ) >= 0 ) {
+			document.write( "<script src='../../../build/closure-compiler/jquery_compiled.js'><\/script>" );
+			document.write( "<script src='../../../build/closure-compiler/csp_data.js'><\/script>" );
+		} else {
+			document.write( "<script src='../../../dist/jquery.js'><\/script>" );
+			document.write( "<script src='csp.js'><\/script>" );
+		}
+	</script>
 </head>
 <body>
 	<p>CSP Test Page</p>

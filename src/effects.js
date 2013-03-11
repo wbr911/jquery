@@ -175,7 +175,7 @@ function Animation( elem, properties, options ) {
 }
 
 function propFilter( props, specialEasing ) {
-	var index, name, easing, value, hooks;
+	var value, name, index, easing, hooks;
 
 	// camelCase, specialEasing and expand cssHook pass
 	for ( index in props ) {
@@ -243,7 +243,9 @@ jQuery.Animation = jQuery.extend( Animation, {
 
 function defaultPrefilter( elem, props, opts ) {
 	/*jshint validthis:true */
-	var index, prop, value, length, dataShow, toggle, tween, hooks, oldfire,
+	var prop, index, length,
+		value, dataShow, toggle,
+		tween, hooks, oldfire,
 		anim = this,
 		style = elem.style,
 		orig = {},
@@ -289,17 +291,26 @@ function defaultPrefilter( elem, props, opts ) {
 		if ( jQuery.css( elem, "display" ) === "inline" &&
 				jQuery.css( elem, "float" ) === "none" ) {
 
-			style.display = "inline-block";
+			// inline-level elements accept inline-block;
+			// block-level elements need to be inline with layout
+			if ( !jQuery.support["inlineBlockNeedsLayout"] || css_defaultDisplay( elem.nodeName ) === "inline" ) {
+				style.display = "inline-block";
+
+			} else {
+				style.zoom = 1;
+			}
 		}
 	}
 
 	if ( opts.overflow ) {
 		style.overflow = "hidden";
-		anim.always(function() {
-			style.overflow = opts.overflow[ 0 ];
-			style.overflowX = opts.overflow[ 1 ];
-			style.overflowY = opts.overflow[ 2 ];
-		});
+		if ( !jQuery.support["shrinkWrapBlocks"] ) {
+			anim.always(function() {
+				style.overflow = opts.overflow[ 0 ];
+				style.overflowX = opts.overflow[ 1 ];
+				style.overflowY = opts.overflow[ 2 ];
+			});
+		}
 	}
 
 
@@ -451,7 +462,7 @@ Tween.propHooks.scrollTop = Tween.propHooks.scrollLeft = {
 	}
 };
 
-jQuery.each([ "toggle", "show", "hide" ], function( i, name ) {
+jQuery.expandedEach([ "toggle", "show", "hide" ], function( i, name ) {
 	var cssFn = jQuery.fn[ name ];
 	jQuery.fn[ name ] = function( speed, easing, callback ) {
 		return speed == null || typeof speed === "boolean" ?
@@ -604,7 +615,7 @@ function genFx( type, includeWidth ) {
 }
 
 // Generate shortcuts for custom animations
-jQuery.each({
+jQuery.expandedEach({
 	slideDown: genFx("show"),
 	slideUp: genFx("hide"),
 	slideToggle: genFx("toggle"),
@@ -650,10 +661,10 @@ jQuery.speed = function( speed, easing, fn ) {
 };
 
 jQuery.easing = {
-	linear: function( p ) {
+	"linear": function( p ) {
 		return p;
 	},
-	swing: function( p ) {
+	"swing": function( p ) {
 		return 0.5 - Math.cos( p*Math.PI ) / 2;
 	}
 };
@@ -711,7 +722,7 @@ jQuery.fx.speeds = {
 jQuery.fx.step = {};
 
 if ( jQuery.expr && jQuery.expr.filters ) {
-	jQuery.expr.filters.animated = function( elem ) {
+	jQuery.expr.filters["animated"] = function( elem ) {
 		return jQuery.grep(jQuery.timers, function( fn ) {
 			return elem === fn.elem;
 		}).length;

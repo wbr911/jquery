@@ -11,7 +11,13 @@
 </head>
 <body>
 	<div>
-		<script src="../../jquery.js"></script>
+		<script type="text/javascript">
+			if ( parent.location.search.search( /(\?|&)closureCompiler=true/ ) >= 0 ) {
+				document.write( "<script src='../../../build/closure-compiler/jquery_compiled.js'><\/script>" );
+			} else {
+				document.write( "<script src='../../../dist/jquery.min.js'><\/script>" );
+			}
+		</script>
 	</div>
 </body>
 </html>

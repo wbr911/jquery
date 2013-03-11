@@ -1,5 +1,5 @@
 module( "deferred", {
-	teardown: moduleTeardown
+	"teardown": moduleTeardown
 });
 
 jQuery.each( [ "", " - new operator" ], function( _, withNew ) {

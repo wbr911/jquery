@@ -1,5 +1,5 @@
 module( "attributes", {
-	teardown: moduleTeardown
+	"teardown": moduleTeardown
 });
 
 var bareObj = function( value ) {
@@ -46,6 +46,10 @@ test( "jQuery.propFix integrity test", function() {
 		"contenteditable": "contentEditable"
 	};
 
+	if ( !jQuery.support["enctype"] ) {
+		props.enctype = "encoding";
+	}
+
 	deepEqual( props, jQuery.propFix, "jQuery.propFix passes integrity check" );
 });
 
@@ -66,7 +70,7 @@ test( "attr(String)", function() {
 	equal( jQuery("#text1").attr("value", "t").attr("value"), "t", "Check setting the value attribute" );
 	equal( jQuery("#text1").attr("value", "").attr("value"), "", "Check setting the value attribute to empty string" );
 	equal( jQuery("<div value='t'></div>").attr("value"), "t", "Check setting custom attr named 'value' on a div" );
-	equal( jQuery("#form").attr("blah", "blah").attr("blah"), "blah", "Set non-existent attribute on a form" );
+	equal( jQuery("#form").attr("blah", "blah").attr("blah"), "blah", "Set non-existant attribute on a form" );
 	equal( jQuery("#foo").attr("height"), undefined, "Non existent height attribute should return undefined" );
 
 	// [7472] & [3113] (form contains an input with name="action" or name="id")
@@ -92,7 +96,7 @@ test( "attr(String)", function() {
 	jQuery("<a id='tAnchor6' href='#5' />").appendTo("#qunit-fixture");
 	equal( jQuery("#tAnchor5").prop("href"), jQuery("#tAnchor6").prop("href"), "Check for absolute href prop on an anchor" );
 
-	$("<script type='jquery/test' src='#5' id='scriptSrc'></script>").appendTo("#qunit-fixture");
+	jQuery("<script type='jquery/test' src='#5' id='scriptSrc'></script>").appendTo("#qunit-fixture");
 	equal( jQuery("#tAnchor5").prop("href"), jQuery("#scriptSrc").prop("src"), "Check for absolute src prop on a script" );
 
 	// list attribute is readonly by default in browsers that support it
@@ -339,7 +343,7 @@ test( "attr(String, Object)", function() {
 	equal( $text.attr( "required", false ).attr("required"), undefined, "Setting required attribute to false removes it" );
 
 	var $details = jQuery("<details open></details>").appendTo("#qunit-fixture");
-	equal( $details.attr("open"), "open", "open attribute presence indicates true" );
+	equal( $details.attr("open"), "open", "open attribute presense indicates true" );
 	equal( $details.attr( "open", false ).attr("open"), undefined, "Setting open attribute to false removes it" );
 
 	$text.attr( "data-something", true );
@@ -368,15 +372,15 @@ test( "attr(String, Object)", function() {
 	// Register the property name to avoid generating a new global when testing window
 	Globals.register("nonexisting");
 	jQuery.each( [ window, document, obj, "#firstp" ], function( i, elem ) {
-		var oldVal = elem.nonexisting,
+		var oldVal = elem["nonexisting"],
 			$elem = jQuery( elem );
 		strictEqual( $elem.attr("nonexisting"), undefined, "attr works correctly for non existing attributes (bug #7500)." );
 		equal( $elem.attr( "nonexisting", "foo" ).attr("nonexisting"), "foo", "attr falls back to prop on unsupported arguments" );
-		elem.nonexisting = oldVal;
+		elem["nonexisting"] = oldVal;
 	});
 
 	var table = jQuery("#table").append("<tr><td>cell</td></tr><tr><td>cell</td><td>cell</td></tr><tr><td>cell</td><td>cell</td></tr>"),
-		td = table.find("td").eq(0);
+		td = table.find("td:first");
 	td.attr( "rowspan", "2" );
 	equal( td[ 0 ]["rowSpan"], 2, "Check rowspan is correctly set" );
 	td.attr( "colspan", "2" );

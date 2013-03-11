@@ -20,10 +20,11 @@ jQuery.extend({
 					var fns = arguments;
 					return jQuery.Deferred(function( newDefer ) {
 						jQuery.each( tuples, function( i, tuple ) {
-							var action = tuple[ 0 ],
+							var action = tuple[ 1 ] === "done" ? deferred.done : ( tuple[ 1 ] === "fail" ? deferred.fail : deferred.progress ),
+								actionWith = tuple[ 0 ] === "resolve" ? newDefer.resolveWith : ( tuple[ 0 ] === "reject" ? newDefer.rejectWith : newDefer.notifyWith ),
 								fn = jQuery.isFunction( fns[ i ] ) && fns[ i ];
 							// deferred[ done | fail | progress ] for forwarding actions to newDefer
-							deferred[ tuple[1] ](function() {
+							action.call( deferred, function() {
 								var returned = fn && fn.apply( this, arguments );
 								if ( returned && jQuery.isFunction( returned.promise ) ) {
 									returned.promise()
@@ -31,7 +32,7 @@ jQuery.extend({
 										.fail( newDefer.reject )
 										.progress( newDefer.notify );
 								} else {
-									newDefer[ action + "With" ]( this === promise ? newDefer.promise() : this, fn ? [ returned ] : arguments );
+									actionWith.call( newDefer, this === promise ? newDefer.promise() : this, fn ? [ returned ] : arguments );
 								}
 							});
 						});
@@ -49,13 +50,26 @@ jQuery.extend({
 		// Keep pipe for back-compat
 		promise.pipe = promise.then;
 
-		// Add list-specific methods
-		jQuery.each( tuples, function( i, tuple ) {
-			var list = tuple[ 2 ],
-				stateString = tuple[ 3 ];
+		promise.done = tuples[ 0 ][ 2 ].add;
+		promise.fail = tuples[ 1 ][ 2 ].add;
+		promise.progress = tuples[ 2 ][ 2 ].add;
 
-			// promise[ done | fail | progress ] = list.add
-			promise[ tuple[1] ] = list.add;
+		// Add list-specific methods
+		jQuery.expandedEach({
+			"resolve": tuples[ 0 ],
+			"reject": tuples[ 1 ],
+			"notify": tuples[ 2 ]
+		}, function( key, tuple ) {
+			var list = tuple[ 2 ],
+				stateString = tuple[ 3 ],
+				action = key;
+
+			// deferred[ resolve | reject | notify ]
+			deferred[ key ] = function() {
+				deferred[ key + "With" ]( this === deferred ? promise : this, arguments );
+				return this;
+			};
+			deferred[ key + "With" ] = list.fireWith;
 
 			// Handle state
 			if ( stateString ) {
@@ -64,15 +78,8 @@ jQuery.extend({
 					state = stateString;
 
 				// [ reject_list | resolve_list ].disable; progress_list.lock
-				}, tuples[ i ^ 1 ][ 2 ].disable, tuples[ 2 ][ 2 ].lock );
+				}, tuples[ action === "resolve" ? 1 : 0 ][ 2 ].disable, tuples[ 2 ][ 2 ].lock );
 			}
-
-			// deferred[ resolve | reject | notify ]
-			deferred[ tuple[0] ] = function() {
-				deferred[ tuple[0] + "With" ]( this === deferred ? promise : this, arguments );
-				return this;
-			};
-			deferred[ tuple[0] + "With" ] = list.fireWith;
 		});
 
 		// Make the deferred a promise

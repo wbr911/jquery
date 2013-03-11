@@ -105,6 +105,22 @@ module.exports = function( grunt ) {
 					}
 				}
 			}
+		},
+		"build-closure-compiler": {
+			files: [
+				"src/closure-compiler.js"
+			],
+			src: "dist/jquery.js",
+			dest: "dist/jquery.closure-compiler.js"
+		},
+		"closure-compiler": {
+			frontend: {
+				js: "dist/jquery.closure-compiler.js",
+				maxBuffer: 500,
+				options: {
+					flagfile: "build/closure-compiler/closure-compiler.flags"
+				}
+			}
 		}
 	});
 
@@ -482,6 +498,31 @@ module.exports = function( grunt ) {
 		return !nonascii;
 	});
 
+	grunt.registerTask(
+			"build-closure-compiler",
+			"Add closure-compiler definitions to the distribution source",
+			function() {
+				// Concat specified files.
+				
+				var cfg = grunt.config("build-closure-compiler"),
+					compiled = grunt.file.read( cfg.src ),
+					startIndex = compiled.indexOf( "*/" ) + 2,
+					endIndex = compiled.indexOf( "{", startIndex),
+					intro = compiled.substr(0, startIndex);
+		
+				compiled = intro + compiled.substr(endIndex + 1);
+				compiled = compiled.substr(0, compiled.lastIndexOf( "}" ));
+
+				cfg.files.forEach( function(file) {
+					compiled += grunt.file.read( file );
+				});
+
+				// Write concatenated source to file
+				grunt.file.write( cfg.dest, compiled );
+				
+				grunt.log.writeln( "File '" + cfg.dest + "' created." );
+			});
+
 	// Load grunt tasks from NPM packages
 	grunt.loadNpmTasks("grunt-compare-size");
 	grunt.loadNpmTasks("grunt-git-authors");
@@ -489,10 +530,13 @@ module.exports = function( grunt ) {
 	grunt.loadNpmTasks("grunt-contrib-watch");
 	grunt.loadNpmTasks("grunt-contrib-jshint");
 	grunt.loadNpmTasks("grunt-contrib-uglify");
+	grunt.loadNpmTasks("grunt-closure-compiler");
 
 	// Default grunt
-	grunt.registerTask( "default", [ "update_submodules", "selector", "build:*:*", "jshint", "uglify", "dist:*", "compare_size" ] );
+	grunt.registerTask( "default", [ "update_submodules", "selector", "build:*:*", "jshint", "uglify", "dist:*" ] );
 
 	// Short list as a high frequency watch task
 	grunt.registerTask( "dev", [ "selector", "build:*:*", "jshint" ] );
+	
+	grunt.registerTask( "tests-compiled", [ "selector", "build:*:*", "build-closure-compiler", "closure-compiler" ] );
 };

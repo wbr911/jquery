@@ -1,9 +1,9 @@
 if ( jQuery.css ) {
 
-module("css", { teardown: moduleTeardown });
+module("css", { "teardown": moduleTeardown });
 
 test("css(String|Hash)", function() {
-	expect( 40 );
+	expect( 41 );
 
 	equal( jQuery("#qunit-fixture").css("display"), "block", "Check for css property \"display\"" );
 
@@ -58,6 +58,9 @@ test("css(String|Hash)", function() {
 	equal( jQuery("#empty").css("opacity"), "0", "Assert opacity is accessible via filter property set in stylesheet in IE" );
 	jQuery("#empty").css({ "opacity": "1" });
 	equal( jQuery("#empty").css("opacity"), "1", "Assert opacity is taken from style attribute when set vs stylesheet in IE with filters" );
+	jQuery.support.opacity ?
+		ok(true, "Requires the same number of tests"):
+		ok( ~jQuery("#empty")[0].currentStyle.filter.indexOf("gradient"), "Assert setting opacity doesn't overwrite other filters of the stylesheet in IE" );
 
 	div = jQuery("#nothiddendiv");
 	var child = jQuery("#nothiddendivchild");
@@ -255,6 +258,43 @@ test( "css(Array)", function() {
 	deepEqual( elem.css( expectedMany ).css([ "overflow", "width" ]), expectedMany, "Getting multiple element array" );
 	deepEqual( elem.css( expectedSingle ).css([ "width" ]), expectedSingle, "Getting single element array" );
 });
+
+if ( !jQuery.support.opacity ) {
+	test("css(String, Object) for MSIE", function() {
+		expect( 5 );
+		// for #1438, IE throws JS error when filter exists but doesn't have opacity in it
+		jQuery("#foo").css("filter", "progid:DXImageTransform.Microsoft.Chroma(color='red');");
+		equal( jQuery("#foo").css("opacity"), "1", "Assert opacity is 1 when a different filter is set in IE, #1438" );
+
+		var filterVal = "progid:DXImageTransform.Microsoft.Alpha(opacity=30) progid:DXImageTransform.Microsoft.Blur(pixelradius=5)";
+		var filterVal2 = "progid:DXImageTransform.Microsoft.alpha(opacity=100) progid:DXImageTransform.Microsoft.Blur(pixelradius=5)";
+		var filterVal3 = "progid:DXImageTransform.Microsoft.Blur(pixelradius=5)";
+		jQuery("#foo").css("filter", filterVal);
+		equal( jQuery("#foo").css("filter"), filterVal, "css('filter', val) works" );
+		jQuery("#foo").css("opacity", 1);
+		equal( jQuery("#foo").css("filter"), filterVal2, "Setting opacity in IE doesn't duplicate opacity filter" );
+		equal( jQuery("#foo").css("opacity"), 1, "Setting opacity in IE with other filters works" );
+		jQuery("#foo").css("filter", filterVal3).css("opacity", 1);
+		ok( jQuery("#foo").css("filter").indexOf(filterVal3) !== -1, "Setting opacity in IE doesn't clobber other filters" );
+	});
+
+	test( "Setting opacity to 1 properly removes filter: style (#6652)", function() {
+		var rfilter = /filter:[^;]*/i,
+			test = jQuery( "#t6652" ).css( "opacity", 1 ),
+			test2 = test.find( "div" ).css( "opacity", 1 );
+
+		function hasFilter( elem ) {
+			var match = rfilter.exec( elem[0].style.cssText );
+			if ( match ) {
+				return true;
+			}
+			return false;
+		}
+		expect( 2 );
+		ok( !hasFilter( test ), "Removed filter attribute on element without filter in stylesheet" );
+		ok( hasFilter( test2 ), "Filter attribute remains on element that had filter in stylesheet" );
+	});
+}
 
 test("css(String, Function)", function() {
 	expect(3);
@@ -616,12 +656,12 @@ test("jQuery.css(elem, 'height') doesn't clear radio buttons (bug #1095)", funct
 	expect(4);
 
 	var $checkedtest = jQuery("#checkedtest");
+	// IE6 was clearing "checked" in jQuery.css(elem, "height");
 	jQuery.css($checkedtest[0], "height");
-
-	ok( jQuery("input[type='radio']", $checkedtest).first().attr("checked"), "Check first radio still checked." );
-	ok( !jQuery("input[type='radio']", $checkedtest).last().attr("checked"), "Check last radio still NOT checked." );
-	ok( jQuery("input[type='checkbox']", $checkedtest).first().attr("checked"), "Check first checkbox still checked." );
-	ok( !jQuery("input[type='checkbox']", $checkedtest).last().attr("checked"), "Check last checkbox still NOT checked." );
+	ok( !! jQuery(":radio:first", $checkedtest).attr("checked"), "Check first radio still checked." );
+	ok( ! jQuery(":radio:last", $checkedtest).attr("checked"), "Check last radio still NOT checked." );
+	ok( !! jQuery(":checkbox:first", $checkedtest).attr("checked"), "Check first checkbox still checked." );
+	ok( ! jQuery(":checkbox:last", $checkedtest).attr("checked"), "Check last checkbox still NOT checked." );
 });
 
 test("internal ref to elem.runtimeStyle (bug #7608)", function () {
@@ -939,7 +979,7 @@ asyncTest( "Clearing a Cloned Element's Style Shouldn't Clear the Original Eleme
 		if ( source.style[ style.name ] === undefined ) {
 			ok( true, style.name +  ": style isn't supported and therefore not an issue" );
 			ok( true );
-
+			ok( true );
 			return true;
 		}
 

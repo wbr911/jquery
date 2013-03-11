@@ -7,7 +7,13 @@
 			background: url('../1x1.jpg');
 		}
 	</style>
-	<script src="../../jquery.js"></script>
+	<script>
+		if ( parent.location.search.search( /(\?|&)closureCompiler=true/ ) >= 0 ) {
+			document.write( "<script src='../../../build/closure-compiler/jquery_compiled.js'><\/script>" );
+		} else {
+			document.write( "<script src='../../../dist/jquery.min.js'><\/script>" );
+		}
+	</script>
 </head>
 <body>
 	<script>

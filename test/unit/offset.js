@@ -23,7 +23,7 @@ var supportsScroll, supportsFixedPosition,
 		checkFixed.remove();
 	};
 
-module("offset", { setup: function(){
+module("offset", { "setup": function(){
 	if ( typeof checkSupport === "function" ) {
 		checkSupport();
 	}
@@ -33,7 +33,7 @@ module("offset", { setup: function(){
 	forceScroll.appendTo("body");
 	window.scrollTo( 1, 1 );
 	forceScroll.detach();
-}, teardown: moduleTeardown });
+}, "teardown": moduleTeardown });
 
 /*
 	Closure-compiler will roll static methods off of the jQuery object and so they will

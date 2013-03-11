@@ -1,0 +1,57 @@
+--compilation_level ADVANCED_OPTIMIZATIONS
+--process_jquery_primitives
+--use_types_for_optimization
+--debug
+--formatting PRETTY_PRINT
+--externs build/closure-compiler/qunit-externs.js
+--js build/closure-compiler/test-exports.js
+--module jquery_compiled:2
+
+--js test/unit/core.js
+--js test/unit/callbacks.js
+--js test/unit/deferred.js
+--js test/unit/support.js
+--js test/unit/data.js
+--js test/unit/queue.js
+--js test/unit/attributes.js
+--js test/unit/event.js
+--js test/unit/selector.js
+--js test/unit/traversing.js
+--js test/unit/manipulation.js
+--js test/unit/css.js
+--js test/unit/serialize.js
+--js test/unit/ajax.js
+--js test/unit/effects.js
+--js test/unit/offset.js
+--js test/unit/dimensions.js
+--js test/unit/deprecated.js
+--js test/unit/exports.js
+--module tests_compiled:19:jquery_compiled
+
+--js test/data/selector/sizzle_cache.js
+--module sizzle_cache_data:1:jquery_compiled
+--js test/data/support/bodyBackground.js
+--module bodyBackground_data:1:jquery_compiled
+--js test/data/support/csp.js
+--module csp_data:1:jquery_compiled
+--js test/data/event/promiseReady.js
+--module promiseReady_data:1:jquery_compiled
+--js test/data/manipulation/iframe-denied.js
+--module iframe_denied_data:1:jquery_compiled
+--js test/data/ajax/unreleasedXHR.js
+--module unreleasedXHR_data:1:jquery_compiled
+--js test/data/offset/absolute.js
+--module absolute_data:1:jquery_compiled
+--js test/data/offset/body.js
+--module body_data:1:jquery_compiled
+--js test/data/offset/fixed.js
+--module fixed_data:1:jquery_compiled
+--js test/data/offset/relative.js
+--module relative_data:1:jquery_compiled
+--js test/data/offset/scroll.js
+--module scroll_data:1:jquery_compiled
+--js test/data/offset/static.js
+--module static_data:1:jquery_compiled
+--js test/data/offset/table.js
+--module table_data:1:jquery_compiled
+--module_output_path_prefix build/closure-compiler/

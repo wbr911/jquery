@@ -1,4 +1,4 @@
-module( "queue", { teardown: moduleTeardown });
+module( "queue", { "teardown": moduleTeardown });
 
 test( "queue() with other types", 14, function() {
 	var counter = 0;
@@ -184,7 +184,7 @@ test("clearQueue() clears the fx queue", function() {
 });
 
 asyncTest( "fn.promise() - called when fx queue is empty", 3, function() {
-	var foo = jQuery( "#foo" ).clone().addBack(),
+	var foo = jQuery( "#foo" ).clone().andSelf(),
 		promised = false;
 
 	foo.queue( function( next ) {

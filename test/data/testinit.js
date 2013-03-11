@@ -19,7 +19,9 @@ function define( name, dependencies, callback ) {
 	amdDefined = callback();
 }
 
-define.amd = {};
+define.amd = {
+	jQuery: true
+};
 
 /**
  * Returns an array of elements with the given IDs

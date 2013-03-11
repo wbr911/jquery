@@ -1,4 +1,4 @@
-module("serialize", { teardown: moduleTeardown });
+module("serialize", { "teardown": moduleTeardown });
 
 test("jQuery.param()", function() {
 	expect(22);
@@ -23,7 +23,7 @@ test("jQuery.param()", function() {
 	params = {"foo": { "bar": "baz", "beep": 42, "quux": "All your base are belong to us" } };
 	equal( jQuery.param(params), "foo%5Bbar%5D=baz&foo%5Bbeep%5D=42&foo%5Bquux%5D=All+your+base+are+belong+to+us", "even more arrays" );
 
-	params = { a:[1,2], b:{ c:3, d:[4,5], e:{ x:[6], y:7, z:[8,9] }, f:true, g:false, h:undefined }, i:[10,11], j:true, k:false, l:[undefined,0], m:"cowboy hat?" };
+	params = { "a":[1,2], "b":{ "c":3, "d":[4,5], "e":{ "x":[6], "y":7, "z":[8,9] }, "f":true, "g":false, "h":undefined }, "i":[10,11], "j":true, "k":false, "l":[undefined,0], "m":"cowboy hat?" };
 	equal( decodeURIComponent( jQuery.param(params) ), "a[]=1&a[]=2&b[c]=3&b[d][]=4&b[d][]=5&b[e][x][]=6&b[e][y]=7&b[e][z][]=8&b[e][z][]=9&b[f]=true&b[g]=false&b[h]=&i[]=10&i[]=11&j=true&k=false&l[]=&l[]=0&m=cowboy+hat?", "huge structure" );
 
 	params = { "a": [ 0, [ 1, 2 ], [ 3, [ 4, 5 ], [ 6 ] ], { "b": [ 7, [ 8, 9 ], [ { "c": 10, "d": 11 } ], [ [ 12 ] ], [ [ [ 13 ] ] ], { "e": { "f": { "g": [ 14, [ 15 ] ] } } }, 16 ] }, 17 ] };
@@ -60,13 +60,13 @@ test("jQuery.param()", function() {
 	params = {"foo[bar]":"baz", "foo[beep]":42, "foo[quux]":"All your base are belong to us"};
 	equal( jQuery.param(params), "foo%5Bbar%5D=baz&foo%5Bbeep%5D=42&foo%5Bquux%5D=All+your+base+are+belong+to+us", "even more arrays" );
 
-	params = { a:[1,2], b:{ c:3, d:[4,5], e:{ x:[6], y:7, z:[8,9] }, f:true, g:false, h:undefined }, i:[10,11], j:true, k:false, l:[undefined,0], m:"cowboy hat?" };
+	params = { "a":[1,2], "b":{ "c":3, "d":[4,5], "e":{ "x":[6], "y":7, "z":[8,9] }, "f":true, "g":false, "h":undefined }, "i":[10,11], "j":true, "k":false, "l":[undefined,0], "m":"cowboy hat?" };
 	equal( jQuery.param(params), "a=1&a=2&b=%5Bobject+Object%5D&i=10&i=11&j=true&k=false&l=&l=0&m=cowboy+hat%3F", "huge structure" );
 
 	params = { "a": [ 0, [ 1, 2 ], [ 3, [ 4, 5 ], [ 6 ] ], { "b": [ 7, [ 8, 9 ], [ { "c": 10, d: 11 } ], [ [ 12 ] ], [ [ [ 13 ] ] ], { "e": { "f": { "g": [ 14, [ 15 ] ] } } }, 16 ] }, 17 ] };
 	equal( jQuery.param(params), "a=0&a=1%2C2&a=3%2C4%2C5%2C6&a=%5Bobject+Object%5D&a=17", "nested arrays (not possible when jQuery.param.traditional == true)" );
 
-	params = { a:[1,2], b:{ c:3, d:[4,5], e:{ x:[6], y:7, z:[8,9] }, f:true, g:false, h:undefined }, i:[10,11], j:true, k:false, l:[undefined,0], m:"cowboy hat?" };
+	params = { "a":[1,2], "b":{ "c":3, "d":[4,5], "e":{ "x":[6], "y":7, "z":[8,9] }, "f":true, "g":false, "h":undefined }, "i":[10,11], "j":true, "k":false, "l":[undefined,0], "m":"cowboy hat?" };
 	equal( decodeURIComponent( jQuery.param(params,false) ), "a[]=1&a[]=2&b[c]=3&b[d][]=4&b[d][]=5&b[e][x][]=6&b[e][y]=7&b[e][z][]=8&b[e][z][]=9&b[f]=true&b[g]=false&b[h]=&i[]=10&i[]=11&j=true&k=false&l[]=&l[]=0&m=cowboy+hat?", "huge structure, forced not traditional" );
 
 	params = { "param1": null };
@@ -121,7 +121,7 @@ test("serialize()", function() {
 		"action=Test&radio2=on&check=on&hidden=&foo%5Bbar%5D=&name=name&search=search&email=dave%40jquery.com&number=43&select1=&select2=3&select3=1&select3=2&select5=3",
 		"Check form serialization as query string");
 
-	equal( jQuery("input,select,textarea,button", "#form").serialize(),
+	equal( jQuery("#form :input").serialize(),
 		"action=Test&radio2=on&check=on&hidden=&foo%5Bbar%5D=&name=name&search=search&email=dave%40jquery.com&number=43&select1=&select2=3&select3=1&select3=2&select5=3",
 		"Check input serialization as query string");
 
@@ -129,7 +129,7 @@ test("serialize()", function() {
 		"T3=%3F%0D%0AZ&H1=x&H2=&PWD=&T1=&T2=YES&My+Name=me&S1=abc&S3=YES&S4=",
 		"Check form serialization as query string");
 
-	equal( jQuery("input,select,textarea,button", "#testForm").serialize(),
+	equal( jQuery("#testForm :input").serialize(),
 		"T3=%3F%0D%0AZ&H1=x&H2=&PWD=&T1=&T2=YES&My+Name=me&S1=abc&S3=YES&S4=",
 		"Check input serialization as query string");
 

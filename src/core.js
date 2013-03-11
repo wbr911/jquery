@@ -1,24 +1,23 @@
 var
-	// A central reference to the root jQuery(document)
-	rootjQuery,
-
 	// The deferred used on DOM ready
 	readyList,
 
-	// Support: IE9
-	// For `typeof xmlNode.method` instead of `xmlNode.method !== undefined`
+	// A central reference to the root jQuery(document)
+	rootjQuery,
+
+	// Support: IE<9
+	// For `typeof node.method` instead of `node.method !== undefined`
 	core_strundefined = typeof undefined,
 
 	// Use the correct document accordingly with window argument (sandbox)
-	location = window.location,
-	document = window.document,
-	docElem = document.documentElement,
+	// document = window.document,
+	// location = window.location,
 
 	// Map over jQuery in case of overwrite
-	_jQuery = window.jQuery,
+	_jQuery = window[ "jQuery" ],
 
 	// Map over the $ in case of overwrite
-	_$ = window.$,
+	_$ = window[ "$" ],
 
 	// [[Class]] -> type pairs
 	class2type = {},
@@ -35,19 +34,29 @@ var
 	core_indexOf = core_deletedIds.indexOf,
 	core_toString = class2type.toString,
 	core_hasOwn = class2type.hasOwnProperty,
-	core_trim = core_version.trim,
+	core_trim = core_version.trim;
 
-	// Define a local copy of jQuery
-	jQuery = function( selector, context ) {
+/**
+ * Define a local copy of jQuery
+ * @constructor
+ * @param {(jQuerySelector|Element|Object|Array.<Element>|jQuery|string|
+ *     function())=} selector
+ * @param {(Element|jQuery|Document|
+ *     Object.<string, (string|function(!jQuery.event=))>)=} context
+ * @return {!jQuery}
+ */
+var jQuery = function( selector, context ) {
 		// The jQuery object is actually just the init constructor 'enhanced'
 		return new jQuery.fn.init( selector, context, rootjQuery );
-	},
+	};
 
-	// Used for matching numbers
-	core_pnum = /[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/.source,
+var core_pnum = /[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/.source,
 
 	// Used for splitting on whitespace
 	core_rnotwhite = /\S+/g,
+
+	// Make sure we trim BOM and NBSP (here's looking at you, Safari 5.0 and IE)
+	rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g,
 
 	// A simple way to check for HTML strings
 	// Prioritize #id over <tag> to avoid XSS via location.hash (#9521)
@@ -56,6 +65,12 @@ var
 
 	// Match a standalone tag
 	rsingleTag = /^<(\w+)\s*\/?>(?:<\/\1>|)$/,
+
+	// JSON RegExp
+	rvalidchars = /^[\],:{}\s]*$/,
+	rvalidbraces = /(?:^|:|,)(?:\s*\[)+/g,
+	rvalidescape = /\\(?:["\\\/bfnrt]|u[\da-fA-F]{4})/g,
+	rvalidtokens = /"[^"\\\r\n]*"|true|false|null|-?(?:\d+\.|)\d+(?:[eE][+-]?\d+|)/g,
 
 	// Matches dashed string for camelizing
 	rmsPrefix = /^-ms-/,
@@ -66,11 +81,25 @@ var
 		return letter.toUpperCase();
 	},
 
-	// The ready event handler and self cleanup method
-	completed = function() {
-		document.removeEventListener( "DOMContentLoaded", completed, false );
-		window.removeEventListener( "load", completed, false );
-		jQuery.ready();
+	// The ready event handler
+	completed = function( event ) {
+
+		// readyState === "complete" is good enough for us to call the dom ready in oldIE
+		if ( document.addEventListener || event.type === "load" || document.readyState === "complete" ) {
+			detach();
+			jQuery.ready();
+		}
+	},
+	// Clean-up method for dom ready events
+	detach = function() {
+		if ( document.addEventListener ) {
+			document.removeEventListener( "DOMContentLoaded", completed, false );
+			window.removeEventListener( "load", completed, false );
+
+		} else {
+			document.detachEvent( "onreadystatechange", completed );
+			window.detachEvent( "onload", completed );
+		}
 	};
 
 jQuery.fn = jQuery.prototype = {
@@ -78,7 +107,11 @@ jQuery.fn = jQuery.prototype = {
 	jquery: core_version,
 
 	constructor: jQuery,
-	init: function( selector, context, rootjQuery ) {
+	init: /**
+		* @constructor
+		* @extends {jQuery}
+		*/
+		function( selector, context, rootjQuery ) {
 		var match, elem;
 
 		// HANDLE: $(""), $(null), $(undefined), $(false)
@@ -221,9 +254,14 @@ jQuery.fn = jQuery.prototype = {
 		return ret;
 	},
 
-	// Execute a callback for every element in the matched set.
-	// (You can seed the arguments with an array of args, but this is
-	// only used internally.)
+	/**
+	 * Execute a callback for every element in the matched set.
+	 * (You can seed the arguments with an array of args, but this is
+	 * only used internally.)
+	 * @param {function(this:Object,number,Element)} callback
+	 * @param {Array=} args
+	 * @return {jQuery}
+	 */
 	each: function( callback, args ) {
 		return jQuery.each( this, callback, args );
 	},
@@ -235,7 +273,12 @@ jQuery.fn = jQuery.prototype = {
 		return this;
 	},
 
-	slice: function() {
+	/**
+	 * @param {number} begin
+	 * @param {number=} end
+	 * @return {jQuery}
+	 */
+	slice: function( begin, end ) {
 		return this.pushStack( core_slice.apply( this, arguments ) );
 	},
 
@@ -253,6 +296,10 @@ jQuery.fn = jQuery.prototype = {
 		return this.pushStack( j >= 0 && j < len ? [ this[j] ] : [] );
 	},
 
+	/**
+	 * @param {function(number,Element):*} callback
+	 * @return {*}
+	 */
 	map: function( callback ) {
 		return this.pushStack( jQuery.map(this, function( elem, i ) {
 			return callback.call( elem, i, elem );
@@ -273,8 +320,12 @@ jQuery.fn = jQuery.prototype = {
 // Give the init function the jQuery prototype for later instantiation
 jQuery.fn.init.prototype = jQuery.fn;
 
-jQuery.extend = jQuery.fn.extend = function() {
-	var options, name, src, copy, copyIsArray, clone,
+/**
+ * @param {...*} var_args
+ * @return {Object}
+ */
+jQuery.extend = jQuery.fn.extend = function( var_args ) {
+	var src, copyIsArray, copy, name, options, clone,
 		target = arguments[0] || {},
 		i = 1,
 		length = arguments.length,
@@ -338,16 +389,13 @@ jQuery.extend = jQuery.fn.extend = function() {
 };
 
 jQuery.extend({
-	// Unique for each copy of jQuery on the page
-	expando: "jQuery" + ( core_version + Math.random() ).replace( /\D/g, "" ),
-
 	noConflict: function( deep ) {
-		if ( window.$ === jQuery ) {
-			window.$ = _$;
+		if ( window[ "$" ] === jQuery ) {
+			window[ "$" ] = _$;
 		}
 
-		if ( deep && window.jQuery === jQuery ) {
-			window.jQuery = _jQuery;
+		if ( deep && window[ "jQuery" ] === jQuery ) {
+			window[ "jQuery" ] = _jQuery;
 		}
 
 		return jQuery;
@@ -377,6 +425,11 @@ jQuery.extend({
 			return;
 		}
 
+		// Make sure body exists, at least, in case IE gets a little overzealous (ticket #5443).
+		if ( !document.body ) {
+			return setTimeout( jQuery.ready );
+		}
+
 		// Remember that the DOM is ready
 		jQuery.isReady = true;
 
@@ -401,7 +454,9 @@ jQuery.extend({
 		return jQuery.type(obj) === "function";
 	},
 
-	isArray: Array.isArray,
+	isArray: Array.isArray || function( obj ) {
+		return jQuery.type(obj) === "array";
+	},
 
 	isWindow: function( obj ) {
 		return obj != null && obj == obj.window;
@@ -415,36 +470,38 @@ jQuery.extend({
 		if ( obj == null ) {
 			return String( obj );
 		}
-		// Support: Safari <=5.1 (functionish RegExp)
 		return typeof obj === "object" || typeof obj === "function" ?
 			class2type[ core_toString.call(obj) ] || "object" :
 			typeof obj;
 	},
 
 	isPlainObject: function( obj ) {
-		// Not plain objects:
-		// - Any object or value whose internal [[Class]] property is not "[object Object]"
-		// - DOM nodes
-		// - window
-		if ( jQuery.type( obj ) !== "object" || obj.nodeType || jQuery.isWindow( obj ) ) {
+		// Must be an Object.
+		// Because of IE, we also have to check the presence of the constructor property.
+		// Make sure that DOM nodes and window objects don't pass through, as well
+		if ( !obj || jQuery.type(obj) !== "object" || obj.nodeType || jQuery.isWindow( obj ) ) {
 			return false;
 		}
 
-		// Support: Firefox >16
-		// The try/catch suppresses exceptions thrown when attempting to access
-		// the "constructor" property of certain host objects, ie. |window.location|
 		try {
+			// Not own constructor property must be Object
 			if ( obj.constructor &&
-					!core_hasOwn.call( obj.constructor.prototype, "isPrototypeOf" ) ) {
+				!core_hasOwn.call(obj, "constructor") &&
+				!core_hasOwn.call(obj.constructor.prototype, "isPrototypeOf") ) {
 				return false;
 			}
 		} catch ( e ) {
+			// IE8,9 Will throw exceptions on certain host objects #9897
 			return false;
 		}
 
-		// If the function hasn't returned already, we're confident that
-		// |obj| is a plain object, created by {} or constructed with new Object
-		return true;
+		// Own properties are enumerated firstly, so to speed up,
+		// if last one is own, then all properties are own.
+
+		var key;
+		for ( key in obj ) {}
+
+		return key === undefined || core_hasOwn.call( obj, key );
 	},
 
 	isEmptyObject: function( obj ) {
@@ -481,15 +538,41 @@ jQuery.extend({
 		}
 
 		parsed = jQuery.buildFragment( [ data ], context, scripts );
-
 		if ( scripts ) {
 			jQuery( scripts ).remove();
 		}
-
 		return jQuery.merge( [], parsed.childNodes );
 	},
 
-	parseJSON: JSON.parse,
+	parseJSON: function( data ) {
+		// Attempt to parse using the native JSON parser first
+		if ( window.JSON && window.JSON.parse ) {
+			return window.JSON.parse( data );
+		}
+
+		if ( data === null ) {
+			return data;
+		}
+
+		if ( typeof data === "string" ) {
+
+			// Make sure leading/trailing whitespace is removed (IE can't handle it)
+			data = jQuery.trim( data );
+
+			if ( data ) {
+				// Make sure the incoming data is actual JSON
+				// Logic borrowed from http://json.org/json2.js
+				if ( rvalidchars.test( data.replace( rvalidescape, "@" )
+					.replace( rvalidtokens, "]" )
+					.replace( rvalidbraces, "")) ) {
+
+					return ( new Function( "return " + data ) )();
+				}
+			}
+		}
+
+		jQuery.error( "Invalid JSON: " + data );
+	},
 
 	// Cross-browser xml parsing
 	parseXML: function( data ) {
@@ -497,16 +580,19 @@ jQuery.extend({
 		if ( !data || typeof data !== "string" ) {
 			return null;
 		}
-
-		// Support: IE9
 		try {
-			tmp = new DOMParser();
-			xml = tmp.parseFromString( data , "text/xml" );
-		} catch ( e ) {
+			if ( window.DOMParser ) { // Standard
+				tmp = new DOMParser();
+				xml = tmp.parseFromString( data , "text/xml" );
+			} else { // IE
+				xml = new ActiveXObject( "Microsoft.XMLDOM" );
+				xml.async = "false";
+				xml.loadXML( data );
+			}
+		} catch( e ) {
 			xml = undefined;
 		}
-
-		if ( !xml || xml.getElementsByTagName( "parsererror" ).length ) {
+		if ( !xml || !xml.documentElement || xml.getElementsByTagName( "parsererror" ).length ) {
 			jQuery.error( "Invalid XML: " + data );
 		}
 		return xml;
@@ -515,10 +601,16 @@ jQuery.extend({
 	noop: function() {},
 
 	// Evaluates a script in a global context
+	// Workarounds based on findings by Jim Driscoll
+	// http://weblogs.java.net/blog/driscoll/archive/2009/09/08/eval-javascript-global-context
 	globalEval: function( data ) {
-		var indirect = eval;
-		if ( jQuery.trim( data ) ) {
-			indirect( data + ";" );
+		if ( data && jQuery.trim( data ) ) {
+			// We use execScript on Internet Explorer
+			// We use an anonymous function so that context is window
+			// rather than jQuery in Firefox
+			( window.execScript || function( data ) {
+				window[ "eval" ].call( window, data );
+			} )( data );
 		}
 	},
 
@@ -582,9 +674,20 @@ jQuery.extend({
 		return obj;
 	},
 
-	trim: function( text ) {
-		return text == null ? "" : core_trim.call( text );
-	},
+	// Use native String.trim function wherever possible
+	trim: core_trim && !core_trim.call("\uFEFF\xA0") ?
+		function( text ) {
+			return text == null ?
+				"" :
+				core_trim.call( text );
+		} :
+
+		// Otherwise use our own trimming functionality
+		function( text ) {
+			return text == null ?
+				"" :
+				( text + "" ).replace( rtrim, "" );
+		},
 
 	// results is for internal usage only
 	makeArray: function( arr, results ) {
@@ -605,7 +708,25 @@ jQuery.extend({
 	},
 
 	inArray: function( elem, arr, i ) {
-		return arr == null ? -1 : core_indexOf.call( arr, elem, i );
+		var len;
+
+		if ( arr ) {
+			if ( core_indexOf ) {
+				return core_indexOf.call( arr, elem, i );
+			}
+
+			len = arr.length;
+			i = i ? i < 0 ? Math.max( 0, len + i ) : i : 0;
+
+			for ( ; i < len; i++ ) {
+				// Skip accessing in sparse arrays
+				if ( i in arr && arr[ i ] === elem ) {
+					return i;
+				}
+			}
+		}
+
+		return -1;
 	},
 
 	merge: function( first, second ) {
@@ -686,7 +807,7 @@ jQuery.extend({
 	// Bind a function to a context, optionally partially applying any
 	// arguments.
 	proxy: function( fn, context ) {
-		var tmp, args, proxy;
+		var args, proxy, tmp;
 
 		if ( typeof context === "string" ) {
 			tmp = fn[ context ];
@@ -765,10 +886,14 @@ jQuery.extend({
 				length ? fn( elems[0], key ) : emptyGet;
 	},
 
-	now: Date.now
+	now: function() {
+		return ( new Date() ).getTime();
+	}
 });
 
 jQuery.ready.promise = function( obj ) {
+
+	
 	if ( !readyList ) {
 
 		readyList = jQuery.Deferred();
@@ -780,13 +905,50 @@ jQuery.ready.promise = function( obj ) {
 			// Handle it asynchronously to allow scripts the opportunity to delay ready
 			setTimeout( jQuery.ready );
 
-		} else {
-
+		// Standards-based browsers support DOMContentLoaded
+		} else if ( document.addEventListener ) {
 			// Use the handy event callback
 			document.addEventListener( "DOMContentLoaded", completed, false );
 
 			// A fallback to window.onload, that will always work
 			window.addEventListener( "load", completed, false );
+
+		// If IE event model is used
+		} else {
+			// Ensure firing before onload, maybe late but safe also for iframes
+			document.attachEvent( "onreadystatechange", completed );
+
+			// A fallback to window.onload, that will always work
+			window.attachEvent( "onload", completed );
+
+			// If IE and not a frame
+			// continually check to see if the document is ready
+			var top = false;
+
+			try {
+				top = window.frameElement == null && document.documentElement;
+			} catch(e) {}
+
+			if ( top && top.doScroll ) {
+				(function doScrollCheck() {
+					if ( !jQuery.isReady ) {
+
+						try {
+							// Use the trick by Diego Perini
+							// http://javascript.nwbox.com/IEContentLoaded/
+							top.doScroll("left");
+						} catch(e) {
+							return setTimeout( doScrollCheck, 50 );
+						}
+
+						// detach all dom ready events
+						detach();
+
+						// and execute any waiting functions
+						jQuery.ready();
+					}
+				})();
+			}
 		}
 	}
 	return readyList.promise( obj );
@@ -816,3 +978,5 @@ function isArraylike( obj ) {
 
 // All jQuery objects should point back to these
 rootjQuery = jQuery(document);
+
+jQuery.expandedEach = jQuery.each;
