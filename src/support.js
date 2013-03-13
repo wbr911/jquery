@@ -1,4 +1,4 @@
-jQuery.support = (function() {
+jQuery.support = ( /** @suppress {uselessCode} */ function() {
 
 	var support, all, a,
 		input, select, fragment,
@@ -92,7 +92,7 @@ jQuery.support = (function() {
 
 	// Support: IE<9
 	try {
-		delete div.test;
+		delete div["test"];
 	} catch( e ) {
 		support["deleteExpando"] = false;
 	}
@@ -145,7 +145,7 @@ jQuery.support = (function() {
 	support["clearCloneStyle"] = div.style.backgroundClip === "content-box";
 
 	// Run tests that need a body at doc ready
-	jQuery(function() {
+	new jQuery(function() {
 		var container, marginDiv, tds,
 			divReset = "padding:0;margin:0;border:0;display:block;box-sizing:content-box;-moz-box-sizing:content-box;-webkit-box-sizing:content-box;",
 			body = document.getElementsByTagName("body")[0];

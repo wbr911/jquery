@@ -32,7 +32,7 @@ jQuery.ajaxTransport( "script", function(s) {
 	if ( s.crossDomain ) {
 
 		var script,
-			head = document.head || jQuery("head")[0] || document.documentElement;
+			head = document.head || new jQuery("head")[0] || document.documentElement;
 
 		return {
 
@@ -49,12 +49,12 @@ jQuery.ajaxTransport( "script", function(s) {
 				script.src = s.url;
 
 				// Attach handlers for all browsers
-				script.onload = script.onreadystatechange = function( _, isAbort ) {
+				script.onload = script.onreadystatechange = /** @param {?=} isAbort */ function( _, isAbort ) {
 
 					if ( isAbort || !script.readyState || /loaded|complete/.test( script.readyState ) ) {
 
 						// Handle memory leak in IE
-						script.onload = script.onreadystatechange = null;
+						script.onload = script.onreadystatechange = /** @type {function (?, ?=)} */ ( null );
 
 						// Remove the script
 						if ( script.parentNode ) {
@@ -78,7 +78,7 @@ jQuery.ajaxTransport( "script", function(s) {
 
 			abort: function() {
 				if ( script ) {
-					script.onload( undefined, true );
+					script["onload"]( undefined, true );
 				}
 			}
 		};

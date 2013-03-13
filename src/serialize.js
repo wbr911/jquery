@@ -5,9 +5,11 @@ var r20 = /%20/g,
 	rsubmittable = /^(?:input|select|textarea|keygen)/i;
 
 jQuery.fn.extend({
+	/** @return {string} */
 	serialize: function() {
 		return jQuery.param( this.serializeArray() );
 	},
+	/** @return {Array.<Object.<string, *>>} */
 	serializeArray: function() {
 		return this.map(function(){
 			// Can add propHook for "elements" to filter or add form elements
@@ -17,17 +19,17 @@ jQuery.fn.extend({
 		.filter(function(){
 			var type = this.type;
 			// Use .is(":disabled") so that fieldset[disabled] works
-			return this.name && !jQuery( this ).is( ":disabled" ) &&
+			return this.name && !new jQuery( this ).is( ":disabled" ) &&
 				rsubmittable.test( this.nodeName ) && !rsubmitterTypes.test( type ) &&
 				( this.checked || !manipulation_rcheckableType.test( type ) );
 		})
 		.map(function( i, elem ){
-			var val = jQuery( this ).val();
+			var val = new jQuery( this ).val();
 
 			return val == null ?
 				null :
 				jQuery.isArray( val ) ?
-					jQuery.map( val, function( val ){
+					jQuery.map( /** @type {Array.<*>} */ ( val ), function( val ){
 						return { name: elem.name, value: val.replace( rCRLF, "\r\n" ) };
 					}) :
 					{ name: elem.name, value: val.replace( rCRLF, "\r\n" ) };
@@ -37,6 +39,13 @@ jQuery.fn.extend({
 
 //Serialize an array of form elements or a set of
 //key/values into a query string
+/**
+ * Serialize an array of form elements or a set of
+ * key/values into a query string
+ * @param {(Object.<string, *>|Array.<Object.<string, *>>)} a
+ * @param {?boolean=} traditional
+ * @return {string}
+ */
 jQuery.param = function( a, traditional ) {
 	var prefix,
 		s = [],

@@ -1,5 +1,9 @@
 jQuery.extend({
 
+	/**
+	 * @param {function(jQuery.deferred,jQuery.deferred=)=} func
+	 * @return {jQuery.deferred}
+	 */
 	Deferred: function( func ) {
 		var tuples = [
 				// action, add listener, listener list, final state
@@ -13,7 +17,7 @@ jQuery.extend({
 					return state;
 				},
 				always: function() {
-					deferred.done( arguments ).fail( arguments );
+					deferred.done( /** @type {Array.<function(...)>} */ ( arguments ) ).fail( /** @type {Array.<function(...)>} */ ( arguments ) );
 					return this;
 				},
 				then: function( /* fnDone, fnFail, fnProgress */ ) {
@@ -32,7 +36,8 @@ jQuery.extend({
 										.fail( newDefer.reject )
 										.progress( newDefer.notify );
 								} else {
-									actionWith.call( newDefer, this === promise ? newDefer.promise() : this, fn ? [ returned ] : arguments );
+									actionWith.call( newDefer, this === promise ? newDefer.promise() : this,
+										/** @type {Array.<function(...)>} */ ( fn ? [ returned ] : arguments ) );
 								}
 							});
 						});
@@ -45,10 +50,10 @@ jQuery.extend({
 					return obj != null ? jQuery.extend( obj, promise ) : promise;
 				}
 			},
-			deferred = {};
+			deferred = /** @type {jQuery.deferred} */ ( {} );
 
 		// Keep pipe for back-compat
-		promise.pipe = promise.then;
+		// promise.pipe = promise.then; //deprecated
 
 		promise.done = tuples[ 0 ][ 2 ].add;
 		promise.fail = tuples[ 1 ][ 2 ].add;
@@ -66,7 +71,8 @@ jQuery.extend({
 
 			// deferred[ resolve | reject | notify ]
 			deferred[ key ] = function() {
-				deferred[ key + "With" ]( this === deferred ? promise : this, arguments );
+				deferred[ key + "With" ]( this === deferred ? promise : this,
+					/** @type {Array.<function(...)>} */ ( arguments ) );
 				return this;
 			};
 			deferred[ key + "With" ] = list.fireWith;

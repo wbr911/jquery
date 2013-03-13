@@ -509,7 +509,7 @@ function ajaxTest( title, expect, options ) {
 				url: url("data/name.html"),
 				context: {},
 				success: function() {
-					ok( this !== obj, "Make sure overidding context is possible." );
+					ok( this !== obj, "Make sure overriding context is possible." );
 				}
 			}]
 		};
@@ -1312,14 +1312,14 @@ function ajaxTest( title, expect, options ) {
 				xhr.overrideMimeType( "application/json" );
 			},
 			success: function( json ) {
-				ok( json.data, "Mimetype overriden using beforeSend" );
+				ok( json.data, "Mimetype overridden using beforeSend" );
 			}
 		},
 		{
 			url: url("data/json.php"),
 			mimeType: "application/json",
 			success: function( json ) {
-				ok( json.data, "Mimetype overriden using mimeType option" );
+				ok( json.data, "Mimetype overridden using mimeType option" );
 			}
 		}
 	]);
@@ -1469,7 +1469,7 @@ function ajaxTest( title, expect, options ) {
 			});
 			success = true;
 		} catch ( e ) {
-			console.log( e );
+			window.console.log( e );
 		}
 		ok( success, "context with circular reference did not generate an exception" );
 	});
@@ -1494,6 +1494,18 @@ function ajaxTest( title, expect, options ) {
 			request( undefined )
 		]);
 		
+	});
+
+	ajaxTest( "#11151 - jQuery.ajax() - parse error body", 2, {
+		url: url("data/errorWithJSON.php"),
+		dataFilter: function( string ) {
+			ok( false, "dataFilter called" );
+			return string;
+		},
+		error: function( jqXHR ) {
+			strictEqual( jqXHR.responseText, "{ \"code\": 40, \"message\": \"Bad Request\" }", "Error body properly set" );
+			deepEqual( jqXHR.responseJSON, { "code": 40, "message": "Bad Request" }, "Error body properly parsed" );
+		}
 	});
 
 	ajaxTest( "#11426 - jQuery.ajax() - loading binary data shouldn't throw an exception in IE", 1, {
@@ -1590,6 +1602,52 @@ function ajaxTest( title, expect, options ) {
 			ok( false, "error" );
 			strictEqual( status, "parsererror", "Parser Error" );
 			strictEqual( error, "converter was called", "Converter was called" );
+		}
+	});
+
+	ajaxTest( "#13276 - jQuery.ajax() - compatibility between XML documents from ajax requests and parsed string", 1, {
+		url: "data/dashboard.xml",
+		dataType: "xml",
+		success: function( ajaxXML ) {
+			var parsedXML = jQuery( jQuery.parseXML("<tab title=\"Added\">blibli</tab>") ).find("tab");
+			ajaxXML = jQuery( ajaxXML );
+			try {
+				ajaxXML.find("infowindowtab").append( parsedXML );
+			} catch( e ) {
+				strictEqual( e, undefined, "error" );
+				return;
+			}
+			strictEqual( ajaxXML.find("tab").length, 3, "Parsed node was added properly" );
+		}
+	});
+	
+	ajaxTest( "#13292 - jQuery.ajax() - converter is bypassed for 204 requests", 3, {
+		url: "data/nocontent.php",
+		dataType: "testing",
+		converters: {
+			"* testing": function() {
+				throw "converter was called";
+			}
+		},
+		success: function( data, status, jqXHR ) {
+			strictEqual( jqXHR.status, 204, "status code is 204" );
+			strictEqual( status, "nocontent", "status text is 'nocontent'" );
+			strictEqual( data, undefined, "data is undefined" );
+		},
+		error: function( _, status, error ) {
+			ok( false, "error" );
+			strictEqual( status, "parsererror", "Parser Error" );
+			strictEqual( error, "converter was called", "Converter was called" );
+		}
+	});
+
+	ajaxTest( "#13388 - jQuery.ajax() - responseXML", 3, {
+		url: url("data/with_fries.xml"),
+		dataType: "xml",
+		success: function( resp, _, jqXHR ) {
+			notStrictEqual( resp, undefined, "XML document exists" );
+			ok( "responseXML" in jqXHR, "jqXHR.responseXML exists" );
+			strictEqual( resp, jqXHR.responseXML, "jqXHR.responseXML is set correctly" );
 		}
 	});
 

@@ -1,12 +1,17 @@
 // Create innerHeight, innerWidth, height, width, outerHeight and outerWidth methods
 jQuery.expandedEach( { Height: "height", Width: "width" }, function( name, type ) {
 	jQuery.expandedEach( { padding: "inner" + name, content: type, "": "outer" + name }, function( defaultExtra, funcName ) {
-		// margin is only for outerHeight, outerWidth
+		/**
+		 * margin is only for outerHeight, outerWidth
+		 * @param {boolean=} margin
+		 * @param {?=} value
+		 * @return {number|!jQuery}
+		 */
 		jQuery.fn[ funcName ] = function( margin, value ) {
-			var chainable = arguments.length && ( defaultExtra || typeof margin !== "boolean" ),
+			var chainable = arguments.length && ( defaultExtra !== "" || typeof margin !== "boolean" ),
 				extra = defaultExtra || ( margin === true || value === true ? "margin" : "border" );
 
-			return jQuery.access( this, function( elem, type, value ) {
+			return /** @type {!jQuery|number} */ ( jQuery.access( this, function( elem, type, value ) {
 				var doc;
 
 				if ( jQuery.isWindow( elem ) ) {
@@ -35,7 +40,7 @@ jQuery.expandedEach( { Height: "height", Width: "width" }, function( name, type 
 
 					// Set width or height on the element
 					jQuery.style( elem, type, value, extra );
-			}, type, chainable ? margin : undefined, chainable, null );
+			}, type, chainable ? margin : undefined, chainable, null ) );
 		};
 	});
 });

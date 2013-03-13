@@ -1,3 +1,8 @@
+/**
+ * @param {(ClientRect|{left:number,top:number}|
+ *     function(number,{top:number,left:number}))=} options
+ * @return {{left:number,top:number}|!jQuery|undefined}
+ */
 jQuery.fn.offset = function( options ) {
 	if ( arguments.length ) {
 		return options === undefined ?
@@ -45,7 +50,7 @@ jQuery.offset = {
 			elem.style.position = "relative";
 		}
 
-		var curElem = jQuery( elem ),
+		var curElem = new jQuery( elem ),
 			curOffset = curElem.offset(),
 			curCSSTop = jQuery.css( elem, "top" ),
 			curCSSLeft = jQuery.css( elem, "left" ),
@@ -84,6 +89,7 @@ jQuery.offset = {
 
 jQuery.fn.extend({
 
+	/** @return {{left:number,top:number}|undefined} */
 	position: function() {
 		if ( !this[ 0 ] ) {
 			return;
@@ -121,6 +127,7 @@ jQuery.fn.extend({
 		};
 	},
 
+	/** @return {!jQuery} */
 	offsetParent: function() {
 		return this.map(function() {
 			var offsetParent = this.offsetParent || document.documentElement;
@@ -137,8 +144,12 @@ jQuery.fn.extend({
 jQuery.expandedEach( {scrollLeft: "pageXOffset", scrollTop: "pageYOffset"}, function( method, prop ) {
 	var top = /Y/.test( prop );
 
+	/**
+	 * @param {number=} val
+	 * @return {(number|!jQuery)}
+	 */
 	jQuery.fn[ method ] = function( val ) {
-		return jQuery.access( this, function( elem, method, val ) {
+		return /** @type {number|!jQuery} */ ( jQuery.access( this, function( elem, method, val ) {
 			var win = getWindow( elem );
 
 			if ( val === undefined ) {
@@ -149,14 +160,14 @@ jQuery.expandedEach( {scrollLeft: "pageXOffset", scrollTop: "pageYOffset"}, func
 
 			if ( win ) {
 				win.scrollTo(
-					!top ? val : jQuery( win ).scrollLeft(),
-					top ? val : jQuery( win ).scrollTop()
+					!top ? val : new jQuery( win ).scrollLeft(),
+					top ? val : new jQuery( win ).scrollTop()
 				);
 
 			} else {
 				elem[ method ] = val;
 			}
-		}, method, val, arguments.length, null );
+		}, method, val, arguments.length, null ) );
 	};
 });
 

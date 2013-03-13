@@ -12,7 +12,7 @@ test("Basic requirements", function() {
 	ok( Function.prototype.apply, "Function.apply()" );
 	ok( document.getElementById, "getElementById" );
 	ok( document.getElementsByTagName, "getElementsByTagName" );
-	ok( RegExp, "RegExp" );
+	ok( window["RegExp"], "RegExp" );
 	ok( jQuery, "jQuery" );
 	ok( $, "$" );
 });
@@ -1153,7 +1153,7 @@ test("jQuery.makeArray", function(){
 	//window, also has length
 	equal( jQuery.makeArray(window)[0], window, "Pass makeArray the window" );
 
-	equal( jQuery.makeArray(/a/)[0].constructor, RegExp, "Pass makeArray a regex" );
+	equal( jQuery.makeArray(/a/)[0].constructor, window["RegExp"], "Pass makeArray a regex" );
 
 	// Some nodes inherit traits of nodelists
 	ok( jQuery.makeArray(document.getElementById("form")).length >= 13,

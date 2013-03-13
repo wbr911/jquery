@@ -67,6 +67,12 @@ module.exports = function( grunt ) {
 					jshintrc: "src/.jshintrc"
 				}
 			},
+			"closure-compiler": {
+				src: [ "dist/jquery.closure-compiler.js" ],
+				options: {
+					jshintrc: "src/.jshintrc"
+				}
+			},
 			grunt: {
 				src: [ "Gruntfile.js" ],
 				options: {
@@ -414,6 +420,8 @@ module.exports = function( grunt ) {
 
 			// Otherwise, print a success message.
 			grunt.log.writeln( "File '" + name + "' created." );
+
+			grunt.task.run( "build-closure-compiler" );
 		});
 
 	// Process files for distribution
@@ -521,6 +529,7 @@ module.exports = function( grunt ) {
 				grunt.file.write( cfg.dest, compiled );
 				
 				grunt.log.writeln( "File '" + cfg.dest + "' created." );
+				grunt.task.run( "jshint:closure-compiler" );
 			});
 
 	// Load grunt tasks from NPM packages

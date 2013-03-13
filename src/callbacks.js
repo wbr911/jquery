@@ -10,7 +10,7 @@ function createOptions( options ) {
 	return object;
 }
 
-/*
+/**
  * Create a callback list using the following parameters:
  *
  *	options: an optional list of space-separated options that will change how
@@ -19,7 +19,7 @@ function createOptions( options ) {
  * By default a callback list will act like an event callback list and can be
  * "fired" multiple times.
  *
- * Possible options:
+ * @param{string=} options - Possible options:
  *
  *	once:			will ensure the callback list can only be fired once (like a Deferred)
  *
@@ -31,6 +31,7 @@ function createOptions( options ) {
  *
  *	stopOnFalse:	interrupt callings when a callback returns false
  *
+ * @return {jQuery.callbacks}
  */
 jQuery.Callbacks = function( options ) {
 
@@ -121,7 +122,7 @@ jQuery.Callbacks = function( options ) {
 				if ( list ) {
 					jQuery.each( arguments, function( _, arg ) {
 						var index;
-						while( ( index = jQuery.inArray( arg, list, index ) ) > -1 ) {
+						while( ( index = jQuery.inArray( arg, /** @type {Array.<*>} */ ( list ), index ) ) > -1 ) {
 							list.splice( index, 1 );
 							// Handle firing indexes
 							if ( firing ) {
@@ -140,7 +141,7 @@ jQuery.Callbacks = function( options ) {
 			// Check if a given callback is in the list.
 			// If no argument is given, return whether or not list has callbacks attached.
 			has: function( fn ) {
-				return fn ? jQuery.inArray( fn, list ) > -1 : !!( list && list.length );
+				return fn ? jQuery.inArray( fn, /** @type {Array.<*>} */ ( list ) ) > -1 : !!( list && list.length );
 			},
 			// Remove all callbacks from the list
 			empty: function() {
@@ -192,5 +193,5 @@ jQuery.Callbacks = function( options ) {
 			}
 		};
 
-	return self;
+	return /** @type {jQuery.callbacks} */ ( self );
 };

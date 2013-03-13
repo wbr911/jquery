@@ -27,11 +27,19 @@ var original$ = "";
 var amdDefined = {};
 var globalEvalTest = "";
 var isLocal = false;
+var externalHost = "";
+var hasPHP = true;
 window.globalEvalTest = "";
 window.iframeDone = "";
 window.define = {};
 window.define.amd = {};
 window.define.amd.jQuery = {};
+
+Window.prototype.testIframeWithCallback = function() {};
+Window.prototype.testIframe = function() {};
+function testIframeWithCallback() {}
+function testIframe() {}
+
 /** @param {...*} var_args */
 function q(var_args) {}
 function stop() {}
@@ -45,3 +53,4 @@ Globals.register = function() {};
 Globals.cleanup = function() {};
 
 function createDashboardXML() {}
+function createXMLFragment() {}

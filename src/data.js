@@ -1,6 +1,11 @@
 var rbrace = /(?:\{[\s\S]*\}|\[[\s\S]*\])$/,
 	rmultiDash = /([A-Z])/g;
 
+/**
+ * @param {*=} data
+ * @param {*=} pvt
+ * @private
+ */
 function internalData( elem, name, data, pvt /* Internal Use Only */ ){
 	if ( !jQuery.acceptData( elem ) ) {
 		return;
@@ -95,6 +100,10 @@ function internalData( elem, name, data, pvt /* Internal Use Only */ ){
 	return ret;
 }
 
+/**
+ * @param {*=} pvt
+ * @private
+ */
 function internalRemoveData( elem, name, pvt ) {
 	if ( !jQuery.acceptData( elem ) ) {
 		return;
@@ -185,8 +194,11 @@ function internalRemoveData( elem, name, pvt ) {
 jQuery.extend({
 	cache: {},
 
-	// Unique for each copy of jQuery on the page
-	// Non-digits removed to match rinlinejQuery
+	/**
+	 * Unique for each copy of jQuery on the page
+	 * Non-digits removed to match rinlinejQuery
+	 * @const
+	 */
 	expando: "jQuery" + ( core_version + Math.random() ).replace( /\D/g, "" ),
 
 	// The following elements throw uncatchable exceptions if you
@@ -198,29 +210,58 @@ jQuery.extend({
 		"applet": true
 	},
 
+	/**
+	 * @param {Element} elem
+	 * @return {boolean}
+	 */
 	hasData: function( elem ) {
 		elem = elem.nodeType ? jQuery.cache[ elem[jQuery.expando] ] : elem[ jQuery.expando ];
 		return !!elem && !isEmptyDataObject( elem );
 	},
 
+	/**
+	 * @param {Element} elem
+	 * @param {(string|Object|function(?):?)=} name
+	 * @param {*=} data
+	 * @return {*}
+	 */
 	data: function( elem, name, data ) {
 		return internalData( elem, name, data );
 	},
 
+	/**
+	 * @param {Element} elem
+	 * @param {(string|Object|Array.<*>)=} name
+	 */
 	removeData: function( elem, name ) {
 		return internalRemoveData( elem, name );
 	},
 
-	// For internal use only.
+	/**
+	 * @param {Element} elem
+	 * @param {string=} name
+	 * @param {*=} data
+	 * @return {*}
+	 * @private
+	 */
 	_data: function( elem, name, data ) {
 		return internalData( elem, name, data, true );
 	},
 
+	/**
+	 * @param {Element} elem
+	 * @param {string=} name
+	 * @private
+	 */
 	_removeData: function( elem, name ) {
 		return internalRemoveData( elem, name, true );
 	},
 
-	// A method for determining if a DOM node can handle the data expando
+	/**
+	 * A method for determining if a DOM node can handle the data expando
+	 * @param {Element} elem
+	 * @return {boolean}
+	 */
 	acceptData: function( elem ) {
 		// Do not set data on non-element because it will not be cleared (#8335).
 		if ( elem.nodeType && elem.nodeType !== 1 && elem.nodeType !== 9 ) {
@@ -235,6 +276,11 @@ jQuery.extend({
 });
 
 jQuery.fn.extend({
+	/**
+	 * @param {(string|Object.<string, *>)=} key
+	 * @param {*=} value
+	 * @return {*}
+	 */
 	data: function( key, value ) {
 		var attrs, name,
 			elem = this[0],
@@ -284,6 +330,10 @@ jQuery.fn.extend({
 		}, null, value, arguments.length > 1, null, true );
 	},
 
+	/**
+	 * @param {(string|Array.<string>)=} key
+	 * @return {!jQuery}
+	 */
 	removeData: function( key ) {
 		return this.each(function() {
 			jQuery.removeData( this, key );

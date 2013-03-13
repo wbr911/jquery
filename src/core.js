@@ -42,12 +42,12 @@ var
  * @param {(jQuerySelector|Element|Object|Array.<Element>|jQuery|string|
  *     function())=} selector
  * @param {(Element|jQuery|Document|
- *     Object.<string, (string|function(!jQuery.event=))>)=} context
+ *     Object.<string, (string|function(!jQuery.Event=))>)=} context
  * @return {!jQuery}
  */
 var jQuery = function( selector, context ) {
 		// The jQuery object is actually just the init constructor 'enhanced'
-		return new jQuery.fn.init( selector, context, rootjQuery );
+		return /** @type {!jQuery} */ ( new jQuery.fn.init( selector, context, rootjQuery ) );
 	};
 
 var core_pnum = /[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/.source,
@@ -137,7 +137,7 @@ jQuery.fn = jQuery.prototype = {
 					context = context instanceof jQuery ? context[0] : context;
 
 					// scripts is true for back-compat
-					jQuery.merge( this, jQuery.parseHTML(
+					jQuery.merge( /** @type {Array.<*>} */ ( this ), jQuery.parseHTML(
 						match[1],
 						context && context.nodeType ? context.ownerDocument || context : document,
 						true
@@ -209,26 +209,31 @@ jQuery.fn = jQuery.prototype = {
 			this.context = selector.context;
 		}
 
-		return jQuery.makeArray( selector, this );
+		return jQuery.makeArray( selector, /** @type {Array.<*>} */ ( this ) );
 	},
 
 	// Start with an empty selector
 	selector: "",
 
-	// The default length of a jQuery object is 0
+	/** @type {number} The default length of a jQuery object is 0 */
 	length: 0,
 
-	// The number of elements contained in the matched element set
+	/** @return {number} the number of elements contained in the matched element set */
 	size: function() {
 		return this.length;
 	},
 
+	/** @return {Array.<*>} */
 	toArray: function() {
 		return core_slice.call( this );
 	},
 
-	// Get the Nth element in the matched element set OR
-	// Get the whole matched element set as a clean array
+	/**
+	 * Get the Nth element in the matched element set OR
+	 * Get the whole matched element set as a clean array
+	 * @param {number=} num
+	 * @return {(Element|Window|Document|Node|Array.<Element|Window|Document|Node>)}
+	 */
 	get: function( num ) {
 		return num == null ?
 
@@ -239,12 +244,16 @@ jQuery.fn = jQuery.prototype = {
 			( num < 0 ? this[ this.length + num ] : this[ num ] );
 	},
 
-	// Take an array of elements and push it onto the stack
-	// (returning the new matched element set)
+	/**
+	 * Take an array of elements and push it onto the stack
+	 * (returning the new matched element set)
+	 * @param {Array.<Element>} elems
+	 * @return {!jQuery}
+	 */
 	pushStack: function( elems ) {
 
 		// Build a new jQuery matched element set
-		var ret = jQuery.merge( this.constructor(), elems );
+		var ret = /** @type {!jQuery} */ ( jQuery.merge( this.constructor(), elems ) );
 
 		// Add the old object onto the stack (as a reference)
 		ret.prevObject = this;
@@ -258,14 +267,18 @@ jQuery.fn = jQuery.prototype = {
 	 * Execute a callback for every element in the matched set.
 	 * (You can seed the arguments with an array of args, but this is
 	 * only used internally.)
-	 * @param {function(this:Object,number,Element)} callback
+	 * @param {function(this:Object,(number|string),Element)} callback
 	 * @param {Array=} args
-	 * @return {jQuery}
+	 * @return {!jQuery}
 	 */
 	each: function( callback, args ) {
-		return jQuery.each( this, callback, args );
+		return /** @type {!jQuery} */ ( jQuery.each( this, callback, args ) );
 	},
 
+	/**
+	 * @param {function()=} fn
+	 * @return {!jQuery}
+	 */
 	ready: function( fn ) {
 		// Add the callback
 		jQuery.ready.promise().done( fn );
@@ -282,14 +295,20 @@ jQuery.fn = jQuery.prototype = {
 		return this.pushStack( core_slice.apply( this, arguments ) );
 	},
 
+	/** @return {!jQuery} */
 	first: function() {
 		return this.eq( 0 );
 	},
 
+	/** @return {!jQuery} */
 	last: function() {
 		return this.eq( -1 );
 	},
 
+	/**
+	 * @param {number} i
+	 * @return {!jQuery}
+	 */
 	eq: function( i ) {
 		var len = this.length,
 			j = +i + ( i < 0 ? len : 0 );
@@ -306,14 +325,18 @@ jQuery.fn = jQuery.prototype = {
 		}));
 	},
 
+	/** @return {!jQuery} */
 	end: function() {
 		return this.prevObject || this.constructor(null);
 	},
 
 	// For internal use only.
 	// Behaves like an Array's method, not like a jQuery method.
+	/** @private */
 	push: core_push,
+	/** @private */
 	sort: [].sort,
+	/** @private */
 	splice: [].splice
 };
 
@@ -389,6 +412,10 @@ jQuery.extend = jQuery.fn.extend = function( var_args ) {
 };
 
 jQuery.extend({
+	/**
+	 * @param {boolean=} deep
+	 * @return {Object}
+	 */
 	noConflict: function( deep ) {
 		if ( window[ "$" ] === jQuery ) {
 			window[ "$" ] = _$;
@@ -408,7 +435,10 @@ jQuery.extend({
 	// the ready event fires. See #6781
 	readyWait: 1,
 
-	// Hold (or release) the ready event
+	/**
+	 * Hold (or release) the ready event
+	 * @param {boolean} hold
+	 */
 	holdReady: function( hold ) {
 		if ( hold ) {
 			jQuery.readyWait++;
@@ -417,7 +447,11 @@ jQuery.extend({
 		}
 	},
 
-	// Handle when the DOM is ready
+	/**
+	 * Handle when the DOM is ready
+	 * @param {boolean=} wait
+	 * @return {number|undefined}
+	 */
 	ready: function( wait ) {
 
 		// Abort if there are pending holds or we're already ready
@@ -427,7 +461,7 @@ jQuery.extend({
 
 		// Make sure body exists, at least, in case IE gets a little overzealous (ticket #5443).
 		if ( !document.body ) {
-			return setTimeout( jQuery.ready );
+			return setTimeout( jQuery.ready, 0 );
 		}
 
 		// Remember that the DOM is ready
@@ -443,29 +477,46 @@ jQuery.extend({
 
 		// Trigger any bound ready events
 		if ( jQuery.fn.trigger ) {
-			jQuery( document ).trigger("ready").off("ready");
+			new jQuery( document ).trigger("ready").off("ready");
 		}
 	},
 
-	// See test/unit/core.js for details concerning isFunction.
-	// Since version 1.3, DOM methods and functions like alert
-	// aren't supported. They return false on IE (#2968).
+	/**
+	 * See test/unit/core.js for details concerning isFunction.
+	 * Since version 1.3, DOM methods and functions like alert
+	 * aren't supported. They return false on IE (#2968).
+	 * @param {*} obj
+	 * @return {boolean}
+	 */
 	isFunction: function( obj ) {
 		return jQuery.type(obj) === "function";
 	},
 
+	/** @type {function(*):boolean} */
 	isArray: Array.isArray || function( obj ) {
 		return jQuery.type(obj) === "array";
 	},
 
+	/**
+	 * @param {*} obj
+	 * @return {boolean}
+	 */
 	isWindow: function( obj ) {
 		return obj != null && obj == obj.window;
 	},
 
+	/**
+	 * @param {*} obj
+	 * @return {boolean}
+	 */
 	isNumeric: function( obj ) {
 		return !isNaN( parseFloat(obj) ) && isFinite( obj );
 	},
 
+	/**
+	 * @param {*} obj
+	 * @return {string}
+	 */
 	type: function( obj ) {
 		if ( obj == null ) {
 			return String( obj );
@@ -475,6 +526,10 @@ jQuery.extend({
 			typeof obj;
 	},
 
+	/**
+	 * @param {Object} obj
+	 * @return {boolean}
+	 */
 	isPlainObject: function( obj ) {
 		// Must be an Object.
 		// Because of IE, we also have to check the presence of the constructor property.
@@ -504,6 +559,10 @@ jQuery.extend({
 		return key === undefined || core_hasOwn.call( obj, key );
 	},
 
+	/**
+	 * @param {Object} obj
+	 * @return {boolean}
+	 */
 	isEmptyObject: function( obj ) {
 		var name;
 		for ( name in obj ) {
@@ -512,13 +571,16 @@ jQuery.extend({
 		return true;
 	},
 
+	/** @param {string} msg */
 	error: function( msg ) {
 		throw new Error( msg );
 	},
 
-	// data: string of html
-	// context (optional): If specified, the fragment will be created in this context, defaults to document
-	// keepScripts (optional): If true, will include scripts passed in the html string
+	/**
+	 * @param {string} data: string of html
+	 * @param {(Object|boolean)=} context (optional): If specified, the fragment will be created in this context, defaults to document
+	 * @param {boolean=} keepScripts (optional): If true, will include scripts passed in the html string
+	 */
 	parseHTML: function( data, context, keepScripts ) {
 		if ( !data || typeof data !== "string" ) {
 			return null;
@@ -537,13 +599,17 @@ jQuery.extend({
 			return [ context.createElement( parsed[1] ) ];
 		}
 
-		parsed = jQuery.buildFragment( [ data ], context, scripts );
+		parsed = jQuery.buildFragment( [ data ], /** @type {Object} */ ( context ), /** @type {Array} */ ( scripts ) );
 		if ( scripts ) {
-			jQuery( scripts ).remove();
+			new jQuery( /** @type {Object} */ ( scripts ) ).remove();
 		}
 		return jQuery.merge( [], parsed.childNodes );
 	},
 
+	/**
+	 * @param {string} data
+	 * @return {*|undefined}
+	 */
 	parseJSON: function( data ) {
 		// Attempt to parse using the native JSON parser first
 		if ( window.JSON && window.JSON.parse ) {
@@ -574,7 +640,11 @@ jQuery.extend({
 		jQuery.error( "Invalid JSON: " + data );
 	},
 
-	// Cross-browser xml parsing
+	/**
+	 * Cross-browser xml parsing
+	 * @param {string} data
+	 * @return {Document}
+	 */
 	parseXML: function( data ) {
 		var xml, tmp;
 		if ( !data || typeof data !== "string" ) {
@@ -598,11 +668,15 @@ jQuery.extend({
 		return xml;
 	},
 
+	/** @return {undefined} */
 	noop: function() {},
 
-	// Evaluates a script in a global context
-	// Workarounds based on findings by Jim Driscoll
-	// http://weblogs.java.net/blog/driscoll/archive/2009/09/08/eval-javascript-global-context
+	/**
+	 * Evaluates a script in a global context
+	 * Workarounds based on findings by Jim Driscoll
+	 * http://weblogs.java.net/blog/driscoll/archive/2009/09/08/eval-javascript-global-context
+	 * @param {string} data
+	 */
 	globalEval: function( data ) {
 		if ( data && jQuery.trim( data ) ) {
 			// We use execScript on Internet Explorer
@@ -614,17 +688,31 @@ jQuery.extend({
 		}
 	},
 
-	// Convert dashed to camelCase; used by the css and data modules
-	// Microsoft forgot to hump their vendor prefix (#9572)
+	/**
+	 * Convert dashed to camelCase; used by the css and data modules
+	 * Microsoft forgot to hump their vendor prefix (#9572)
+	 * @param {string} string
+	 * @return {string}
+	 */
 	camelCase: function( string ) {
 		return string.replace( rmsPrefix, "ms-" ).replace( rdashAlpha, fcamelCase );
 	},
 
+	/**
+	 * @param {Node|Element|Document} elem
+	 * @param {string} name
+	 * @return {boolean}
+	 */
 	nodeName: function( elem, name ) {
-		return elem.nodeName && elem.nodeName.toLowerCase() === name.toLowerCase();
+		return elem.nodeName !== undefined && elem.nodeName.toLowerCase() === name.toLowerCase();
 	},
 
-	// args is for internal usage only
+	/**
+	 * @param {Object} obj
+	 * @param {function((number|string),?)} callback
+	 * @param {?=} args is for internal usage only
+	 * @return {Object}
+	 */
 	each: function( obj, callback, args ) {
 		var value,
 			i = 0,
@@ -674,8 +762,11 @@ jQuery.extend({
 		return obj;
 	},
 
-	// Use native String.trim function wherever possible
-	trim: core_trim && !core_trim.call("\uFEFF\xA0") ?
+	/**
+	 * Use native String.trim function wherever possible
+	 * @type {function(string):string}
+	 */
+	trim: core_trim && !core_trim.call(/** @type {String} */ ( "\uFEFF\xA0" ) ) ?
 		function( text ) {
 			return text == null ?
 				"" :
@@ -689,24 +780,34 @@ jQuery.extend({
 				( text + "" ).replace( rtrim, "" );
 		},
 
-	// results is for internal usage only
+	/**
+	 * @param {string|Array.<*>|!jQuery|*} arr
+	 * @param {(Array.<*>|!jQuery)=} results is for internal usage only
+	 * @return {Array.<*>}
+	 */
 	makeArray: function( arr, results ) {
 		var ret = results || [];
 
 		if ( arr != null ) {
 			if ( isArraylike( Object(arr) ) ) {
 				jQuery.merge( ret,
-					typeof arr === "string" ?
-					[ arr ] : arr
+					/** @type {Array.<*>} */ (typeof arr === "string" ?
+					[ arr ] :  arr )
 				);
 			} else {
 				core_push.call( ret, arr );
 			}
 		}
 
-		return ret;
+		return /** @type {Array.<*>} */ ( ret );
 	},
 
+	/**
+	 * @param {*} elem
+	 * @param {Array.<*>|!jQuery} arr
+	 * @param {number=} i
+	 * @return {number}
+	 */
 	inArray: function( elem, arr, i ) {
 		var len;
 
@@ -729,6 +830,11 @@ jQuery.extend({
 		return -1;
 	},
 
+	/**
+	 * @param {Array.<*>|!jQuery} first
+	 * @param {Array.<*>|!jQuery} second
+	 * @return {Array.<*>|!jQuery}
+	 */
 	merge: function( first, second ) {
 		var l = second.length,
 			i = first.length,
@@ -749,6 +855,12 @@ jQuery.extend({
 		return first;
 	},
 
+	/**
+	 * @param {Array.<*>} elems
+	 * @param {function(*,number)} callback
+	 * @param {boolean=} inv
+	 * @return {Array.<*>}
+	 */
 	grep: function( elems, callback, inv ) {
 		var retVal,
 			ret = [],
@@ -768,7 +880,12 @@ jQuery.extend({
 		return ret;
 	},
 
-	// arg is for internal usage only
+	/**
+	 * @param {(Array.<*>|Object.<string, *>)} elems
+	 * @param {(function(*,number)|function(*,(string|number)))} callback
+	 * @param {*=} arg is for internal usage only
+	 * @return {Array.<*>}
+	 */
 	map: function( elems, callback, arg ) {
 		var value,
 			i = 0,
@@ -804,9 +921,15 @@ jQuery.extend({
 	// A global GUID counter for objects
 	guid: 1,
 
-	// Bind a function to a context, optionally partially applying any
-	// arguments.
-	proxy: function( fn, context ) {
+	/**
+	 * Bind a function to a context, optionally partially applying any
+	 * arguments.
+	 * @param {function(?):?|Object} fn
+	 * @param {Object|string} context
+	 * @param {...*} var_args
+	 * @return {function(?):?|undefined}
+	 */
+	proxy: function( fn, context, var_args ) {
 		var args, proxy, tmp;
 
 		if ( typeof context === "string" ) {
@@ -833,8 +956,18 @@ jQuery.extend({
 		return proxy;
 	},
 
-	// Multifunctional method to get and set values of a collection
-	// The value/s can optionally be executed if it's a function
+	/**
+	 * Multifunctional method to get and set values of a collection
+	 * The value/s can optionally be executed if it's a function
+	 * @param {jQuery|Array.<Element>} elems
+	 * @param {(function(?=, ?=, ?=):?|null)=} fn
+	 * @param {(string|null|Object.<string,*>)=} key
+	 * @param {*=} value
+	 * @param {(boolean|number)=} chainable
+	 * @param {(function(?):?|null)=} emptyGet
+	 * @param {boolean=} raw
+	 * @return {*}
+	 */
 	access: function( elems, fn, key, value, chainable, emptyGet, raw ) {
 		var i = 0,
 			length = elems.length,
@@ -864,9 +997,16 @@ jQuery.extend({
 				// ...except when executing function values
 				} else {
 					bulk = fn;
-					fn = function( elem, key, value ) {
-						return bulk.call( jQuery( elem ), value );
-					};
+					fn =
+						/**
+						 * @param {?=} elem
+						 * @param {?=} key
+						 * @param {?=} value
+						 * @return {?}
+						 */
+						function( elem, key, value ) {
+							return bulk.call( new jQuery( elem ), value );
+						};
 				}
 			}
 
@@ -886,11 +1026,13 @@ jQuery.extend({
 				length ? fn( elems[0], key ) : emptyGet;
 	},
 
+	/** @return {number} */
 	now: function() {
 		return ( new Date() ).getTime();
 	}
 });
 
+/** @param {Object=} obj */
 jQuery.ready.promise = function( obj ) {
 
 	
@@ -903,7 +1045,7 @@ jQuery.ready.promise = function( obj ) {
 		// discovered by ChrisS here: http://bugs.jquery.com/ticket/12282#comment:15
 		if ( document.readyState === "complete" ) {
 			// Handle it asynchronously to allow scripts the opportunity to delay ready
-			setTimeout( jQuery.ready );
+			setTimeout( jQuery.ready, 0 );
 
 		// Standards-based browsers support DOMContentLoaded
 		} else if ( document.addEventListener ) {
@@ -977,6 +1119,6 @@ function isArraylike( obj ) {
 }
 
 // All jQuery objects should point back to these
-rootjQuery = jQuery(document);
+rootjQuery = new jQuery(document);
 
 jQuery.expandedEach = jQuery.each;

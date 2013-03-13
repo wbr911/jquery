@@ -52,24 +52,32 @@ wrapMap["tbody"] = wrapMap["tfoot"] = wrapMap["colgroup"] = wrapMap["caption"] =
 wrapMap["th"] = wrapMap["td"];
 
 jQuery.fn.extend({
+	/**
+	 * @param {(string|function(number,string))=} value
+	 * @return {(string|!jQuery)}
+	 */
 	text: function( value ) {
-		return jQuery.access( this, function( value ) {
+		return /** @type {string|!jQuery} */ ( jQuery.access( this, function( value ) {
 			return value === undefined ?
 				jQuery.text( this ) :
 				this.empty().append( ( this[0] && this[0].ownerDocument || document ).createTextNode( value ) );
-		}, null, value, arguments.length );
+		}, null, value, arguments.length ) );
 	},
 
+	/**
+	 * @param {(string|jQuerySelector|Element|jQuery|function(this:jQuery,number):Element)} html
+	 * @return {!jQuery}
+	 */
 	wrapAll: function( html ) {
 		if ( jQuery.isFunction( html ) ) {
 			return this.each(function(i) {
-				jQuery(this).wrapAll( html.call(this, i) );
+				new jQuery(this).wrapAll( html.call(this, i) );
 			});
 		}
 
 		if ( this[0] ) {
 			// The elements to wrap the target around
-			var wrap = jQuery( html, this[0].ownerDocument ).eq(0).clone(true);
+			var wrap = new jQuery( html, this[0].ownerDocument ).eq(0).clone(true);
 
 			if ( this[0].parentNode ) {
 				wrap.insertBefore( this[0] );
@@ -89,15 +97,19 @@ jQuery.fn.extend({
 		return this;
 	},
 
+	/**
+	 * @param {(string|function(number))} html
+	 * @return {!jQuery}
+	 */
 	wrapInner: function( html ) {
 		if ( jQuery.isFunction( html ) ) {
 			return this.each(function(i) {
-				jQuery(this).wrapInner( html.call(this, i) );
+				new jQuery(this).wrapInner( html.call(this, i) );
 			});
 		}
 
 		return this.each(function() {
-			var self = jQuery( this ),
+			var self = new jQuery( this ),
 				contents = self.contents();
 
 			if ( contents.length ) {
@@ -109,23 +121,33 @@ jQuery.fn.extend({
 		});
 	},
 
+	/**
+	 * @param {(string|jQuerySelector|Element|jQuery|function(number))} html
+	 * @return {!jQuery}
+	 */
 	wrap: function( html ) {
 		var isFunction = jQuery.isFunction( html );
 
 		return this.each(function(i) {
-			jQuery( this ).wrapAll( isFunction ? html.call(this, i) : html );
+			new jQuery( this ).wrapAll( isFunction ? html.call(this, i) : html );
 		});
 	},
 
+	/** @return {!jQuery} */
 	unwrap: function() {
 		return this.parent().each(function() {
 			if ( !jQuery.nodeName( this, "body" ) ) {
-				jQuery( this ).replaceWith( this.childNodes );
+				new jQuery( this ).replaceWith( this.childNodes );
 			}
 		}).end();
 	},
 
-	append: function() {
+	/**
+	 * @param {(string|Element|jQuery|function(number,string))} elems
+	 * @param {(string|Element|Array.<Element>|jQuery)=} content
+	 * @return {!jQuery}
+	 */
+	append: function( elems, content ) {
 		return this.domManip(arguments, true, function( elem ) {
 			if ( this.nodeType === 1 || this.nodeType === 11 || this.nodeType === 9 ) {
 				this.appendChild( elem );
@@ -133,7 +155,12 @@ jQuery.fn.extend({
 		});
 	},
 
-	prepend: function() {
+	/**
+	 * @param {(string|Element|jQuery|function(number,string))} elems
+	 * @param {(string|Element|jQuery)=} content
+	 * @return {!jQuery}
+	 */
+	prepend: function( elems, content ) {
 		return this.domManip(arguments, true, function( elem ) {
 			if ( this.nodeType === 1 || this.nodeType === 11 || this.nodeType === 9 ) {
 				this.insertBefore( elem, this.firstChild );
@@ -141,7 +168,12 @@ jQuery.fn.extend({
 		});
 	},
 
-	before: function() {
+	/**
+	 * @param {(string|Element|jQuery|function())} elems
+	 * @param {(string|Element|Array.<Element>|jQuery)=} content
+	 * @return {!jQuery}
+	 */
+	before: function( elems, content ) {
 		return this.domManip( arguments, false, function( elem ) {
 			if ( this.parentNode ) {
 				this.parentNode.insertBefore( elem, this );
@@ -149,7 +181,12 @@ jQuery.fn.extend({
 		});
 	},
 
-	after: function() {
+	/**
+	 * @param {(string|Element|jQuery|function(number))} elems
+	 * @param {(string|Element|Array.<Element>|jQuery)=} content
+	 * @return {!jQuery}
+	 */
+	after: function( elems, content ) {
 		return this.domManip( arguments, false, function( elem ) {
 			if ( this.parentNode ) {
 				this.parentNode.insertBefore( elem, this.nextSibling );
@@ -157,7 +194,11 @@ jQuery.fn.extend({
 		});
 	},
 
-	// keepData is for internal use only--do not document
+	/**
+	 * @param {string=} selector
+	 * @param {boolean=} keepData is for internal use only--do not document
+	 * @return {!jQuery}
+	 */
 	remove: function( selector, keepData ) {
 		var elem,
 			i = 0;
@@ -180,6 +221,7 @@ jQuery.fn.extend({
 		return this;
 	},
 
+	/** @return {!jQuery} */
 	empty: function() {
 		var elem,
 			i = 0;
@@ -205,6 +247,12 @@ jQuery.fn.extend({
 		return this;
 	},
 
+	/**
+	 * @param {boolean=} dataAndEvents
+	 * @param {boolean=} deepDataAndEvents
+	 * @return {!jQuery}
+	 * @suppress {checkTypes} see closure compiler issue 583
+	 */
 	clone: function( dataAndEvents, deepDataAndEvents ) {
 		dataAndEvents = dataAndEvents == null ? false : dataAndEvents;
 		deepDataAndEvents = deepDataAndEvents == null ? dataAndEvents : deepDataAndEvents;
@@ -214,8 +262,12 @@ jQuery.fn.extend({
 		});
 	},
 
+	/**
+	 * @param {(string|function(number,string))=} value
+	 * @return {(string|!jQuery)}
+	 */
 	html: function( value ) {
-		return jQuery.access( this, function( value ) {
+		return /** @type {string|!jQuery} */ ( jQuery.access( this, function( value ) {
 			var elem = this[0] || {},
 				i = 0,
 				l = this.length;
@@ -253,16 +305,20 @@ jQuery.fn.extend({
 			if ( elem ) {
 				this.empty().append( value );
 			}
-		}, null, value, arguments.length );
+		}, null, value, arguments.length ) );
 	},
 
+	/**
+	 * @param {(string|Element|jQuery|function())} value
+	 * @return {!jQuery}
+	 */
 	replaceWith: function( value ) {
 		var isFunc = jQuery.isFunction( value );
 
 		// Make sure that the elements are removed from the DOM before they are inserted
 		// this can help fix replacing a parent with child elements
 		if ( !isFunc && typeof value !== "string" ) {
-			value = jQuery( value ).not( this ).detach();
+			value = new jQuery( value ).not( this ).detach();
 		}
 
 		return this.domManip( [ value ], true, function( elem ) {
@@ -270,12 +326,16 @@ jQuery.fn.extend({
 				parent = this.parentNode;
 
 			if ( parent ) {
-				jQuery( this ).remove();
+				new jQuery( this ).remove();
 				parent.insertBefore( elem, next );
 			}
 		});
 	},
 
+	/**
+	 * @param {jQuerySelector=} selector
+	 * @return {!jQuery}
+	 */
 	detach: function( selector ) {
 		return this.remove( selector, true );
 	},
@@ -351,7 +411,7 @@ jQuery.fn.extend({
 					for ( i = 0; i < hasScripts; i++ ) {
 						node = scripts[ i ];
 						if ( rscriptType.test( node.type || "" ) &&
-							!jQuery._data( node, "globalEval" ) && jQuery.contains( doc, node ) ) {
+							!jQuery._data( /** @type {Element} */ ( node ), "globalEval" ) && jQuery.contains( doc, node ) ) {
 
 							if ( node.src ) {
 								// Hope ajax is available...
@@ -399,7 +459,11 @@ function restoreScript( elem ) {
 	return elem;
 }
 
-// Mark scripts as having already been evaluated
+/**
+ * Mark scripts as having already been evaluated
+ * @param {Array.<Element>|!jQuery} elems
+ * @param {(Array.<Element>|!jQuery)=} refElements
+ */
 function setGlobalEval( elems, refElements ) {
 	var elem,
 		i = 0;
@@ -416,7 +480,7 @@ function cloneCopyEvent( src, dest ) {
 
 	var type, i, l,
 		oldData = jQuery._data( src ),
-		curData = jQuery._data( dest, oldData ),
+		curData = jQuery._data( dest, /** @type {string} */ ( oldData ) ),
 		events = oldData["events"];
 
 	if ( events ) {
@@ -514,12 +578,12 @@ jQuery.expandedEach({
 		var elems,
 			i = 0,
 			ret = [],
-			insert = jQuery( selector ),
+			insert = new jQuery( selector ),
 			last = insert.length - 1;
 
 		for ( ; i <= last; i++ ) {
 			elems = i === last ? this : this.clone(true);
-			original.call( jQuery( insert[i] ), elems );
+			original.call( new jQuery( insert[i] ), elems );
 
 			// Modern browsers can apply jQuery collections as arrays, but oldIE needs a .get()
 			core_push.apply( ret, elems.get() );
@@ -529,16 +593,21 @@ jQuery.expandedEach({
 	};
 });
 
+/**
+ * @param {Node|Element|Document|Window|Array.<Element>|NodeList} context
+ * @param {(string|boolean)=} tag
+ * @return {Array.<Element>}
+ */
 function getAll( context, tag ) {
 	var elems, elem,
 		i = 0,
 		found = typeof context.getElementsByTagName !== core_strundefined ? context.getElementsByTagName( tag || "*" ) :
-			typeof context.querySelectorAll !== core_strundefined ? context.querySelectorAll( tag || "*" ) :
+			typeof context.querySelectorAll !== core_strundefined ? context.querySelectorAll( /** @type {string} */ ( tag ) || "*" ) :
 			undefined;
 
 	if ( !found ) {
 		for ( found = [], elems = context.childNodes || context; (elem = elems[i]) != null; i++ ) {
-			if ( !tag || jQuery.nodeName( elem, tag ) ) {
+			if ( !tag || jQuery.nodeName( /** @type {Element} */ ( elem ), /** @type {string} */ ( tag ) ) ) {
 				found.push( elem );
 			} else {
 				jQuery.merge( found, getAll( elem, tag ) );
@@ -546,9 +615,9 @@ function getAll( context, tag ) {
 		}
 	}
 
-	return tag === undefined || tag && jQuery.nodeName( context, tag ) ?
-		jQuery.merge( [ context ], found ) :
-		found;
+	return /** @type {Array.<Element>} */ ( tag === undefined || tag && jQuery.nodeName( /** @type {Node} */ ( context ), /** @type {string} */ ( tag ) ) ?
+		jQuery.merge( [ context ], /** @type {Array.<Element>} */ ( found ) ) :
+		found );
 }
 
 // Used in buildFragment, fixes the defaultChecked property
@@ -605,7 +674,7 @@ jQuery.extend({
 		// Preserve script evaluation history
 		destElements = getAll( clone, "script" );
 		if ( destElements.length > 0 ) {
-			setGlobalEval( destElements, !inPage && getAll( elem, "script" ) );
+			setGlobalEval( destElements, /** @type {Array.<Element>} */ ( !inPage && getAll( elem, "script" ) ) );
 		}
 
 		destElements = srcElements = node = null;
@@ -613,7 +682,12 @@ jQuery.extend({
 		// Return the cloned set
 		return clone;
 	},
-
+	/**
+	 * @param {Array|NodeList|jQuery} elems
+	 * @param {Object} context
+	 * @param {Array|NodeList|jQuery|boolean} scripts
+	 * @param {(Array.<*>|!jQuery)=} selection
+	 */
 	buildFragment: function( elems, context, scripts, selection ) {
 		var j, elem, contains,
 			tmp, tag, tbody, wrap,
@@ -741,6 +815,7 @@ jQuery.extend({
 		return safe;
 	},
 
+	/** @param {boolean=} acceptData */
 	cleanData: function( elems, /* internal */ acceptData ) {
 		var elem, type, id, data,
 			i = 0,

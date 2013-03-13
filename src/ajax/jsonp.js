@@ -4,7 +4,7 @@ var oldCallbacks = [],
 // Default jsonp settings
 jQuery.ajaxSetup({
 	jsonp: "callback",
-	jsonpCallback: function() {
+	jsonpCallback: /** @this {jQuery.AjaxSettings} */ function() {
 		var callback = oldCallbacks.pop() || ( jQuery.expando + "_" + ( ajax_nonce++ ) );
 		this[ callback ] = true;
 		return callback;

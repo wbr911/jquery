@@ -10,6 +10,12 @@ jQuery.timers;
 jQuery.ajaxSettings;
 })();
 
+/** @expose */
+jQuery.event;
+
+/** @expose */
+jQuery.event.global;
+
 jQuery.fn["html"] = jQuery.fn.html;
 jQuery.fn["get"] = jQuery.fn.get;
 jQuery.fn["appendTo"] = jQuery.fn.appendTo;
@@ -23,8 +29,6 @@ jQuery["timers"] = jQuery.timers;
 jQuery["active"] = jQuery.active;
 jQuery["noConflict"] = jQuery.noConflict;
 jQuery["ajaxSettings"] = jQuery.ajaxSettings;
-jQuery.event["global"] = jQuery.event.global;
-jQuery["event"] = jQuery.event;
 jQuery["each"] = jQuery.each;
 jQuery["extend"] = jQuery.extend;
 jQuery["support"] = jQuery.support;
@@ -34,8 +38,8 @@ jQuery["isArray"] = jQuery.isArray;
 jQuery["isFunction"] = jQuery.isFunction;
 jQuery["expando"] = jQuery.expando;
 
-window["jQuery"] = window["$"] = jQuery;
+var $ = window["jQuery"] = window["$"] = jQuery;
 
 // Redefine the isReady property since it may be eliminated as dead code
 // Needed for offset and selector tests
-jQuery(function() { jQuery["isReady"] = true; });
+new jQuery(function() { jQuery["isReady"] = true; });

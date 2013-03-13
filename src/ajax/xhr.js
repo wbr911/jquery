@@ -100,7 +100,7 @@ if ( xhrSupported ) {
 					xhr.send( ( s.hasContent && s.data ) || null );
 
 					// Listener
-					callback = function( _, isAbort ) {
+					callback = /** @type {function(!jQuery.Event=, boolean=)} */ ( function( _, isAbort ) {
 						var status, responseHeaders, statusText, responses;
 
 						// Firefox throws exceptions when accessing properties
@@ -171,7 +171,7 @@ if ( xhrSupported ) {
 						if ( responses ) {
 							complete( status, statusText, responses, responseHeaders );
 						}
-					};
+					} );
 
 					if ( !s.async ) {
 						// if we're in sync mode we fire the callback
@@ -179,7 +179,7 @@ if ( xhrSupported ) {
 					} else if ( xhr.readyState === 4 ) {
 						// (IE6 & IE7) if it's in cache and has been
 						// retrieved directly we need to fire the callback
-						setTimeout( callback );
+						setTimeout( callback, 0 );
 					} else {
 						handle = ++xhrId;
 						if ( xhrOnUnloadAbort ) {
@@ -187,7 +187,7 @@ if ( xhrSupported ) {
 							// and attach the unload handler
 							if ( !xhrCallbacks ) {
 								xhrCallbacks = {};
-								jQuery( window ).unload( xhrOnUnloadAbort );
+								new jQuery( window ).unload( xhrOnUnloadAbort );
 							}
 							// Add to list of active xhrs callbacks
 							xhrCallbacks[ handle ] = callback;

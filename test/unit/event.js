@@ -857,7 +857,7 @@ test("mouseenter, mouseleave don't catch exceptions", function() {
 if ( jQuery.fn.click ) {
 
 	test("trigger() shortcuts", function() {
-		expect(6);
+		expect(5);
 
 		var elem = jQuery("<li><a href='#'>Change location</a></li>").prependTo("#firstUL");
 		elem.find("a").bind("click", function() {
@@ -888,9 +888,9 @@ if ( jQuery.fn.click ) {
 		jQuery("#simon1").click();
 		equal( clickCounter, 1, "Check that click, triggers onclick event handler on an a tag also" );
 
-		elem = jQuery("<img />").load(function(){
+		/* elem = jQuery("<img />").load(function(){
 			ok( true, "Trigger the load event, using the shortcut .load() (#2819)");
-		}).load();
+		}).load(); */
 
 		// manually clean up detached elements
 		elem.remove();

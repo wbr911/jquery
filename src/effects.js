@@ -51,7 +51,7 @@ var fxNow, timerId,
 function createFxNow() {
 	setTimeout(function() {
 		fxNow = undefined;
-	});
+	}, 0);
 	return ( fxNow = jQuery.now() );
 }
 
@@ -104,17 +104,17 @@ function Animation( elem, properties, options ) {
 				return false;
 			}
 		},
-		animation = deferred.promise({
+		animation = /** @type {jQuery.animation} */ ( deferred.promise({
 			elem: elem,
 			props: jQuery.extend( {}, properties ),
-			opts: jQuery.extend( true, { specialEasing: {} }, options ),
+			opts: /** @type {jQuery.animationOptions} */ ( jQuery.extend( true, { specialEasing: {} }, options ) ),
 			originalProperties: properties,
 			originalOptions: options,
 			startTime: fxNow || createFxNow(),
 			duration: options.duration,
 			tweens: [],
 			createTween: function( prop, end ) {
-				var tween = jQuery.Tween( elem, animation.opts, prop, end,
+				var tween = new jQuery.Tween( elem, animation.opts, prop, end,
 						animation.opts.specialEasing[ prop ] || animation.opts.easing );
 				animation.tweens.push( tween );
 				return tween;
@@ -141,7 +141,7 @@ function Animation( elem, properties, options ) {
 				}
 				return this;
 			}
-		}),
+		}) ),
 		props = animation.props;
 
 	propFilter( props, animation.opts.specialEasing );
@@ -193,7 +193,7 @@ function propFilter( props, specialEasing ) {
 		}
 
 		hooks = jQuery.cssHooks[ name ];
-		if ( hooks && "expand" in hooks ) {
+		if ( hooks && hooks.expand ) {
 			value = hooks.expand( value );
 			delete props[ name ];
 
@@ -339,10 +339,10 @@ function defaultPrefilter( elem, props, opts ) {
 			dataShow.hidden = !hidden;
 		}
 		if ( hidden ) {
-			jQuery( elem ).show();
+			new jQuery( elem ).show();
 		} else {
 			anim.done(function() {
-				jQuery( elem ).hide();
+				new jQuery( elem ).hide();
 			});
 		}
 		anim.done(function() {
@@ -368,32 +368,49 @@ function defaultPrefilter( elem, props, opts ) {
 	}
 }
 
-function Tween( elem, options, prop, end, easing ) {
-	return new Tween.prototype.init( elem, options, prop, end, easing );
-}
-jQuery.Tween = Tween;
+/**
+ * @constructor
+ * @param {Element} elem
+ * @param {jQuery.animationOptions} options
+ * @param {string} prop
+ * @param {number} end
+ * @param {string} easing
+ */
+jQuery.Tween = function( elem, options, prop, end, easing ) {
+	return /** @type {jQuery.Tween} */ ( new jQuery.Tween.prototype.init( elem, options, prop, end, easing ) );
+};
 
-Tween.prototype = {
-	constructor: Tween,
-	init: function( elem, options, prop, end, easing, unit ) {
-		this.elem = elem;
-		this.prop = prop;
-		this.easing = easing || "swing";
-		this.options = options;
-		this.start = this.now = this.cur();
-		this.end = end;
-		this.unit = unit || ( jQuery.cssNumber[ prop ] ? "" : "px" );
-	},
+jQuery.Tween.prototype = {
+	constructor: jQuery.Tween,
+	init:
+		/**
+		 * @constructor
+		 * @param {Element} elem
+		 * @param {jQuery.animationOptions} options
+		 * @param {string} prop
+		 * @param {number} end
+		 * @param {string=} easing
+		 * @param {string=} unit
+		 */
+		function( elem, options, prop, end, easing, unit ) {
+			this.elem = elem;
+			this.prop = prop;
+			this.easing = easing || "swing";
+			this.options = options;
+			this.start = this.now = this.cur();
+			this.end = end;
+			this.unit = unit || ( jQuery.cssNumber[ prop ] ? "" : "px" );
+		},
 	cur: function() {
-		var hooks = Tween.propHooks[ this.prop ];
+		var hooks = jQuery.Tween.propHooks[ this.prop ];
 
 		return hooks && hooks.get ?
 			hooks.get( this ) :
-			Tween.propHooks._default.get( this );
+			jQuery.Tween.propHooks._default.get( this );
 	},
 	run: function( percent ) {
 		var eased,
-			hooks = Tween.propHooks[ this.prop ];
+			hooks = jQuery.Tween.propHooks[ this.prop ];
 
 		if ( this.options.duration ) {
 			this.pos = eased = jQuery.easing[ this.easing ](
@@ -411,15 +428,16 @@ Tween.prototype = {
 		if ( hooks && hooks.set ) {
 			hooks.set( this );
 		} else {
-			Tween.propHooks._default.set( this );
+			jQuery.Tween.propHooks._default.set( this );
 		}
 		return this;
 	}
 };
 
-Tween.prototype.init.prototype = Tween.prototype;
+jQuery.Tween.prototype.init.prototype = jQuery.Tween.prototype;
 
-Tween.propHooks = {
+/** @const */
+jQuery.Tween.propHooks = {
 	_default: {
 		get: function( tween ) {
 			var result;
@@ -454,7 +472,7 @@ Tween.propHooks = {
 // Remove in 2.0 - this supports IE8's panic based approach
 // to setting things on disconnected nodes
 
-Tween.propHooks.scrollTop = Tween.propHooks.scrollLeft = {
+jQuery.Tween.propHooks["scrollTop"] = jQuery.Tween.propHooks["scrollLeft"] = {
 	set: function( tween ) {
 		if ( tween.elem.nodeType && tween.elem.parentNode ) {
 			tween.elem[ tween.prop ] = tween.now;
@@ -464,6 +482,12 @@ Tween.propHooks.scrollTop = Tween.propHooks.scrollLeft = {
 
 jQuery.expandedEach([ "toggle", "show", "hide" ], function( i, name ) {
 	var cssFn = jQuery.fn[ name ];
+	/**
+	 * @param {(string|number|boolean)=} speed
+	 * @param {string=} easing
+	 * @param {function(this:Element)=} callback
+	 * @return {!jQuery}
+	 */
 	jQuery.fn[ name ] = function( speed, easing, callback ) {
 		return speed == null || typeof speed === "boolean" ?
 			cssFn.apply( this, arguments ) :
@@ -500,6 +524,12 @@ jQuery.fn.extend({
 			this.each( doAnimation ) :
 			this.queue( optall.queue, doAnimation );
 	},
+	/**
+	 * @param {(string|boolean)=} type
+	 * @param {boolean=} gotoEnd
+	 * @param {boolean=} clearQueue
+	 * @return {!jQuery}
+	 */
 	stop: function( type, clearQueue, gotoEnd ) {
 		var stopQueue = function( hooks ) {
 			var stop = hooks.stop;
@@ -512,7 +542,7 @@ jQuery.fn.extend({
 			clearQueue = type;
 			type = undefined;
 		}
-		if ( clearQueue && type !== false ) {
+		if ( clearQueue && /** @type {boolean} */ ( type ) !== false ) {
 			this.queue( type || "fx", [] );
 		}
 
@@ -593,7 +623,12 @@ jQuery.fn.extend({
 	}
 });
 
-// Generate parameters to create a standard animation
+/**
+ * Generate parameters to create a standard animation
+ * @param {string} type
+ * @param {(number|boolean)=} includeWidth
+ * @return {Object.<string,*>|CSSStyleDeclaration}
+ */
 function genFx( type, includeWidth ) {
 	var which,
 		attrs = { height: type },
@@ -623,6 +658,12 @@ jQuery.expandedEach({
 	fadeOut: { opacity: "hide" },
 	fadeToggle: { opacity: "toggle" }
 }, function( name, props ) {
+	/**
+	 * @param {(string|number|function())=} speed
+	 * @param {(function()|string)=} easing
+	 * @param {function(this:Element)=} callback
+	 * @return {!jQuery}
+	 */
 	jQuery.fn[ name ] = function( speed, easing, callback ) {
 		return this.animate( props, speed, easing, callback );
 	};
@@ -670,7 +711,7 @@ jQuery.easing = {
 };
 
 jQuery.timers = [];
-jQuery.fx = Tween.prototype.init;
+jQuery.fx = jQuery.Tween.prototype.init;
 jQuery.fx.tick = function() {
 	var timer,
 		timers = jQuery.timers,

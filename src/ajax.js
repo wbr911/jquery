@@ -15,7 +15,7 @@ var
 	rurl = /^([\w.+-]+:)(?:\/\/([^\/?#:]*)(?::(\d+)|)|)/,
 
 	// Keep a copy of the old load method
-	_load = jQuery.fn.load,
+	// _load = jQuery.fn.load, //deprecated
 
 	/* Prefilters
 	 * 1) They are useful to introduce custom dataTypes (see ajax/jsonp.js for an example)
@@ -110,9 +110,14 @@ function inspectPrefiltersOrTransports( structure, options, originalOptions, jqX
 	return inspect( options.dataTypes[ 0 ] ) || !inspected[ "*" ] && inspect( "*" );
 }
 
-// A special extend for ajax options
-// that takes "flat" options (not to be deep extended)
-// Fixes #9887
+/**
+ * A special extend for ajax options
+ * that takes "flat" options (not to be deep extended)
+ * Fixes #9887
+ * @param {jQuery.AjaxSettings|Object.<string,*>} target
+ * @param {jQuery.AjaxSettings|Object.<string,*>} src
+ * @return {!jQuery.AjaxSettings}
+ */
 function ajaxExtend( target, src ) {
 	var deep, key,
 		flatOptions = jQuery.ajaxSettings.flatOptions || {};
@@ -126,14 +131,16 @@ function ajaxExtend( target, src ) {
 		jQuery.extend( true, target, deep );
 	}
 
-	return target;
+	return /** @type {!jQuery.AjaxSettings} */ ( target );
 }
 
+/**
+ * @param {string} url
+ * @param {(Object|string|function(string,string,XMLHttpRequest))=} params
+ * @param {function(string,string,XMLHttpRequest)=} callback
+ * @return {!jQuery}
+ */
 jQuery.fn.load = function( url, params, callback ) {
-	if ( typeof url !== "string" && _load ) {
-		return _load.apply( this, arguments );
-	}
-
 	var selector, response, type,
 		self = this,
 		off = url.indexOf(" ");
@@ -147,7 +154,7 @@ jQuery.fn.load = function( url, params, callback ) {
 	if ( jQuery.isFunction( params ) ) {
 
 		// We assume that it's the callback
-		callback = params;
+		callback = /** @type {function(string,string,XMLHttpRequest)} */ ( params );
 		params = undefined;
 
 	// Otherwise, build a param string
@@ -173,7 +180,7 @@ jQuery.fn.load = function( url, params, callback ) {
 
 				// If a selector was specified, locate the right elements in a dummy div
 				// Exclude scripts to avoid IE 'Permission Denied' errors
-				jQuery("<div>").append( jQuery.parseHTML( responseText ) ).find( selector ) :
+				new jQuery("<div>").append( jQuery.parseHTML( responseText ) ).find( selector ) :
 
 				// Otherwise use the full result
 				responseText );
@@ -188,17 +195,28 @@ jQuery.fn.load = function( url, params, callback ) {
 
 // Attach a bunch of functions for handling common AJAX events
 jQuery.expandedEach( [ "ajaxStart", "ajaxStop", "ajaxComplete", "ajaxError", "ajaxSuccess", "ajaxSend" ], function( i, type ){
+	/**
+	 * @param {function(!jQuery.Event=)=} fn
+	 * @return {!jQuery}
+	 */
 	jQuery.fn[ type ] = function( fn ){
 		return this.on( type, fn );
 	};
 });
 
 jQuery.expandedEach( [ "get", "post" ], function( i, method ) {
+	/**
+	 * @param {string} url
+	 * @param {(Object.<string,*>|string|function(string,string,jQuery.jqXHR))=} data
+	 * @param {(function(string,string,jQuery.jqXHR)|string)=} callback
+	 * @param {string=} type
+	 * @return {!jQuery.jqXHR}
+	 */
 	jQuery[ method ] = function( url, data, callback, type ) {
 		// shift arguments if data argument was omitted
 		if ( jQuery.isFunction( data ) ) {
-			type = type || callback;
-			callback = data;
+			type = /**@type {string} */ ( type || callback );
+			callback = /** @type {function(string,string,jQuery.jqXHR)} */ ( data );
 			data = undefined;
 		}
 
@@ -221,7 +239,7 @@ jQuery.extend({
 	lastModified: {},
 	etag: {},
 
-	ajaxSettings: {
+	ajaxSettings: /** @type {jQuery.AjaxSettings} */ ( {
 		url: ajaxLocation,
 		type: "GET",
 		isLocal: rlocalProtocol.test( ajaxLocParts[ 1 ] ),
@@ -257,7 +275,8 @@ jQuery.extend({
 
 		responseFields: {
 			"xml": "responseXML",
-			"text": "responseText"
+			"text": "responseText",
+			"json": "responseJSON"
 		},
 
 		// Data converters
@@ -285,11 +304,15 @@ jQuery.extend({
 			url: true,
 			context: true
 		}
-	},
+	} ),
 
-	// Creates a full fledged settings object into target
-	// with both ajaxSettings and settings fields.
-	// If target is omitted, writes into ajaxSettings.
+	/** Creates a full fledged settings object into target
+	 * with both ajaxSettings and settings fields.
+	 * If target is omitted, writes into ajaxSettings.
+	 * @param {Object.<string,*>|jQuery.AjaxSettings} target
+	 * @param {(Object.<string,*>|jQuery.AjaxSettings)=} settings
+	 * @return {!jQuery.AjaxSettings}
+	 */
 	ajaxSetup: function( target, settings ) {
 		return settings ?
 
@@ -303,12 +326,17 @@ jQuery.extend({
 	ajaxPrefilter: addToPrefiltersOrTransports( prefilters ),
 	ajaxTransport: addToPrefiltersOrTransports( transports ),
 
-	// Main method
+	/**
+	 * Main method
+	 * @param {(string|Object.<string,*>|jQuery.AjaxSettings)=} url
+	 * @param {(Object.<string,*>|jQuery.AjaxSettings)=} options
+	 * @return {!jQuery.jqXHR}
+	 */
 	ajax: function( url, options ) {
 
 		// If url is an object, simulate pre-1.5 signature
 		if ( typeof url === "object" ) {
-			options = url;
+			options = /** @type {Object.<string,*>|jQuery.AjaxSettings} */ ( url );
 			url = undefined;
 		}
 
@@ -338,7 +366,7 @@ jQuery.extend({
 			callbackContext = s.context || s,
 			// Context for global events is callbackContext if it is a DOM node or jQuery collection
 			globalEventContext = s.context && ( callbackContext.nodeType || callbackContext.jquery ) ?
-				jQuery( callbackContext ) :
+				new jQuery( callbackContext ) :
 				jQuery.event,
 			// Deferreds
 			deferred = jQuery.Deferred(),
@@ -352,7 +380,6 @@ jQuery.extend({
 			state = 0,
 			// Default abort message
 			strAbort = "canceled",
-			
 			jqXHR = /** @type {jQuery.jqXHR} Fake xhr */ ({
 				readyState: 0,
 
@@ -451,7 +478,7 @@ jQuery.extend({
 
 		// Convert data if not already a string
 		if ( s.data && s.processData && typeof s.data !== "string" ) {
-			s.data = jQuery.param( s.data, s.traditional );
+			s.data = jQuery.param( /** @type {Object.<string,*>} */ ( s.data ), s.traditional );
 		}
 
 		// Apply prefilters
@@ -533,7 +560,7 @@ jQuery.extend({
 		// Allow custom headers/mimetypes and early abort
 		if ( s.beforeSend && ( s.beforeSend.call( callbackContext, jqXHR, s ) === false || state === 2 ) ) {
 			// Abort if not done already and return
-			return jqXHR.abort();
+			return jqXHR.abort(null);
 		}
 
 		// aborting is no longer a cancellation
@@ -578,7 +605,13 @@ jQuery.extend({
 			}
 		}
 
-		// Callback for when everything is done
+		/**
+		 * Callback for when everything is done
+		 * @param {number} status
+		 * @param {string} nativeStatusText
+		 * @param {?=} responses
+		 * @param {?=} headers
+		 */
 		function done( status, nativeStatusText, responses, headers ) {
 			var isSuccess, success, error, response, modified,
 				statusText = nativeStatusText;
@@ -606,13 +639,19 @@ jQuery.extend({
 			// Set readyState
 			jqXHR.readyState = status > 0 ? 4 : 0;
 
+			// Determine if successful
+			isSuccess = status >= 200 && status < 300 || status === 304;
+
 			// Get response data
 			if ( responses ) {
 				response = ajaxHandleResponses( s, jqXHR, responses );
 			}
 
+			// Convert no matter what (that way responseXXX fields are always set)
+			response = ajaxConvert( s, response, jqXHR, isSuccess );
+
 			// If successful, handle type chaining
-			if ( status >= 200 && status < 300 || status === 304 ) {
+			if ( isSuccess ) {
 
 				// Set the If-Modified-Since and/or If-None-Match header, if in ifModified mode.
 				if ( s.ifModified ) {
@@ -628,20 +667,17 @@ jQuery.extend({
 
 				// if no content
 				if ( status === 204 ) {
-					isSuccess = true;
 					statusText = "nocontent";
 
 				// if not modified
 				} else if ( status === 304 ) {
-					isSuccess = true;
 					statusText = "notmodified";
 
 				// If we have data, let's convert it
 				} else {
-					isSuccess = ajaxConvert( s, response );
-					statusText = isSuccess.state;
-					success = isSuccess.data;
-					error = isSuccess.error;
+					statusText = response.state;
+					success = response.data;
+					error = response.error;
 					isSuccess = !error;
 				}
 			} else {
@@ -691,32 +727,34 @@ jQuery.extend({
 		return jqXHR;
 	},
 
+	/**
+	 * @param {string} url
+	 * @param {function(string,string,jQuery.jqXHR)=} callback
+	 * @return {!jQuery.jqXHR}
+	 */
 	getScript: function( url, callback ) {
 		return jQuery.get( url, undefined, callback, "script" );
 	},
 
+	/**
+	 * @param {string} url
+	 * @param {(Object.<string,*>|function(string,string,jQuery.jqXHR))=} data
+	 * @param {function(string,string,jQuery.jqXHR)=} callback
+	 * @return {!jQuery.jqXHR}
+	 */
 	getJSON: function( url, data, callback ) {
 		return jQuery.get( url, data, callback, "json" );
 	}
 });
 
 /* Handles responses to an ajax request:
- * - sets all responseXXX fields accordingly
  * - finds the right dataType (mediates between content-type and expected dataType)
  * - returns the corresponding response
  */
 function ajaxHandleResponses( s, jqXHR, responses ) {
 	var firstDataType, ct, finalDataType, type,
 		contents = s.contents,
-		dataTypes = s.dataTypes,
-		responseFields = s.responseFields;
-
-	// Fill responseXXX fields
-	for ( type in responseFields ) {
-		if ( type in responses ) {
-			jqXHR[ responseFields[type] ] = responses[ type ];
-		}
-	}
+		dataTypes = s.dataTypes;
 
 	// Remove auto dataType and get content-type in the process
 	while( dataTypes[ 0 ] === "*" ) {
@@ -765,19 +803,14 @@ function ajaxHandleResponses( s, jqXHR, responses ) {
 	}
 }
 
-// Chain conversions given the request and the original response
-function ajaxConvert( s, response ) {
-	var conv2, current, conv, tmp,
+/* Chain conversions given the request and the original response
+ * Also sets the responseXXX fields on the jqXHR instance
+ */
+function ajaxConvert( s, response, jqXHR, isSuccess ) {
+	var conv2, current, conv, tmp, prev,
 		converters = {},
-		i = 0,
 		// Work with a copy of dataTypes in case we need to modify it for conversion
-		dataTypes = s.dataTypes.slice(),
-		prev = dataTypes[ 0 ];
-
-	// Apply the dataFilter if provided
-	if ( s.dataFilter ) {
-		response = s.dataFilter( response, s.dataType );
-	}
+		dataTypes = s.dataTypes.slice();
 
 	// Create converters map with lowercased keys
 	if ( dataTypes[ 1 ] ) {
@@ -786,14 +819,32 @@ function ajaxConvert( s, response ) {
 		}
 	}
 
-	// Convert to each sequential dataType, tolerating list modification
-	for ( ; (current = dataTypes[++i]); ) {
+	current = dataTypes.shift();
 
-		// There's only work to do if current dataType is non-auto
-		if ( current !== "*" ) {
+	// Convert to each sequential dataType
+	while ( current ) {
+
+		if ( s.responseFields[ current ] ) {
+			jqXHR[ s.responseFields[ current ] ] = response;
+		}
+
+		// Apply the dataFilter if provided
+		if ( !prev && isSuccess && s.dataFilter ) {
+			response = s.dataFilter( response, s.dataType );
+		}
+
+		prev = current;
+		current = dataTypes.shift();
+
+		if ( current ) {
+
+			// There's only work to do if current dataType is non-auto
+			if ( current === "*" ) {
+
+				current = prev;
 
 			// Convert response if prev dataType is non-auto and differs from current
-			if ( prev !== "*" && prev !== current ) {
+			} else if ( prev !== "*" && prev !== current ) {
 
 				// Seek a direct converter
 				conv = converters[ prev + " " + current ] || converters[ "* " + current ];
@@ -803,7 +854,7 @@ function ajaxConvert( s, response ) {
 					for ( conv2 in converters ) {
 
 						// If conv2 outputs current
-						tmp = conv2.split(" ");
+						tmp = conv2.split( " " );
 						if ( tmp[ 1 ] === current ) {
 
 							// If prev can be converted to accepted input
@@ -817,9 +868,8 @@ function ajaxConvert( s, response ) {
 								// Otherwise, insert the intermediate dataType
 								} else if ( converters[ conv2 ] !== true ) {
 									current = tmp[ 0 ];
-									dataTypes.splice( i--, 0, current );
+									dataTypes.unshift( tmp[ 1 ] );
 								}
-
 								break;
 							}
 						}
@@ -830,7 +880,7 @@ function ajaxConvert( s, response ) {
 				if ( conv !== true ) {
 
 					// Unless errors are allowed to bubble, catch and return them
-					if ( conv && s["throws"] ) {
+					if ( conv && s[ "throws" ] ) {
 						response = conv( response );
 					} else {
 						try {
@@ -841,9 +891,6 @@ function ajaxConvert( s, response ) {
 					}
 				}
 			}
-
-			// Update prev for next iteration
-			prev = current;
 		}
 	}
 

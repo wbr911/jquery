@@ -9,20 +9,42 @@ var nodeHook, boolHook,
 	getSetInput = jQuery.support["input"];
 
 jQuery.fn.extend({
+	/**
+	 * @param {(string|Object.<string,*>)} name
+	 * @param {(string|number|function(number,string))=} value
+	 * @return {(string|!jQuery)}
+	 */
 	attr: function( name, value ) {
-		return jQuery.access( this, jQuery.attr, name, value, arguments.length > 1 );
+		return /** @type {string|!jQuery} */ ( jQuery.access( this,
+			/** @type {function(?=,?=,?=):?} */ ( jQuery.attr ),
+			name, value, arguments.length > 1 ) );
 	},
 
+	/**
+	 * @param {string} name
+	 * @return {!jQuery}
+	 */
 	removeAttr: function( name ) {
 		return this.each(function() {
 			jQuery.removeAttr( this, name );
 		});
 	},
 
+	/**
+	 * @param {(string|Object.<string,*>)} name
+	 * @param {(string|number|boolean|function(number,String))=} value
+	 * @return {(string|!jQuery)}
+	 */
 	prop: function( name, value ) {
-		return jQuery.access( this, jQuery.prop, name, value, arguments.length > 1 );
+		return /** @type {string|!jQuery} */ ( jQuery.access( this,
+			/** @type {function(?=,?=,?=):?} */ ( jQuery.prop ),
+			name, value, arguments.length > 1 ) );
 	},
 
+	/**
+	 * @param {string} name
+	 * @return {!jQuery}
+	 */
 	removeProp: function( name ) {
 		name = jQuery.propFix[ name ] || name;
 		return this.each(function() {
@@ -34,6 +56,10 @@ jQuery.fn.extend({
 		});
 	},
 
+	/**
+	 * @param {(string|function(number,String))} value
+	 * @return {!jQuery}
+	 */
 	addClass: function( value ) {
 		var classes, elem, cur, clazz, j,
 			i = 0,
@@ -42,7 +68,7 @@ jQuery.fn.extend({
 
 		if ( jQuery.isFunction( value ) ) {
 			return this.each(function( j ) {
-				jQuery( this ).addClass( value.call( this, j, this.className ) );
+				new jQuery( this ).addClass( value.call( this, j, this.className ) );
 			});
 		}
 
@@ -73,6 +99,10 @@ jQuery.fn.extend({
 		return this;
 	},
 
+	/**
+	 * @param {(string|function(number,string))=} value
+	 * @return {!jQuery}
+	 */
 	removeClass: function( value ) {
 		var classes, elem, cur, clazz, j,
 			i = 0,
@@ -81,7 +111,7 @@ jQuery.fn.extend({
 
 		if ( jQuery.isFunction( value ) ) {
 			return this.each(function( j ) {
-				jQuery( this ).removeClass( value.call( this, j, this.className ) );
+				new jQuery( this ).removeClass( value.call( this, j, this.className ) );
 			});
 		}
 		if ( proceed ) {
@@ -111,13 +141,18 @@ jQuery.fn.extend({
 		return this;
 	},
 
+	/**
+	 * @param {(string|boolean|function(number,string,boolean))=} value
+	 * @param {boolean=} stateVal
+	 * @return {!jQuery}
+	 */
 	toggleClass: function( value, stateVal ) {
 		var type = typeof value,
 			isBool = typeof stateVal === "boolean";
 
 		if ( jQuery.isFunction( value ) ) {
 			return this.each(function( i ) {
-				jQuery( this ).toggleClass( value.call(this, i, this.className, stateVal), stateVal );
+				new jQuery( this ).toggleClass( value.call(this, i, this.className, /** @type {boolean} */ ( stateVal ) ), stateVal );
 			});
 		}
 
@@ -126,7 +161,7 @@ jQuery.fn.extend({
 				// toggle individual class names
 				var className,
 					i = 0,
-					self = jQuery( this ),
+					self = new jQuery( this ),
 					state = stateVal,
 					classNames = value.match( core_rnotwhite ) || [];
 
@@ -152,6 +187,10 @@ jQuery.fn.extend({
 		});
 	},
 
+	/**
+	 * @param {string} selector
+	 * @return {boolean}
+	 */
 	hasClass: function( selector ) {
 		var className = " " + selector + " ",
 			i = 0,
@@ -165,6 +204,10 @@ jQuery.fn.extend({
 		return false;
 	},
 
+	/**
+	 * @param {(string|Array.<string>|function(number,*))=} value
+	 * @return {(string|number|Array.<string>|!jQuery|undefined)}
+	 */
 	val: function( value ) {
 		var ret, hooks, isFunction,
 			elem = this[0];
@@ -193,7 +236,7 @@ jQuery.fn.extend({
 
 		return this.each(function( i ) {
 			var val,
-				self = jQuery(this);
+				self = new jQuery(this);
 
 			if ( this.nodeType !== 1 ) {
 				return;
@@ -259,7 +302,7 @@ jQuery.extend({
 							( !option.parentNode.disabled || !jQuery.nodeName( option.parentNode, "optgroup" ) ) ) {
 
 						// Get the specific value for the option
-						value = jQuery( option ).val();
+						value = new jQuery( option ).val();
 
 						// We don't need an array for one selects
 						if ( one ) {
@@ -277,8 +320,8 @@ jQuery.extend({
 			set: function( elem, value ) {
 				var values = jQuery.makeArray( value );
 
-				jQuery(elem).find("option").each(function() {
-					this.selected = jQuery.inArray( jQuery(this).val(), values ) >= 0;
+				new jQuery(elem).find("option").each(function() {
+					this.selected = jQuery.inArray( new jQuery(this).val(), values ) >= 0;
 				});
 
 				if ( !values.length ) {
@@ -289,6 +332,12 @@ jQuery.extend({
 		}
 	},
 
+	/**
+	 * @param {Element} elem
+	 * @param {(string|Object.<string,*>)} name
+	 * @param {(string|number|function(number,String))=} value
+	 * @return {string|undefined}
+	 */
 	attr: function( elem, name, value ) {
 		var hooks, notxml, ret,
 			nType = elem.nodeType;
@@ -315,14 +364,14 @@ jQuery.extend({
 		if ( value !== undefined ) {
 
 			if ( value === null ) {
-				jQuery.removeAttr( elem, name );
+				jQuery.removeAttr( elem, /** @type {string} */ ( name ) );
 
 			} else if ( hooks && notxml && hooks !== undefined && (ret = hooks.set( elem, value, name )) !== undefined ) {
 				return ret;
 
 			} else {
-				elem.setAttribute( name, value + "" );
-				return value;
+				elem.setAttribute( /** @type {string} */ ( name ), value + "" );
+				return /** @type {string|undefined} */ ( value );
 			}
 
 		} else if ( hooks && notxml && hooks.get !== undefined && (ret = hooks.get( elem, name )) !== null ) {
@@ -333,7 +382,7 @@ jQuery.extend({
 			// In IE9+, Flash objects don't have .getAttribute (#12945)
 			// Support: IE9+
 			if ( typeof elem.getAttribute !== core_strundefined ) {
-				ret =  elem.getAttribute( name );
+				ret =  elem.getAttribute( /** @type {string} */ ( name ) );
 			}
 
 			// Non-existent attributes return null, we normalize to undefined
@@ -343,6 +392,10 @@ jQuery.extend({
 		}
 	},
 
+	/**
+	 * @param {Element} elem
+	 * @param {string} value
+	 */
 	removeAttr: function( elem, value ) {
 		var name, propName,
 			i = 0,
@@ -405,6 +458,12 @@ jQuery.extend({
 		"contenteditable": "contentEditable"
 	},
 
+	/**
+	 * @param {Element} elem
+	 * @param {(string|Object.<string,*>)} name
+	 * @param {(string|number|boolean|function(number,String))=} value
+	 * @return {string|undefined}
+	 */
 	prop: function( elem, name, value ) {
 		var ret, hooks, notxml,
 			nType = elem.nodeType;
@@ -427,7 +486,7 @@ jQuery.extend({
 				return ret;
 
 			} else {
-				return ( elem[ name ] = value );
+				return /** @type {string|undefined} */ ( elem[ name ] = value );
 			}
 
 		} else {
@@ -505,7 +564,7 @@ if ( !getSetInput || !getSetAttribute ) {
 	jQuery.attrHooks["value"] = {
 		get: function( elem, name ) {
 			var ret = elem.getAttributeNode( name );
-			return jQuery.nodeName( elem, "input" ) ?
+			return jQuery.nodeName( /** @type {Node} */ ( elem ), "input" ) ?
 
 				// Ignore the value *property* by using defaultValue
 				elem.defaultValue :
@@ -513,7 +572,7 @@ if ( !getSetInput || !getSetAttribute ) {
 				ret && ret.specified ? ret.value : undefined;
 		},
 		set: function( elem, value, name ) {
-			if ( jQuery.nodeName( elem, "input" ) ) {
+			if ( jQuery.nodeName( /** @type {Node} */ ( elem ), "input" ) ) {
 				// Does not return so that setAttribute is also used
 				elem.defaultValue = value;
 			} else {
@@ -655,7 +714,7 @@ jQuery.each([ "radio", "checkbox" ], function() {
 	jQuery.valHooks[ this ] = jQuery.extend( jQuery.valHooks[ this ], {
 		set: function( elem, value ) {
 			if ( jQuery.isArray( value ) ) {
-				return ( elem.checked = jQuery.inArray( jQuery(elem).val(), value ) >= 0 );
+				return ( elem.checked = jQuery.inArray( new jQuery(elem).val(), value ) >= 0 );
 			}
 		}
 	});

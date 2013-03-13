@@ -630,6 +630,7 @@ test("toggle()", function() {
 
 	// Ensure hide() is called when toggled (#12148)
 	var oldHide = jQuery.fn.hide;
+	var name = "hide";
 	jQuery.fn.hide = function() {
 		ok( true, name + " method called on toggle" );
 		return oldHide.apply( this, arguments );

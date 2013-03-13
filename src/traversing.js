@@ -4,20 +4,24 @@ var runtil = /Until$/,
 	rneedsContext = jQuery.expr.match["needsContext"],
 	// methods guaranteed to produce a unique set when starting from a unique set
 	guaranteedUnique = {
-		children: true,
-		contents: true,
-		next: true,
-		prev: true
+		"children": true,
+		"contents": true,
+		"next": true,
+		"prev": true
 	};
 
 jQuery.fn.extend({
+	/**
+	 * @param {(jQuerySelector|jQuery|Element)} selector
+	 * @return {!jQuery}
+	 */
 	find: function( selector ) {
 		var i, ret, self,
 			len = this.length;
 
 		if ( typeof selector !== "string" ) {
 			self = this;
-			return this.pushStack( jQuery( selector ).filter(function() {
+			return this.pushStack( new jQuery( selector ).filter(function() {
 				for ( i = 0; i < len; i++ ) {
 					if ( jQuery.contains( self[ i ], this ) ) {
 						return true;
@@ -37,9 +41,13 @@ jQuery.fn.extend({
 		return ret;
 	},
 
+	/**
+	 * @param {(string|Element)} target
+	 * @return {!jQuery}
+	 */
 	has: function( target ) {
 		var i,
-			targets = jQuery( target, this ),
+			targets = new jQuery( target, this ),
 			len = targets.length;
 
 		return this.filter(function() {
@@ -51,32 +59,49 @@ jQuery.fn.extend({
 		});
 	},
 
+	/**
+	 * @param {(jQuerySelector|Array.<Element>|function(number)|jQuery)} selector
+	 * @return {!jQuery}
+	 */
 	not: function( selector ) {
 		return this.pushStack( winnow(this, selector, false) );
 	},
 
+	/**
+	 * @param {(jQuerySelector|function(number)|Element|jQuery)} selector
+	 * @return {!jQuery}
+	 */
 	filter: function( selector ) {
 		return this.pushStack( winnow(this, selector, true) );
 	},
 
+	/**
+	 * @param {(jQuerySelector|function(number)|jQuery|Element)} selector
+	 * @return {boolean}
+	 */
 	is: function( selector ) {
 		return !!selector && (
 			typeof selector === "string" ?
 				// If this is a positional/relative selector, check membership in the returned set
 				// so $("p:first").is("p:last") won't return true for a doc with two "p".
 				rneedsContext.test( selector ) ?
-					jQuery( selector, this.context ).index( this[0] ) >= 0 :
+					new jQuery( selector, this.context ).index( this[0] ) >= 0 :
 					jQuery.filter( selector, this ).length > 0 :
 				this.filter( selector ).length > 0 );
 	},
 
+	/**
+	 * @param {(jQuerySelector|jQuery|Element|string|Array.<string>)} selectors
+	 * @param {Element=} context
+	 * @return {!jQuery}
+	 */
 	closest: function( selectors, context ) {
 		var cur,
 			i = 0,
 			l = this.length,
 			ret = [],
 			pos = rneedsContext.test( selectors ) || typeof selectors !== "string" ?
-				jQuery( selectors, context || this.context ) :
+				new jQuery( selectors, context || this.context ) :
 				0;
 
 		for ( ; i < l; i++ ) {
@@ -94,8 +119,12 @@ jQuery.fn.extend({
 		return this.pushStack( ret.length > 1 ? jQuery.unique( ret ) : ret );
 	},
 
-	// Determine the position of an element within
-	// the matched set of elements
+	/**
+	 * Determine the position of an element within
+	 * the matched set of elements
+	 * @param {(jQuerySelector|Element|jQuery)=} elem
+	 * @return {number}
+	 */
 	index: function( elem ) {
 
 		// No argument, return index in parent
@@ -105,7 +134,7 @@ jQuery.fn.extend({
 
 		// index in selector
 		if ( typeof elem === "string" ) {
-			return jQuery.inArray( this[0], jQuery( elem ) );
+			return jQuery.inArray( this[0], new jQuery( elem ) );
 		}
 
 		// Locate the position of the desired element
@@ -114,15 +143,24 @@ jQuery.fn.extend({
 			elem.jquery ? elem[0] : elem, this );
 	},
 
+	/**
+	 * @param {(jQuerySelector|Array.<Element>|string|jQuery)} selector
+	 * @param {Element=} context
+	 * @return {!jQuery}
+	 */
 	add: function( selector, context ) {
 		var set = typeof selector === "string" ?
-				jQuery( selector, context ) :
+				new jQuery( selector, context ) :
 				jQuery.makeArray( selector && selector.nodeType ? [ selector ] : selector ),
 			all = jQuery.merge( this.get(), set );
 
 		return this.pushStack( jQuery.unique(all) );
 	},
 
+	/**
+	 * @param {(jQuerySelector|Array.<Element>|string|jQuery)} selector
+	 * @return {!jQuery}
+	 */
 	addBack: function( selector ) {
 		return this.add( selector == null ?
 			this.prevObject : this.prevObject.filter(selector)
@@ -181,18 +219,23 @@ jQuery.expandedEach({
 			jQuery.merge( [], elem.childNodes );
 	}
 }, function( name, fn ) {
+	/**
+	 * @param {string|Node|!jQuery=} until
+	 * @param {jQuerySelector=} selector
+	 * @return {!jQuery}
+	 */
 	jQuery.fn[ name ] = function( until, selector ) {
-		var ret = jQuery.map( this, fn, until );
+		var ret = jQuery.map( this, fn, until ), nameCopy = name;
 
 		if ( !runtil.test( name ) ) {
-			selector = until;
+			selector = /** @type {string} */ ( until );
 		}
 
 		if ( selector && typeof selector === "string" ) {
-			ret = jQuery.filter( selector, ret );
+			ret = jQuery.filter( /** @type {string} */ ( selector ), ret );
 		}
 
-		ret = this.length > 1 && !guaranteedUnique[ name ] ? jQuery.unique( ret ) : ret;
+		ret = this.length > 1 && !guaranteedUnique[ nameCopy ] ? jQuery.unique( ret ) : ret;
 
 		if ( this.length > 1 && rparentsprev.test( name ) ) {
 			ret = ret.reverse();
@@ -203,6 +246,12 @@ jQuery.expandedEach({
 });
 
 jQuery.extend({
+	/**
+	 * @param {string} expr
+	 * @param {Array.<Element>} elems
+	 * @param {boolean=} not
+	 * @return {!jQuery}
+	 */
 	filter: function( expr, elems, not ) {
 		if ( not ) {
 			expr = ":not(" + expr + ")";
@@ -212,12 +261,17 @@ jQuery.extend({
 			jQuery.find.matchesSelector(elems[0], expr) ? [ elems[0] ] : [] :
 			jQuery.find.matches(expr, elems);
 	},
-
+	/**
+	 * @param {Element} elem
+	 * @param {string} dir
+	 * @param {Element=} until
+	 * @return {Array.<Element>}
+	 */
 	dir: function( elem, dir, until ) {
 		var matched = [],
 			cur = elem[ dir ];
 
-		while ( cur && cur.nodeType !== 9 && (until === undefined || cur.nodeType !== 1 || !jQuery( cur ).is( until )) ) {
+		while ( cur && cur.nodeType !== 9 && (until === undefined || cur.nodeType !== 1 || !new jQuery( cur ).is( until )) ) {
 			if ( cur.nodeType === 1 ) {
 				matched.push( cur );
 			}
@@ -226,6 +280,11 @@ jQuery.extend({
 		return matched;
 	},
 
+	/**
+	 * @param {number} n
+	 * @param {Element=} elem
+	 * @return {Array.<Element>}
+	 */
 	sibling: function( n, elem ) {
 		var r = [];
 

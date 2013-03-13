@@ -1,4 +1,5 @@
 --compilation_level ADVANCED_OPTIMIZATIONS
+--warning_level VERBOSE
 --process_jquery_primitives
 --use_types_for_optimization
 --debug

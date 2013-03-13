@@ -43,6 +43,10 @@ function vendorPropName( style, name ) {
 	return origName;
 }
 
+/**
+ * @param {Element} elem
+ * @param {Element=} el
+ */
 function isHidden( elem, el ) {
 	// isHidden might be called from jQuery#filter function;
 	// in that case, element will be second argument
@@ -50,6 +54,7 @@ function isHidden( elem, el ) {
 	return jQuery.css( elem, "display" ) === "none" || !jQuery.contains( elem.ownerDocument, elem );
 }
 
+/** @param {boolean=} show */
 function showHide( elements, show ) {
 	var display, elem, hidden,
 		values = [],
@@ -105,8 +110,13 @@ function showHide( elements, show ) {
 }
 
 jQuery.fn.extend({
+	/**
+	 * @param {(string|Object.<string,*>)} name
+	 * @param {(string|number|function(number,*))=} value
+	 * @return {(string|!jQuery)}
+	 */
 	css: function( name, value ) {
-		return jQuery.access( this, function( elem, name, value ) {
+		return /** @type {(string|!jQuery)} */ ( jQuery.access( this, function( elem, name, value ) {
 			var len, styles,
 				map = {},
 				i = 0;
@@ -125,22 +135,28 @@ jQuery.fn.extend({
 			return value !== undefined ?
 				jQuery.style( elem, name, value ) :
 				jQuery.css( elem, name );
-		}, name, value, arguments.length > 1 );
+		}, name, value, arguments.length > 1 ) );
 	},
+	/** @return {!jQuery} */
 	show: function() {
 		return showHide( this, true );
 	},
+	/** @return {!jQuery} */
 	hide: function() {
 		return showHide( this );
 	},
+	/**
+	 * @param {boolean=} state
+	 * @return {!jQuery}
+	 */
 	toggle: function( state ) {
 		var bool = typeof state === "boolean";
 
 		return this.each(function() {
 			if ( bool ? state : isHidden( this ) ) {
-				jQuery( this ).show();
+				new jQuery( this ).show();
 			} else {
-				jQuery( this ).hide();
+				new jQuery( this ).hide();
 			}
 		});
 	}
@@ -181,7 +197,13 @@ jQuery.extend({
 		"float": jQuery.support["cssFloat"] ? "cssFloat" : "styleFloat"
 	},
 
-	// Get and set the style property on a DOM Node
+	/**
+	 * Get and set the style property on a DOM Node
+	 * @param {Element} elem
+	 * @param {string} name
+	 * @param {(string|number)=} value
+	 * @param {?=} extra
+	 */
 	style: function( elem, name, value, extra ) {
 		// Don't set styles on text and comment nodes
 		if ( !elem || elem.nodeType === 3 || elem.nodeType === 8 || !elem.style ) {
@@ -247,6 +269,10 @@ jQuery.extend({
 		}
 	},
 
+	/**
+	 * @param {?=} extra
+	 * @param {?=} styles
+	 */
 	css: function( elem, name, extra, styles ) {
 		var num, val, hooks,
 			origName = jQuery.camelCase( name );
@@ -281,7 +307,10 @@ jQuery.extend({
 		return val;
 	},
 
-	// A method for quickly swapping in/out CSS properties to get correct calculations
+	/**
+	 * A method for quickly swapping in/out CSS properties to get correct calculations
+	 * @param {*=} args
+	 */
 	swap: function( elem, options, callback, args ) {
 		var ret, name,
 			old = {};
@@ -310,6 +339,11 @@ if ( window.getComputedStyle ) {
 		return window.getComputedStyle( elem, null );
 	};
 
+	/**
+	 * @param {Element} elem
+	 * @param {string} name
+	 * @param {?=} _computed
+	 */
 	curCSS = function( elem, name, _computed ) {
 		var width, minWidth, maxWidth,
 			computed = _computed || getStyles( elem ),
@@ -353,6 +387,11 @@ if ( window.getComputedStyle ) {
 		return elem.currentStyle;
 	};
 
+	/**
+	 * @param {Element} elem
+	 * @param {string} name
+	 * @param {?=} _computed
+	 */
 	curCSS = function( elem, name, _computed ) {
 		var left, rs, rsLeft,
 			computed = _computed || getStyles( elem ),
@@ -499,7 +538,7 @@ function css_defaultDisplay( nodeName ) {
 		if ( display === "none" || !display ) {
 			// Use the already-created iframe if possible
 			iframe = ( iframe ||
-				jQuery("<iframe frameborder='0' width='0' height='0'/>")
+				new jQuery("<iframe frameborder='0' width='0' height='0'/>")
 				.css( "cssText", "display:block !important" )
 			).appendTo( doc.documentElement );
 
@@ -521,7 +560,7 @@ function css_defaultDisplay( nodeName ) {
 
 // Called ONLY from within css_defaultDisplay
 function actualDisplay( name, doc ) {
-	var elem = jQuery( doc.createElement( name ) ).appendTo( doc.body ),
+	var elem = new jQuery( doc.createElement( name ) ).appendTo( doc.body ),
 		display = jQuery.css( elem[0], "display" );
 	elem.remove();
 	return display;
@@ -560,8 +599,9 @@ if ( !jQuery.support["opacity"] ) {
 	jQuery.cssHooks.opacity = {
 		get: function( elem, computed ) {
 			// IE uses filters for opacity
-			return ropacity.test( (computed && elem.currentStyle ? elem.currentStyle.filter : elem.style.filter) || "" ) ?
-				( 0.01 * parseFloat( RegExp.$1 ) ) + "" :
+			var supports = ropacity.exec( (computed && elem.currentStyle ? elem.currentStyle.filter : elem.style.filter) || "" );
+			return supports.length > 1 ?
+				( 0.01 * parseFloat( supports[1] ) ) + "" :
 				computed ? "1" : "";
 		},
 
@@ -602,7 +642,7 @@ if ( !jQuery.support["opacity"] ) {
 
 // These hooks cannot be added until DOM ready because the support test
 // for it is not run until after DOM ready
-jQuery(function() {
+new jQuery(function() {
 	if ( !jQuery.support["reliableMarginRight"] ) {
 		jQuery.cssHooks.marginRight = {
 			get: function( elem, computed ) {
@@ -627,7 +667,7 @@ jQuery(function() {
 						computed = curCSS( elem, prop );
 						// if curCSS returns percentage, fallback to offset
 						return rnumnonpx.test( computed ) ?
-							jQuery( elem ).position()[ prop ] + "px" :
+							new jQuery( elem ).position()[ prop ] + "px" :
 							computed;
 					}
 				}

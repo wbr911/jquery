@@ -1,4 +1,10 @@
 jQuery.extend({
+	/**
+	 * @param {Element} elem
+	 * @param {(string|Array.<function()>|function(function()))=} type
+	 * @param {(Array.<function()>|function())=} data
+	 * @return {(Array.<Element>|!jQuery|undefined)}
+	 */
 	queue: function( elem, type, data ) {
 		var queue;
 
@@ -14,10 +20,14 @@ jQuery.extend({
 					queue.push( data );
 				}
 			}
-			return queue || [];
+			return /** @type {Array.<Element>|!jQuery} */ ( queue || [] );
 		}
 	},
 
+	/**
+	 * @param {Element} elem
+	 * @param {string=} type
+	 */
 	dequeue: function( elem, type ) {
 		type = type || "fx";
 
@@ -54,7 +64,7 @@ jQuery.extend({
 		}
 	},
 
-	// not intended for public consumption - generates a queueHooks object, or returns the current one
+	/** @private not intended for public consumption - generates a queueHooks object, or returns the current one */
 	_queueHooks: function( elem, type ) {
 		var key = type + "queueHooks";
 		return jQuery._data( elem, key ) || jQuery._data( elem, key, {
@@ -67,6 +77,11 @@ jQuery.extend({
 });
 
 jQuery.fn.extend({
+	/**
+	 * @param {(string|Array.<function()>|function())=} type
+	 * @param {(Array.<function()>|function())=} data
+	 * @return {(Array.<Element>|!jQuery)}
+	 */
 	queue: function( type, data ) {
 		var setter = 2;
 
@@ -77,7 +92,7 @@ jQuery.fn.extend({
 		}
 
 		if ( arguments.length < setter ) {
-			return jQuery.queue( this[0], type );
+			return /** @type {(Array.<Element>|!jQuery)} */ ( jQuery.queue( this[0], type ) );
 		}
 
 		return data === undefined ?
@@ -89,17 +104,25 @@ jQuery.fn.extend({
 				jQuery._queueHooks( this, type );
 
 				if ( type === "fx" && queue[0] !== "inprogress" ) {
-					jQuery.dequeue( this, type );
+					jQuery.dequeue( this, /** @type {string} */ ( type ) );
 				}
 			});
 	},
+	/**
+	 * @param {string=} type
+	 * @return {!jQuery}
+	 */
 	dequeue: function( type ) {
 		return this.each(function() {
 			jQuery.dequeue( this, type );
 		});
 	},
-	// Based off of the plugin by Clint Helfers, with permission.
-	// http://blindsignals.com/index.php/2009/07/jquery-delay/
+	/** Based off of the plugin by Clint Helfers, with permission.
+	 * @see http://blindsignals.com/index.php/2009/07/jquery-delay/
+	 * @param {number} time
+	 * @param {string=} type
+	 * @return {!jQuery}
+	 */
 	delay: function( time, type ) {
 		time = jQuery.fx ? jQuery.fx.speeds[ time ] || time : time;
 		type = type || "fx";
@@ -111,11 +134,20 @@ jQuery.fn.extend({
 			};
 		});
 	},
+	/**
+	 * @param {string=} type
+	 * @return {!jQuery}
+	 */
 	clearQueue: function( type ) {
 		return this.queue( type || "fx", [] );
 	},
-	// Get a promise resolved when queues of a certain type
-	// are emptied (fx is the type by default)
+	/**
+	 * Get a promise resolved when queues of a certain type
+	 * are emptied (fx is the type by default)
+	 * @param {(string|Object)=} type
+	 * @param {Object=} obj
+	 * @return {jQuery.promise}
+	 */
 	promise: function( type, obj ) {
 		var tmp,
 			count = 1,
