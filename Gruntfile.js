@@ -122,7 +122,7 @@ module.exports = function( grunt ) {
 		"closure-compiler": {
 			frontend: {
 				js: "dist/jquery.closure-compiler.js",
-				maxBuffer: 500,
+				maxBuffer: 1000,
 				options: {
 					flagfile: "build/closure-compiler/closure-compiler.flags"
 				}
