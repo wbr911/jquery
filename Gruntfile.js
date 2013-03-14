@@ -517,9 +517,10 @@ module.exports = function( grunt ) {
 					startIndex = compiled.indexOf( "*/" ) + 2,
 					endIndex = compiled.indexOf( "{", startIndex),
 					intro = compiled.substr(0, startIndex);
-		
-				compiled = intro + compiled.substr(endIndex + 1);
+
+				compiled = "/**\n * @license" + intro.substring(6) + compiled.substr(endIndex + 1);
 				compiled = compiled.substr(0, compiled.lastIndexOf( "}" ));
+
 				compiled = compiled.replace(/\tdocument = window\.document,/,
 					"\t// document = window.document,");
 				compiled = compiled.replace(/\tlocation = window\.location,/,

@@ -761,7 +761,7 @@ jQuery.extend({
 	 * Use native String.trim function wherever possible
 	 * @type {function(string):string}
 	 */
-	trim: core_trim && !core_trim.call( new window.String( "\uFEFF\xA0" ) ) ?
+	trim: core_trim && !core_trim.call( new window["String"]( "\uFEFF\xA0" ) ) ?
 		function( text ) {
 			return text == null ?
 				"" :
