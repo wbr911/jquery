@@ -1,0 +1,1 @@
+window.parent["iframeCallback"]( window["cc_on"], window["errors"], jQuery );

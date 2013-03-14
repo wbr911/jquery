@@ -8,6 +8,8 @@ jQuery.fragments;
 jQuery.timers;
 /** @expose */
 jQuery.ajaxSettings;
+/** @expose */
+jQuery.expando;
 })();
 
 /** @expose */
@@ -36,9 +38,8 @@ jQuery["globalEval"] = jQuery.globalEval;
 jQuery["parseXML"] = jQuery.parseXML;
 jQuery["isArray"] = jQuery.isArray;
 jQuery["isFunction"] = jQuery.isFunction;
-jQuery["expando"] = jQuery.expando;
 
-var $ = window["jQuery"] = window["$"] = jQuery;
+window["jQuery"] = jQuery;
 
 // Redefine the isReady property since it may be eliminated as dead code
 // Needed for offset and selector tests

@@ -920,7 +920,7 @@ jQuery.fn.extend({
 	 * @param {(string|Object.<string,*>)} types
 	 * @param {*=} selector
 	 * @param {*=} data
-	 * @param {(function(!jQuery.Event=)|number|boolean)=} fn
+	 * @param {(function((!jQuery.Event)=)|number|boolean)=} fn
 	 * @param {number=} one
 	 * @return {!jQuery}
 	 */
@@ -943,16 +943,16 @@ jQuery.fn.extend({
 
 		if ( data == null && fn == null ) {
 			// ( types, fn )
-			fn = /** @type {(function (jQuery.Event=):?)} */ ( selector );
+			fn = /** @type {function (jQuery.Event=):?|boolean} */ ( selector );
 			data = selector = undefined;
 		} else if ( fn == null ) {
 			if ( typeof selector === "string" ) {
 				// ( types, selector, fn )
-				fn = /** @type {(function (jQuery.Event=):?)} */ ( data );
+				fn = /** @type {function (jQuery.Event=):?|boolean} */ ( data );
 				data = undefined;
 			} else {
 				// ( types, data, fn )
-				fn = /** @type {(function (!jQuery.Event=):?)} */ ( data );
+				fn = /** @type {function (jQuery.Event=):?|boolean} */ ( data );
 				data = selector;
 				selector = undefined;
 			}
@@ -965,9 +965,9 @@ jQuery.fn.extend({
 
 		if ( one === 1 ) {
 			origFn = fn;
-			fn = /** @param {!jQuery.Event=} event */ function( event ) {
+			fn = /** @param {jQuery.Event=} event */ function( event ) {
 				// Can use an empty set, since event contains the info
-				new jQuery().off( /** @type {string} */ ( event ) );
+				new jQuery().off( /** @type {jQuery.Event} */ ( event ) );
 				return origFn.apply( this, arguments );
 			};
 			// Use same guid so caller can remove using origFn
@@ -988,7 +988,7 @@ jQuery.fn.extend({
 		return this.on( types, selector, data, fn, 1 );
 	},
 	/**
-	 * @param {(string|Object.<string,*>)} types
+	 * @param {(string|Object.<string,*>|jQuery.Event)} types
 	 * @param {(string|function(!jQuery.Event=)|boolean)=} selector
 	 * @param {(function(!jQuery.Event=)|boolean)=} fn
 	 * @return {!jQuery}

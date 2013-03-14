@@ -20,7 +20,11 @@
 </head>
 <body>
 	<script>
-		window.parent.iframeCallback( cc_on, errors, jQuery );
+		if ( parent.location.search.search( /(\?|&)closureCompiler=true/ ) >= 0 ) {
+			document.write( "<script src='../../../build/closure-compiler/cc_on_data.js'><\/script>" );
+		} else {
+			document.write( "<script src='cc_on.js'><\/script>" );
+		}
 	</script>
 </body>
 </html>

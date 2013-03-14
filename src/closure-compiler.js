@@ -5,7 +5,7 @@
  */
 var jQuerySelector;
 
-/** @typedef {function(...)|Array.<function(...)>} */
+/** @typedef {Arguments|function(...)|Array.<function(...)>} */
 var jQueryCallback;
 
 /** @interface */
@@ -130,7 +130,7 @@ jQuery.deferred.prototype.notify = function( var_args ) {};
 
 /**
  * @param {Object} context
- * @param {...*} var_args
+ * @param {...(Array.<*>|Arguments)} var_args
  * @return {jQuery.deferred}
  */
 jQuery.deferred.prototype.notifyWith = function( context, var_args ) {};
@@ -158,7 +158,7 @@ jQuery.deferred.prototype.reject = function( var_args ) {};
 
 /**
  * @param {Object} context
- * @param {Array.<*>=} args
+ * @param {(Array.<*>|Arguments)=} args
  * @return {jQuery.deferred}
  */
 jQuery.deferred.prototype.rejectWith = function( context, args ) {};
@@ -171,7 +171,7 @@ jQuery.deferred.prototype.resolve = function( var_args ) {};
 
 /**
  * @param {Object} context
- * @param {Array.<*>=} args
+ * @param {(Array.<*>|Arguments)=} args
  * @return {jQuery.deferred}
  */
 jQuery.deferred.prototype.resolveWith = function( context, args ) {};

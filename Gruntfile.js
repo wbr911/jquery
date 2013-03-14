@@ -520,6 +520,12 @@ module.exports = function( grunt ) {
 		
 				compiled = intro + compiled.substr(endIndex + 1);
 				compiled = compiled.substr(0, compiled.lastIndexOf( "}" ));
+				compiled = compiled.replace(/\tdocument = window\.document,/,
+					"\t// document = window.document,");
+				compiled = compiled.replace(/\tlocation = window\.location,/,
+					"\t// location = window.location,");
+				compiled = compiled.replace(/window\.jQuery = window\.\$ = jQuery;/,
+					"// window.jQuery = window.$ = jQuery;");
 
 				cfg.files.forEach( function(file) {
 					compiled += grunt.file.read( file );
@@ -529,7 +535,6 @@ module.exports = function( grunt ) {
 				grunt.file.write( cfg.dest, compiled );
 				
 				grunt.log.writeln( "File '" + cfg.dest + "' created." );
-				grunt.task.run( "jshint:closure-compiler" );
 			});
 
 	// Load grunt tasks from NPM packages

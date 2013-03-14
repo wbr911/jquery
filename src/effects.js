@@ -377,30 +377,20 @@ function defaultPrefilter( elem, props, opts ) {
  * @param {string} easing
  */
 jQuery.Tween = function( elem, options, prop, end, easing ) {
-	return /** @type {jQuery.Tween} */ ( new jQuery.Tween.prototype.init( elem, options, prop, end, easing ) );
+	return new jQuery.Tween.prototype.init( elem, options, prop, end, easing );
 };
 
 jQuery.Tween.prototype = {
 	constructor: jQuery.Tween,
-	init:
-		/**
-		 * @constructor
-		 * @param {Element} elem
-		 * @param {jQuery.animationOptions} options
-		 * @param {string} prop
-		 * @param {number} end
-		 * @param {string=} easing
-		 * @param {string=} unit
-		 */
-		function( elem, options, prop, end, easing, unit ) {
-			this.elem = elem;
-			this.prop = prop;
-			this.easing = easing || "swing";
-			this.options = options;
-			this.start = this.now = this.cur();
-			this.end = end;
-			this.unit = unit || ( jQuery.cssNumber[ prop ] ? "" : "px" );
-		},
+	init: /** @type {function(new:jQuery.Tween,?,?,?,?,?,?=)} */ ( function( elem, options, prop, end, easing, unit ) {
+		this.elem = elem;
+		this.prop = prop;
+		this.easing = easing || "swing";
+		this.options = options;
+		this.start = this.now = this.cur();
+		this.end = end;
+		this.unit = unit || ( jQuery.cssNumber[ prop ] ? "" : "px" );
+	} ),
 	cur: function() {
 		var hooks = jQuery.Tween.propHooks[ this.prop ];
 
@@ -542,7 +532,7 @@ jQuery.fn.extend({
 			clearQueue = type;
 			type = undefined;
 		}
-		if ( clearQueue && /** @type {boolean} */ ( type ) !== false ) {
+		if ( clearQueue ) {
 			this.queue( type || "fx", [] );
 		}
 

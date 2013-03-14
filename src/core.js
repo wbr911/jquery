@@ -10,8 +10,8 @@ var
 	core_strundefined = typeof undefined,
 
 	// Use the correct document accordingly with window argument (sandbox)
-	// document = window.document,
-	// location = window.location,
+	document = window.document,
+	location = window.location,
 
 	// Map over jQuery in case of overwrite
 	_jQuery = window[ "jQuery" ],
@@ -47,7 +47,7 @@ var
  */
 var jQuery = function( selector, context ) {
 		// The jQuery object is actually just the init constructor 'enhanced'
-		return /** @type {!jQuery} */ ( new jQuery.fn.init( selector, context, rootjQuery ) );
+		return new jQuery.fn.init( selector, context, rootjQuery );
 	};
 
 var core_pnum = /[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/.source,
@@ -107,11 +107,7 @@ jQuery.fn = jQuery.prototype = {
 	jquery: core_version,
 
 	constructor: jQuery,
-	init: /**
-		* @constructor
-		* @extends {jQuery}
-		*/
-		function( selector, context, rootjQuery ) {
+	init: /** @type {function(new:jQuery,?,?,?)} */ ( function( selector, context, rootjQuery ) {
 		var match, elem;
 
 		// HANDLE: $(""), $(null), $(undefined), $(false)
@@ -137,7 +133,7 @@ jQuery.fn = jQuery.prototype = {
 					context = context instanceof jQuery ? context[0] : context;
 
 					// scripts is true for back-compat
-					jQuery.merge( /** @type {Array.<*>} */ ( this ), jQuery.parseHTML(
+					jQuery.merge( /** @type {!jQuery} */ ( this ), jQuery.parseHTML(
 						match[1],
 						context && context.nodeType ? context.ownerDocument || context : document,
 						true
@@ -209,8 +205,8 @@ jQuery.fn = jQuery.prototype = {
 			this.context = selector.context;
 		}
 
-		return jQuery.makeArray( selector, /** @type {Array.<*>} */ ( this ) );
-	},
+		return /** @type {!jQuery} */ ( jQuery.makeArray( selector, /** @type {!jQuery} */ ( this ) ) );
+	} ),
 
 	// Start with an empty selector
 	selector: "",
@@ -340,8 +336,7 @@ jQuery.fn = jQuery.prototype = {
 	splice: [].splice
 };
 
-// Give the init function the jQuery prototype for later instantiation
-jQuery.fn.init.prototype = jQuery.fn;
+jQuery.fn.init.prototype = jQuery.prototype;
 
 /**
  * @param {...*} var_args
@@ -766,7 +761,7 @@ jQuery.extend({
 	 * Use native String.trim function wherever possible
 	 * @type {function(string):string}
 	 */
-	trim: core_trim && !core_trim.call(/** @type {String} */ ( "\uFEFF\xA0" ) ) ?
+	trim: core_trim && !core_trim.call( new window.String( "\uFEFF\xA0" ) ) ?
 		function( text ) {
 			return text == null ?
 				"" :
@@ -783,7 +778,7 @@ jQuery.extend({
 	/**
 	 * @param {string|Array.<*>|!jQuery|*} arr
 	 * @param {(Array.<*>|!jQuery)=} results is for internal usage only
-	 * @return {Array.<*>}
+	 * @return {Array.<*>|!jQuery}
 	 */
 	makeArray: function( arr, results ) {
 		var ret = results || [];

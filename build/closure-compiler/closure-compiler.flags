@@ -29,12 +29,16 @@
 --js test/unit/exports.js
 --module tests_compiled:19:jquery_compiled
 
+--js test/data/core/cc_on.js
+--module cc_on_data:1:jquery_compiled
 --js test/data/selector/sizzle_cache.js
 --module sizzle_cache_data:1:jquery_compiled
 --js test/data/support/bodyBackground.js
 --module bodyBackground_data:1:jquery_compiled
 --js test/data/support/csp.js
 --module csp_data:1:jquery_compiled
+--js test/data/support/shrinkWrapBlocks.js
+--module shrinkWrapBlocks_data:1:jquery_compiled
 --js test/data/event/promiseReady.js
 --module promiseReady_data:1:jquery_compiled
 --js test/data/manipulation/iframe-denied.js

@@ -17,7 +17,7 @@ jQuery.extend({
 					return state;
 				},
 				always: function() {
-					deferred.done( /** @type {Array.<function(...)>} */ ( arguments ) ).fail( /** @type {Array.<function(...)>} */ ( arguments ) );
+					deferred.done(  arguments ).fail( arguments );
 					return this;
 				},
 				then: function( /* fnDone, fnFail, fnProgress */ ) {
@@ -71,8 +71,7 @@ jQuery.extend({
 
 			// deferred[ resolve | reject | notify ]
 			deferred[ key ] = function() {
-				deferred[ key + "With" ]( this === deferred ? promise : this,
-					/** @type {Array.<function(...)>} */ ( arguments ) );
+				deferred[ key + "With" ]( this === deferred ? promise : this, arguments );
 				return this;
 			};
 			deferred[ key + "With" ] = list.fireWith;

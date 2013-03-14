@@ -7,14 +7,18 @@ test("Unit Testing Environment", function () {
 });
 
 test("Basic requirements", function() {
-	expect(7);
+	expect( QUnit.urlParams.closureCompiler ? 6 : 7 );
 	ok( Array.prototype.push, "Array.push()" );
 	ok( Function.prototype.apply, "Function.apply()" );
 	ok( document.getElementById, "getElementById" );
 	ok( document.getElementsByTagName, "getElementsByTagName" );
 	ok( window["RegExp"], "RegExp" );
 	ok( jQuery, "jQuery" );
-	ok( $, "$" );
+
+	// jQuery is not exported to the window object in the compiled build
+	if( !QUnit.urlParams.closureCompiler ) {
+		ok( window["$"], "$" );
+	}
 });
 
 testIframeWithCallback( "Conditional compilation compatibility (#13274)", "core/cc_on.html", function( cc_on, errors, $ ) {
@@ -212,22 +216,26 @@ test( "globalEval", function() {
 });
 
 test("noConflict", function() {
-	expect(7);
+	expect( QUnit.urlParams.closureCompiler ? 5 : 7 );
 
 	var $$ = jQuery;
 
 	strictEqual( jQuery, jQuery.noConflict(), "noConflict returned the jQuery object" );
-	strictEqual( window["jQuery"], $$, "Make sure jQuery wasn't touched." );
-	strictEqual( window["$"], original$, "Make sure $ was reverted." );
-
-	jQuery = $ = $$;
+	// jQuery is not exported to the window object in the compiled build
+	if ( !QUnit.urlParams.closureCompiler ) {
+		strictEqual( window["jQuery"], $$, "Make sure jQuery wasn't touched." );
+		strictEqual( window["$"], original$, "Make sure $ was reverted." );
+	}
+	jQuery = window["$"] = $$;
 
 	strictEqual( jQuery.noConflict(true), $$, "noConflict returned the jQuery object" );
 	strictEqual( window["jQuery"], originaljQuery, "Make sure jQuery was reverted." );
 	strictEqual( window["$"], original$, "Make sure $ was reverted." );
 	ok( $$().pushStack([]), "Make sure that jQuery still works." );
 
-	window["jQuery"] = jQuery = $$;
+	jQuery = $$;
+
+	window["jQuery"] = QUnit.urlParams.closureCompiler ? window["jQuery"] : jQuery;
 });
 
 test("trim", function() {
@@ -572,9 +580,11 @@ test("isWindow", function() {
 
 test("jQuery('html')", function() {
 	expect( 15 );
+	window["jQuery"] = jQuery;
 
 	QUnit.reset();
 	jQuery["foo"] = false;
+
 	var s = jQuery("<script>jQuery.foo='test';</script>")[0];
 	ok( s, "Creating a script" );
 	ok( !jQuery["foo"], "Make sure the script wasn't executed prematurely" );

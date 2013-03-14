@@ -34,8 +34,6 @@ window.iframeDone = "";
 window.define = {};
 window.define.amd = {};
 window.define.amd.jQuery = {};
-
-Window.prototype.testIframeWithCallback = function() {};
 Window.prototype.testIframe = function() {};
 function testIframeWithCallback() {}
 function testIframe() {}
@@ -48,6 +46,8 @@ function url(value) {}
 var QUnit = {};
 QUnit.reset = function(){};
 QUnit.expectJqData = function() {};
+QUnit.urlParams = {};
+QUnit.urlParams.closureCompiler = true;
 var Globals = {};
 Globals.register = function() {};
 Globals.cleanup = function() {};
