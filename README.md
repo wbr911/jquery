@@ -26,9 +26,7 @@ jQuery Types
 
 Properties and Quotes
 ---------------------
-Most properties can be used unquoted. Here's a couple exceptions:
-* jQuery.support child properties
-* jQuery.easing child properties (for adding custom animation easements globally)
+Most properties can and should be used unquoted (jQuery.myPropery as opposed to jQuery["myProperty"])
 This build does support the experimental type-based optimizations which are enabled using the **--use\_types\_for_optimization** flag
 
 Deprecated Methods
