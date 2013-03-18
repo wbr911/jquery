@@ -1,3 +1,3 @@
 jQuery(function() {
-	window.parent["iframeCallback"]( jQuery.support["shrinkWrapBlocks"] );
+	window.parent["iframeCallback"]( jQuery.support.shrinkWrapBlocks );
 });

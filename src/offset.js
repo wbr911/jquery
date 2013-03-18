@@ -50,7 +50,7 @@ jQuery.offset = {
 			elem.style.position = "relative";
 		}
 
-		var curElem = new jQuery( elem ),
+		var curElem = jQuery( elem ),
 			curOffset = curElem.offset(),
 			curCSSTop = jQuery.css( elem, "top" ),
 			curCSSLeft = jQuery.css( elem, "left" ),
@@ -160,8 +160,8 @@ jQuery.expandedEach( {scrollLeft: "pageXOffset", scrollTop: "pageYOffset"}, func
 
 			if ( win ) {
 				win.scrollTo(
-					!top ? val : new jQuery( win ).scrollLeft(),
-					top ? val : new jQuery( win ).scrollTop()
+					!top ? val : jQuery( win ).scrollLeft(),
+					top ? val : jQuery( win ).scrollTop()
 				);
 
 			} else {

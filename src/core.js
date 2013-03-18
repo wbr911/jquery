@@ -472,7 +472,7 @@ jQuery.extend({
 
 		// Trigger any bound ready events
 		if ( jQuery.fn.trigger ) {
-			new jQuery( document ).trigger("ready").off("ready");
+			jQuery( document ).trigger("ready").off("ready");
 		}
 	},
 
@@ -596,7 +596,7 @@ jQuery.extend({
 
 		parsed = jQuery.buildFragment( [ data ], /** @type {Object} */ ( context ), /** @type {Array} */ ( scripts ) );
 		if ( scripts ) {
-			new jQuery( /** @type {Object} */ ( scripts ) ).remove();
+			jQuery( /** @type {Object} */ ( scripts ) ).remove();
 		}
 		return jQuery.merge( [], parsed.childNodes );
 	},
@@ -1000,7 +1000,7 @@ jQuery.extend({
 						 * @return {?}
 						 */
 						function( elem, key, value ) {
-							return bulk.call( new jQuery( elem ), value );
+							return bulk.call( jQuery( elem ), value );
 						};
 				}
 			}
@@ -1114,6 +1114,6 @@ function isArraylike( obj ) {
 }
 
 // All jQuery objects should point back to these
-rootjQuery = new jQuery(document);
+rootjQuery = jQuery(document);
 
 jQuery.expandedEach = jQuery.each;

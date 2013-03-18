@@ -39,15 +39,15 @@ jQuery.ajaxSettings.xhr = window.ActiveXObject ?
 
 // Determine support properties
 xhrSupported = jQuery.ajaxSettings.xhr();
-jQuery.support["cors"] = !!xhrSupported && ( "withCredentials" in xhrSupported );
-xhrSupported = jQuery.support["ajax"] = !!xhrSupported;
+jQuery.support.cors = !!xhrSupported && ( "withCredentials" in xhrSupported );
+xhrSupported = jQuery.support.ajax = !!xhrSupported;
 
 // Create transport if the browser can provide an xhr
 if ( xhrSupported ) {
 
 	jQuery.ajaxTransport(function( s ) {
 		// Cross domain only allowed if supported through XMLHttpRequest
-		if ( !s.crossDomain || jQuery.support["cors"] ) {
+		if ( !s.crossDomain || jQuery.support.cors ) {
 
 			var callback;
 
@@ -187,7 +187,7 @@ if ( xhrSupported ) {
 							// and attach the unload handler
 							if ( !xhrCallbacks ) {
 								xhrCallbacks = {};
-								new jQuery( window ).unload( xhrOnUnloadAbort );
+								jQuery( window ).unload( xhrOnUnloadAbort );
 							}
 							// Add to list of active xhrs callbacks
 							xhrCallbacks[ handle ] = callback;

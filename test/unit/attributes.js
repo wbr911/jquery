@@ -46,7 +46,7 @@ test( "jQuery.propFix integrity test", function() {
 		"contenteditable": "contentEditable"
 	};
 
-	if ( !jQuery.support["enctype"] ) {
+	if ( !jQuery.support.enctype ) {
 		props.enctype = "encoding";
 	}
 

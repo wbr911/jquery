@@ -5,8 +5,8 @@ var nodeHook, boolHook,
 	rclickable = /^(?:a|area)$/i,
 	rboolean = /^(?:checked|selected|autofocus|autoplay|async|controls|defer|disabled|hidden|loop|multiple|open|readonly|required|scoped)$/i,
 	ruseDefault = /^(?:checked|selected)$/i,
-	getSetAttribute = jQuery.support["getSetAttribute"],
-	getSetInput = jQuery.support["input"];
+	getSetAttribute = jQuery.support.getSetAttribute,
+	getSetInput = jQuery.support.input;
 
 jQuery.fn.extend({
 	/**
@@ -68,7 +68,7 @@ jQuery.fn.extend({
 
 		if ( jQuery.isFunction( value ) ) {
 			return this.each(function( j ) {
-				new jQuery( this ).addClass( value.call( this, j, this.className ) );
+				jQuery( this ).addClass( value.call( this, j, this.className ) );
 			});
 		}
 
@@ -111,7 +111,7 @@ jQuery.fn.extend({
 
 		if ( jQuery.isFunction( value ) ) {
 			return this.each(function( j ) {
-				new jQuery( this ).removeClass( value.call( this, j, this.className ) );
+				jQuery( this ).removeClass( value.call( this, j, this.className ) );
 			});
 		}
 		if ( proceed ) {
@@ -152,7 +152,7 @@ jQuery.fn.extend({
 
 		if ( jQuery.isFunction( value ) ) {
 			return this.each(function( i ) {
-				new jQuery( this ).toggleClass( value.call(this, i, this.className, /** @type {boolean} */ ( stateVal ) ), stateVal );
+				jQuery( this ).toggleClass( value.call(this, i, this.className, /** @type {boolean} */ ( stateVal ) ), stateVal );
 			});
 		}
 
@@ -161,7 +161,7 @@ jQuery.fn.extend({
 				// toggle individual class names
 				var className,
 					i = 0,
-					self = new jQuery( this ),
+					self = jQuery( this ),
 					state = stateVal,
 					classNames = value.match( core_rnotwhite ) || [];
 
@@ -236,7 +236,7 @@ jQuery.fn.extend({
 
 		return this.each(function( i ) {
 			var val,
-				self = new jQuery(this);
+				self = jQuery(this);
 
 			if ( this.nodeType !== 1 ) {
 				return;
@@ -298,11 +298,11 @@ jQuery.extend({
 					// oldIE doesn't update selected after form reset (#2551)
 					if ( ( option.selected || i === index ) &&
 							// Don't return options that are disabled or in a disabled optgroup
-							( jQuery.support["optDisabled"] ? !option.disabled : option.getAttribute("disabled") === null ) &&
+							( jQuery.support.optDisabled ? !option.disabled : option.getAttribute("disabled") === null ) &&
 							( !option.parentNode.disabled || !jQuery.nodeName( option.parentNode, "optgroup" ) ) ) {
 
 						// Get the specific value for the option
-						value = new jQuery( option ).val();
+						value = jQuery( option ).val();
 
 						// We don't need an array for one selects
 						if ( one ) {
@@ -320,8 +320,8 @@ jQuery.extend({
 			set: function( elem, value ) {
 				var values = jQuery.makeArray( value );
 
-				new jQuery(elem).find("option").each(function() {
-					this.selected = jQuery.inArray( new jQuery(this).val(), values ) >= 0;
+				jQuery(elem).find("option").each(function() {
+					this.selected = jQuery.inArray( jQuery(this).val(), values ) >= 0;
 				});
 
 				if ( !values.length ) {
@@ -429,7 +429,7 @@ jQuery.extend({
 	attrHooks: {
 		"type": {
 			set: function( elem, value ) {
-				if ( !jQuery.support["radioValue"] && value === "radio" && jQuery.nodeName(elem, "input") ) {
+				if ( !jQuery.support.radioValue && value === "radio" && jQuery.nodeName(elem, "input") ) {
 					// Setting the type on a radio button after the value resets the value in IE6-9
 					// Reset value to default in case type is set after value during creation
 					var val = elem.value;
@@ -639,7 +639,7 @@ if ( !getSetAttribute ) {
 
 // Some attributes require a special call on IE
 // http://msdn.microsoft.com/en-us/library/ms536429%28VS.85%29.aspx
-if ( !jQuery.support["hrefNormalized"] ) {
+if ( !jQuery.support.hrefNormalized ) {
 	jQuery.each([ "href", "src", "width", "height" ], function( i, name ) {
 		jQuery.attrHooks[ name ] = jQuery.extend( jQuery.attrHooks[ name ], {
 			get: function( elem ) {
@@ -659,7 +659,7 @@ if ( !jQuery.support["hrefNormalized"] ) {
 	});
 }
 
-if ( !jQuery.support["style"] ) {
+if ( !jQuery.support.style ) {
 	jQuery.attrHooks["style"] = {
 		get: function( elem ) {
 			// Return undefined in the case of empty string
@@ -675,7 +675,7 @@ if ( !jQuery.support["style"] ) {
 
 // Safari mis-reports the default selected property of an option
 // Accessing the parent's selectedIndex property fixes it
-if ( !jQuery.support["optSelected"] ) {
+if ( !jQuery.support.optSelected ) {
 	jQuery.propHooks["selected"] = jQuery.extend( jQuery.propHooks["selected"], {
 		/** @suppress {uselessCode} */
 		get: function( elem ) {
@@ -695,12 +695,12 @@ if ( !jQuery.support["optSelected"] ) {
 }
 
 // IE6/7 call enctype encoding
-if ( !jQuery.support["enctype"] ) {
+if ( !jQuery.support.enctype ) {
 	jQuery.propFix["enctype"] = "encoding";
 }
 
 // Radios and checkboxes getter/setter
-if ( !jQuery.support["checkOn"] ) {
+if ( !jQuery.support.checkOn ) {
 	jQuery.each([ "radio", "checkbox" ], function() {
 		jQuery.valHooks[ this ] = {
 			get: function( elem ) {
@@ -714,7 +714,7 @@ jQuery.each([ "radio", "checkbox" ], function() {
 	jQuery.valHooks[ this ] = jQuery.extend( jQuery.valHooks[ this ], {
 		set: function( elem, value ) {
 			if ( jQuery.isArray( value ) ) {
-				return ( elem.checked = jQuery.inArray( new jQuery(elem).val(), value ) >= 0 );
+				return ( elem.checked = jQuery.inArray( jQuery(elem).val(), value ) >= 0 );
 			}
 		}
 	});

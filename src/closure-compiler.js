@@ -8,6 +8,45 @@ var jQuerySelector;
 /** @typedef {Arguments|function(...)|Array.<function(...)>} */
 var jQueryCallback;
 
+/**
+ * @typedef {{
+ *     getSetAttribute: boolean,
+ *     leadingWhitespace: boolean,
+ *     tbody: boolean,
+ *     htmlSerialize: boolean,
+ *     style: boolean,
+ *     hrefNormalized: boolean,
+ *     opacity: boolean,
+ *     cssFloat: boolean,
+ *     checkOn: boolean,
+ *     optSelected: boolean,
+ *     enctype: boolean,
+ *     html5Clone: boolean,
+ *     boxModel: boolean,
+ *     deleteExpando: boolean,
+ *     noCloneEvent: boolean,
+ *     inlineBlockNeedsLayout: boolean,
+ *     shrinkWrapBlocks: boolean,
+ *     reliableMarginRight: boolean,
+ *     boxSizingReliable: boolean,
+ *     pixelPosition: boolean,
+ *     noCloneChecked: boolean,
+ *     optDisabled: boolean,
+ *     input: boolean,
+ *     radioValue: boolean,
+ *     appendChecked: boolean,
+ *     checkClone: boolean,
+ *     submitBubbles: boolean,
+ *     changeBubbles: boolean,
+ *     focusinBubbles: boolean,
+ *     clearCloneStyle: boolean,
+ *     reliableHiddenOffsets: boolean,
+ *     boxSizing: boolean,
+ *     doesNotIncludeMarginInBodyOffset: boolean
+ *   }}
+ */
+var jQuerySupport;
+
 /** @interface */
 jQuery.callbacks = function() {};
 

@@ -19,12 +19,12 @@ jQuery.fn.extend({
 		.filter(function(){
 			var type = this.type;
 			// Use .is(":disabled") so that fieldset[disabled] works
-			return this.name && !new jQuery( this ).is( ":disabled" ) &&
+			return this.name && !jQuery( this ).is( ":disabled" ) &&
 				rsubmittable.test( this.nodeName ) && !rsubmitterTypes.test( type ) &&
 				( this.checked || !manipulation_rcheckableType.test( type ) );
 		})
 		.map(function( i, elem ){
-			var val = new jQuery( this ).val();
+			var val = jQuery( this ).val();
 
 			return val == null ?
 				null :

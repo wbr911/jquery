@@ -21,7 +21,7 @@ jQuery.fn.extend({
 
 		if ( typeof selector !== "string" ) {
 			self = this;
-			return this.pushStack( new jQuery( selector ).filter(function() {
+			return this.pushStack( jQuery( selector ).filter(function() {
 				for ( i = 0; i < len; i++ ) {
 					if ( jQuery.contains( self[ i ], this ) ) {
 						return true;
@@ -47,7 +47,7 @@ jQuery.fn.extend({
 	 */
 	has: function( target ) {
 		var i,
-			targets = new jQuery( target, this ),
+			targets = jQuery( target, this ),
 			len = targets.length;
 
 		return this.filter(function() {
@@ -85,7 +85,7 @@ jQuery.fn.extend({
 				// If this is a positional/relative selector, check membership in the returned set
 				// so $("p:first").is("p:last") won't return true for a doc with two "p".
 				rneedsContext.test( selector ) ?
-					new jQuery( selector, this.context ).index( this[0] ) >= 0 :
+					jQuery( selector, this.context ).index( this[0] ) >= 0 :
 					jQuery.filter( selector, this ).length > 0 :
 				this.filter( selector ).length > 0 );
 	},
@@ -101,7 +101,7 @@ jQuery.fn.extend({
 			l = this.length,
 			ret = [],
 			pos = rneedsContext.test( selectors ) || typeof selectors !== "string" ?
-				new jQuery( selectors, context || this.context ) :
+				jQuery( selectors, context || this.context ) :
 				0;
 
 		for ( ; i < l; i++ ) {
@@ -134,7 +134,7 @@ jQuery.fn.extend({
 
 		// index in selector
 		if ( typeof elem === "string" ) {
-			return jQuery.inArray( this[0], new jQuery( elem ) );
+			return jQuery.inArray( this[0], jQuery( elem ) );
 		}
 
 		// Locate the position of the desired element
@@ -150,7 +150,7 @@ jQuery.fn.extend({
 	 */
 	add: function( selector, context ) {
 		var set = typeof selector === "string" ?
-				new jQuery( selector, context ) :
+				jQuery( selector, context ) :
 				jQuery.makeArray( selector && selector.nodeType ? [ selector ] : selector ),
 			all = jQuery.merge( this.get(), set );
 
@@ -271,7 +271,7 @@ jQuery.extend({
 		var matched = [],
 			cur = elem[ dir ];
 
-		while ( cur && cur.nodeType !== 9 && (until === undefined || cur.nodeType !== 1 || !new jQuery( cur ).is( until )) ) {
+		while ( cur && cur.nodeType !== 9 && (until === undefined || cur.nodeType !== 1 || !jQuery( cur ).is( until )) ) {
 			if ( cur.nodeType === 1 ) {
 				matched.push( cur );
 			}

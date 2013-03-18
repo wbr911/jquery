@@ -154,9 +154,9 @@ jQuery.fn.extend({
 
 		return this.each(function() {
 			if ( bool ? state : isHidden( this ) ) {
-				new jQuery( this ).show();
+				jQuery( this ).show();
 			} else {
-				new jQuery( this ).hide();
+				jQuery( this ).hide();
 			}
 		});
 	}
@@ -194,7 +194,7 @@ jQuery.extend({
 	// setting or getting the value
 	cssProps: {
 		// normalize float css property
-		"float": jQuery.support["cssFloat"] ? "cssFloat" : "styleFloat"
+		"float": jQuery.support.cssFloat ? "cssFloat" : "styleFloat"
 	},
 
 	/**
@@ -244,7 +244,7 @@ jQuery.extend({
 
 			// Fixes #8908, it can be done more correctly by specifing setters in cssHooks,
 			// but it would mean to define eight (for every problematic property) identical functions
-			if ( !jQuery.support["clearCloneStyle"] && value === "" && name.indexOf("background") === 0 ) {
+			if ( !jQuery.support.clearCloneStyle && value === "" && name.indexOf("background") === 0 ) {
 				style[ name ] = "inherit";
 			}
 
@@ -489,7 +489,7 @@ function getWidthOrHeight( elem, name, extra ) {
 	var valueIsBorderBox = true,
 		val = name === "width" ? elem.offsetWidth : elem.offsetHeight,
 		styles = getStyles( elem ),
-		isBorderBox = jQuery.support["boxSizing"] && jQuery.css( elem, "boxSizing", false, styles ) === "border-box";
+		isBorderBox = jQuery.support.boxSizing && jQuery.css( elem, "boxSizing", false, styles ) === "border-box";
 
 	// some non-html elements return undefined for offsetWidth, so check for null/undefined
 	// svg - https://bugzilla.mozilla.org/show_bug.cgi?id=649285
@@ -508,7 +508,7 @@ function getWidthOrHeight( elem, name, extra ) {
 
 		// we need the check for style in case a browser which returns unreliable values
 		// for getComputedStyle silently falls back to the reliable elem.style
-		valueIsBorderBox = isBorderBox && ( jQuery.support["boxSizingReliable"] || val === elem.style[ name ] );
+		valueIsBorderBox = isBorderBox && ( jQuery.support.boxSizingReliable || val === elem.style[ name ] );
 
 		// Normalize "", auto, and prepare for extra
 		val = parseFloat( val ) || 0;
@@ -538,7 +538,7 @@ function css_defaultDisplay( nodeName ) {
 		if ( display === "none" || !display ) {
 			// Use the already-created iframe if possible
 			iframe = ( iframe ||
-				new jQuery("<iframe frameborder='0' width='0' height='0'/>")
+				jQuery("<iframe frameborder='0' width='0' height='0'/>")
 				.css( "cssText", "display:block !important" )
 			).appendTo( doc.documentElement );
 
@@ -560,7 +560,7 @@ function css_defaultDisplay( nodeName ) {
 
 // Called ONLY from within css_defaultDisplay
 function actualDisplay( name, doc ) {
-	var elem = new jQuery( doc.createElement( name ) ).appendTo( doc.body ),
+	var elem = jQuery( doc.createElement( name ) ).appendTo( doc.body ),
 		display = jQuery.css( elem[0], "display" );
 	elem.remove();
 	return display;
@@ -587,7 +587,7 @@ jQuery.each([ "height", "width" ], function( i, name ) {
 					elem,
 					name,
 					extra,
-					jQuery.support["boxSizing"] && jQuery.css( elem, "boxSizing", false, styles ) === "border-box",
+					jQuery.support.boxSizing && jQuery.css( elem, "boxSizing", false, styles ) === "border-box",
 					styles
 				) : 0
 			);
@@ -595,7 +595,7 @@ jQuery.each([ "height", "width" ], function( i, name ) {
 	};
 });
 
-if ( !jQuery.support["opacity"] ) {
+if ( !jQuery.support.opacity ) {
 	jQuery.cssHooks.opacity = {
 		get: function( elem, computed ) {
 			// IE uses filters for opacity
@@ -642,8 +642,8 @@ if ( !jQuery.support["opacity"] ) {
 
 // These hooks cannot be added until DOM ready because the support test
 // for it is not run until after DOM ready
-new jQuery(function() {
-	if ( !jQuery.support["reliableMarginRight"] ) {
+jQuery(function() {
+	if ( !jQuery.support.reliableMarginRight ) {
 		jQuery.cssHooks.marginRight = {
 			get: function( elem, computed ) {
 				if ( computed ) {
@@ -659,7 +659,7 @@ new jQuery(function() {
 	// Webkit bug: https://bugs.webkit.org/show_bug.cgi?id=29084
 	// getComputedStyle returns percent when specified for top/left/bottom/right
 	// rather than make the css module depend on the offset module, we just check for it here
-	if ( !jQuery.support["pixelPosition"] && jQuery.fn.position ) {
+	if ( !jQuery.support.pixelPosition && jQuery.fn.position ) {
 		jQuery.each( [ "top", "left" ], function( i, prop ) {
 			jQuery.cssHooks[ prop ] = {
 				get: function( elem, computed ) {
@@ -667,7 +667,7 @@ new jQuery(function() {
 						computed = curCSS( elem, prop );
 						// if curCSS returns percentage, fallback to offset
 						return rnumnonpx.test( computed ) ?
-							new jQuery( elem ).position()[ prop ] + "px" :
+							jQuery( elem ).position()[ prop ] + "px" :
 							computed;
 					}
 				}
@@ -682,7 +682,7 @@ if ( jQuery.expr && jQuery.expr.filters ) {
 		// Support: Opera <= 12.12
 		// Opera reports offsetWidths and offsetHeights less than zero on some elements
 		return elem.offsetWidth <= 0 && elem.offsetHeight <= 0 ||
-			(!jQuery.support["reliableHiddenOffsets"] && ((elem.style && elem.style.display) || jQuery.css( elem, "display" )) === "none");
+			(!jQuery.support.reliableHiddenOffsets && ((elem.style && elem.style.display) || jQuery.css( elem, "display" )) === "none");
 	};
 
 	jQuery.expr.filters["visible"] = function( elem ) {

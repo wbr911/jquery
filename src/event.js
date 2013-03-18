@@ -498,7 +498,7 @@ jQuery.event = {
 
 						if ( matches[ sel ] === undefined ) {
 							matches[ sel ] = handleObj.needsContext ?
-								new jQuery( sel, this ).index( cur ) >= 0 :
+								jQuery( sel, this ).index( cur ) >= 0 :
 								jQuery.find( sel, this, null, [ cur ] ).length;
 						}
 						if ( matches[ sel ] ) {
@@ -778,7 +778,7 @@ jQuery.each({
 });
 
 // IE submit delegation
-if ( !jQuery.support["submitBubbles"] ) {
+if ( !jQuery.support.submitBubbles ) {
 
 	special_event["submit"] = /** @type {jQuerySpecialEvent} */ ({
 		setup: function() {
@@ -827,7 +827,7 @@ if ( !jQuery.support["submitBubbles"] ) {
 }
 
 // IE change delegation and checkbox/radio fix
-if ( !jQuery.support["changeBubbles"] ) {
+if ( !jQuery.support.changeBubbles ) {
 
 	special_event["change"] = /** @type {jQuerySpecialEvent} */ ({
 
@@ -891,7 +891,7 @@ if ( !jQuery.support["changeBubbles"] ) {
 }
 
 // Create "bubbling" focus and blur events
-if ( !jQuery.support["focusinBubbles"] ) {
+if ( !jQuery.support.focusinBubbles ) {
 	jQuery.expandedEach({ focus: "focusin", blur: "focusout" }, function( orig, fix ) {
 
 		// Attach a single capturing handler while someone wants focusin/focusout
@@ -967,7 +967,7 @@ jQuery.fn.extend({
 			origFn = fn;
 			fn = /** @param {jQuery.Event=} event */ function( event ) {
 				// Can use an empty set, since event contains the info
-				new jQuery().off( /** @type {jQuery.Event} */ ( event ) );
+				jQuery().off( /** @type {jQuery.Event} */ ( event ) );
 				return origFn.apply( this, arguments );
 			};
 			// Use same guid so caller can remove using origFn
@@ -998,7 +998,7 @@ jQuery.fn.extend({
 		if ( types && types.preventDefault && types.handleObj ) {
 			// ( event )  dispatched jQuery.Event
 			handleObj = types.handleObj;
-			new jQuery( types.delegateTarget ).off(
+			jQuery( types.delegateTarget ).off(
 				handleObj.namespace ? handleObj.origType + "." + handleObj.namespace : handleObj.origType,
 				handleObj.selector,
 				handleObj.handler

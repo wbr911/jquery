@@ -293,7 +293,7 @@ function defaultPrefilter( elem, props, opts ) {
 
 			// inline-level elements accept inline-block;
 			// block-level elements need to be inline with layout
-			if ( !jQuery.support["inlineBlockNeedsLayout"] || css_defaultDisplay( elem.nodeName ) === "inline" ) {
+			if ( !jQuery.support.inlineBlockNeedsLayout || css_defaultDisplay( elem.nodeName ) === "inline" ) {
 				style.display = "inline-block";
 
 			} else {
@@ -304,7 +304,7 @@ function defaultPrefilter( elem, props, opts ) {
 
 	if ( opts.overflow ) {
 		style.overflow = "hidden";
-		if ( !jQuery.support["shrinkWrapBlocks"] ) {
+		if ( !jQuery.support.shrinkWrapBlocks ) {
 			anim.always(function() {
 				style.overflow = opts.overflow[ 0 ];
 				style.overflowX = opts.overflow[ 1 ];
@@ -339,10 +339,10 @@ function defaultPrefilter( elem, props, opts ) {
 			dataShow.hidden = !hidden;
 		}
 		if ( hidden ) {
-			new jQuery( elem ).show();
+			jQuery( elem ).show();
 		} else {
 			anim.done(function() {
-				new jQuery( elem ).hide();
+				jQuery( elem ).hide();
 			});
 		}
 		anim.done(function() {

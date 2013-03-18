@@ -3,13 +3,13 @@ module("support", { "teardown": moduleTeardown });
 test("boxModel", function() {
 	expect( 1 );
 
-	equal( jQuery.support["boxModel"], document.compatMode === "CSS1Compat" , "jQuery.support.boxModel is sort of tied to quirks mode but unstable since 1.8" );
+	equal( jQuery.support.boxModel, document.compatMode === "CSS1Compat" , "jQuery.support.boxModel is sort of tied to quirks mode but unstable since 1.8" );
 });
 
 test( "zoom of doom (#13089)", function() {
 	expect( 1 );
 
-	if ( jQuery.support["inlineBlockNeedsLayout"] ) {
+	if ( jQuery.support.inlineBlockNeedsLayout ) {
 		ok( document.body.style.zoom, "Added a zoom to the body (#11048, #12869)" );
 	} else {
 		ok( !document.body.style.zoom, "No zoom added to the body" );
@@ -50,7 +50,7 @@ testIframeWithCallback( "A background on the testElement does not cause IE8 to c
 
 testIframeWithCallback( "box-sizing does not affect jQuery.support.shrinkWrapBlocks", "support/shrinkWrapBlocks.html", function( shrinkWrapBlocks ) {
 	expect( 1 );
-	strictEqual( shrinkWrapBlocks, jQuery.support["shrinkWrapBlocks"], "jQuery.support.shrinkWrapBlocks properties are the same" );
+	strictEqual( shrinkWrapBlocks, jQuery.support.shrinkWrapBlocks, "jQuery.support.shrinkWrapBlocks properties are the same" );
 });
 
 (function() {

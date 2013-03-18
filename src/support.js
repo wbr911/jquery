@@ -1,3 +1,7 @@
+/**
+ * @const
+ * @type {jQuerySupport}
+ */
 jQuery.support = ( /** @suppress {uselessCode} */ function() {
 
 	var support, all, a,
@@ -24,88 +28,88 @@ jQuery.support = ( /** @suppress {uselessCode} */ function() {
 	a.style.cssText = "top:1px;float:left;opacity:.5";
 	support = {
 		// Test setAttribute on camelCase class. If it works, we need attrFixes when doing get/setAttribute (ie6/7)
-		"getSetAttribute": div.className !== "t",
+		getSetAttribute: div.className !== "t",
 
 		// IE strips leading whitespace when .innerHTML is used
-		"leadingWhitespace": div.firstChild.nodeType === 3,
+		leadingWhitespace: div.firstChild.nodeType === 3,
 
 		// Make sure that tbody elements aren't automatically inserted
 		// IE will insert them into empty tables
-		"tbody": !div.getElementsByTagName("tbody").length,
+		tbody: !div.getElementsByTagName("tbody").length,
 
 		// Make sure that link elements get serialized correctly by innerHTML
 		// This requires a wrapper element in IE
-		"htmlSerialize": !!div.getElementsByTagName("link").length,
+		htmlSerialize: !!div.getElementsByTagName("link").length,
 
 		// Get the style information from getAttribute
 		// (IE uses .cssText instead)
-		"style": /top/.test( a.getAttribute("style") ),
+		style: /top/.test( a.getAttribute("style") ),
 
 		// Make sure that URLs aren't manipulated
 		// (IE normalizes it by default)
-		"hrefNormalized": a.getAttribute("href") === "/a",
+		hrefNormalized: a.getAttribute("href") === "/a",
 
 		// Make sure that element opacity exists
 		// (IE uses filter instead)
 		// Use a regex to work around a WebKit issue. See #5145
-		"opacity": /^0.5/.test( a.style.opacity ),
+		opacity: /^0.5/.test( a.style.opacity ),
 
 		// Verify style float existence
 		// (IE uses styleFloat instead of cssFloat)
-		"cssFloat": !!a.style.cssFloat,
+		cssFloat: !!a.style.cssFloat,
 
 		// Check the default checkbox/radio value ("" on WebKit; "on" elsewhere)
-		"checkOn": !!input.value,
+		checkOn: !!input.value,
 
 		// Make sure that a selected-by-default option has a working selected property.
 		// (WebKit defaults to false instead of true, IE too, if it's in an optgroup)
-		"optSelected": opt.selected,
+		optSelected: opt.selected,
 
 		// Tests for enctype support on a form (#6743)
-		"enctype": !!document.createElement("form").enctype,
+		enctype: !!document.createElement("form").enctype,
 
 		// Makes sure cloning an html5 element does not cause problems
 		// Where outerHTML is undefined, this still works
-		"html5Clone": document.createElement("nav").cloneNode( true ).outerHTML !== "<:nav></:nav>",
+		html5Clone: document.createElement("nav").cloneNode( true ).outerHTML !== "<:nav></:nav>",
 
 		// jQuery.support.boxModel DEPRECATED in 1.8 since we don't support Quirks Mode
-		"boxModel": document.compatMode === "CSS1Compat",
+		boxModel: document.compatMode === "CSS1Compat",
 
 		// Will be defined later
-		"deleteExpando": true,
-		"noCloneEvent": true,
-		"inlineBlockNeedsLayout": false,
-		"shrinkWrapBlocks": false,
-		"reliableMarginRight": true,
-		"boxSizingReliable": true,
-		"pixelPosition": false
+		deleteExpando: true,
+		noCloneEvent: true,
+		inlineBlockNeedsLayout: false,
+		shrinkWrapBlocks: false,
+		reliableMarginRight: true,
+		boxSizingReliable: true,
+		pixelPosition: false
 	};
 
 	// Make sure checked status is properly cloned
 	input.checked = true;
-	support["noCloneChecked"] = input.cloneNode( true ).checked;
+	support.noCloneChecked = input.cloneNode( true ).checked;
 
 	// Make sure that the options inside disabled selects aren't marked as disabled
 	// (WebKit marks them as disabled)
 	select.disabled = true;
-	support["optDisabled"] = !opt.disabled;
+	support.optDisabled = !opt.disabled;
 
 	// Support: IE<9
 	try {
 		delete div["test"];
 	} catch( e ) {
-		support["deleteExpando"] = false;
+		support.deleteExpando = false;
 	}
 
 	// Check if we can trust getAttribute("value")
 	input = document.createElement("input");
 	input.setAttribute( "value", "" );
-	support["input"] = input.getAttribute( "value" ) === "";
+	support.input = input.getAttribute( "value" ) === "";
 
 	// Check if an input maintains its value after becoming a radio
 	input.value = "t";
 	input.setAttribute( "type", "radio" );
-	support["radioValue"] = input.value === "t";
+	support.radioValue = input.value === "t";
 
 	// #11217 - WebKit loses check when the name is after the checked attribute
 	input.setAttribute( "checked", "t" );
@@ -116,17 +120,17 @@ jQuery.support = ( /** @suppress {uselessCode} */ function() {
 
 	// Check if a disconnected checkbox will retain its checked
 	// value of true after appended to the DOM (IE6/7)
-	support["appendChecked"] = input.checked;
+	support.appendChecked = input.checked;
 
 	// WebKit doesn't clone checked state correctly in fragments
-	support["checkClone"] = fragment.cloneNode( true ).cloneNode( true ).lastChild.checked;
+	support.checkClone = fragment.cloneNode( true ).cloneNode( true ).lastChild.checked;
 
 	// Support: IE<9
 	// Opera does not clone events (and typeof div.attachEvent === undefined).
 	// IE9-10 clones events bound via attachEvent, but they don't trigger with .click()
 	if ( div.attachEvent ) {
 		div.attachEvent( "onclick", function() {
-			support["noCloneEvent"] = false;
+			support.noCloneEvent = false;
 		});
 
 		div.cloneNode( true ).click();
@@ -134,18 +138,17 @@ jQuery.support = ( /** @suppress {uselessCode} */ function() {
 
 	// Support: IE<9 (lack submit/change bubble), Firefox 17+ (lack focusin event)
 	// Beware of CSP restrictions (https://developer.mozilla.org/en/Security/CSP), test/csp.php
-	for ( i in { "submit": true, "change": true, "focusin": true }) {
-		div.setAttribute( eventName = "on" + i, "t" );
-
-		support[ i + "Bubbles" ] = eventName in window || div.attributes[ eventName ].expando === false;
-	}
+	jQuery.expandedEach([ "submit", "change", "focusin" ], function( i, value ) {
+		div.setAttribute( eventName = "on" + value, "t" );
+		support[ value + "Bubbles" ] = eventName in window || div.attributes[ eventName ].expando === false;
+	});
 
 	div.style.backgroundClip = "content-box";
 	div.cloneNode( true ).style.backgroundClip = "";
-	support["clearCloneStyle"] = div.style.backgroundClip === "content-box";
+	support.clearCloneStyle = div.style.backgroundClip === "content-box";
 
 	// Run tests that need a body at doc ready
-	new jQuery(function() {
+	jQuery(function() {
 		var container, marginDiv, tds,
 			divReset = "padding:0;margin:0;border:0;display:block;box-sizing:content-box;-moz-box-sizing:content-box;-webkit-box-sizing:content-box;",
 			body = document.getElementsByTagName("body")[0];
@@ -177,18 +180,18 @@ jQuery.support = ( /** @suppress {uselessCode} */ function() {
 
 		// Support: IE8
 		// Check if empty table cells still have offsetWidth/Height
-		support["reliableHiddenOffsets"] = isSupported && ( tds[ 0 ].offsetHeight === 0 );
+		support.reliableHiddenOffsets = isSupported && ( tds[ 0 ].offsetHeight === 0 );
 
 		// Check box-sizing and margin behavior
 		div.innerHTML = "";
 		div.style.cssText = "box-sizing:border-box;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;padding:1px;border:1px;display:block;width:4px;margin-top:1%;position:absolute;top:1%;";
-		support["boxSizing"] = ( div.offsetWidth === 4 );
-		support["doesNotIncludeMarginInBodyOffset"] = ( body.offsetTop !== 1 );
+		support.boxSizing = ( div.offsetWidth === 4 );
+		support.doesNotIncludeMarginInBodyOffset = ( body.offsetTop !== 1 );
 
 		// Use window.getComputedStyle because jsdom on node.js will break without it.
 		if ( window.getComputedStyle ) {
-			support["pixelPosition"] = ( window.getComputedStyle( div, null ) || {} ).top !== "1%";
-			support["boxSizingReliable"] = ( window.getComputedStyle( div, null ) || { width: "4px" } ).width === "4px";
+			support.pixelPosition = ( window.getComputedStyle( div, null ) || {} ).top !== "1%";
+			support.boxSizingReliable = ( window.getComputedStyle( div, null ) || { width: "4px" } ).width === "4px";
 
 			// Check if div with explicit width and no margin-right incorrectly
 			// gets computed margin-right based on width of container. (#3333)
@@ -199,7 +202,7 @@ jQuery.support = ( /** @suppress {uselessCode} */ function() {
 			marginDiv.style.marginRight = marginDiv.style.width = "0";
 			div.style.width = "1px";
 
-			support["reliableMarginRight"] =
+			support.reliableMarginRight =
 				!parseFloat( ( window.getComputedStyle( marginDiv, null ) || {} ).marginRight );
 		}
 
@@ -219,7 +222,7 @@ jQuery.support = ( /** @suppress {uselessCode} */ function() {
 			div.firstChild.style.width = "5px";
 			support["shrinkWrapBlocks"] = ( div.offsetWidth !== 3 );
 
-			if ( support["inlineBlockNeedsLayout"] ) {
+			if ( support.inlineBlockNeedsLayout ) {
 				// Prevent IE 6 from affecting layout for positioned elements #11048
 				// Prevent IE from shrinking the body in IE 7 mode #12869
 				// Support: IE<8
