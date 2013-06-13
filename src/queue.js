@@ -1,8 +1,8 @@
 jQuery.extend({
 	/**
 	 * @param {Element} elem
-	 * @param {(string|Array.<function()>|function(function()))=} type
-	 * @param {(Array.<function()>|function())=} data
+	 * @param {(string|Array.<function(?,?)>|function(?,?))=} type
+	 * @param {(Array.<function(?,?)>|function(?,?))=} data
 	 * @return {(Array.<Element>|!jQuery|undefined)}
 	 */
 	queue: function( elem, type, data ) {
@@ -78,8 +78,8 @@ jQuery.extend({
 
 jQuery.fn.extend({
 	/**
-	 * @param {(string|Array.<function()>|function())=} type
-	 * @param {(Array.<function()>|function())=} data
+	 * @param {(string|Array.<function(?, ?)>|function(?, ?))=} type
+	 * @param {(Array.<function(?, ?)>|function(?, ?))=} data
 	 * @return {(Array.<Element>|!jQuery)}
 	 */
 	queue: function( type, data ) {
@@ -127,19 +127,19 @@ jQuery.fn.extend({
 		time = jQuery.fx ? jQuery.fx.speeds[ time ] || time : time;
 		type = type || "fx";
 
-		return this.queue( type, function( next, hooks ) {
+		return /** @type {!jQuery} */ ( this.queue( type, function( next, hooks ) {
 			var timeout = setTimeout( next, time );
 			hooks.stop = function() {
 				clearTimeout( timeout );
 			};
-		});
+		}) );
 	},
 	/**
 	 * @param {string=} type
 	 * @return {!jQuery}
 	 */
 	clearQueue: function( type ) {
-		return this.queue( type || "fx", [] );
+		return /** @type {!jQuery} */ ( this.queue( type || "fx", [] ) );
 	},
 	/**
 	 * Get a promise resolved when queues of a certain type

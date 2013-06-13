@@ -1,6 +1,6 @@
 // Additional type information for closure-compiler
 
-/** @typedef {(Window|Document|Element|Array.<Element>|string|jQuery|
+/** @typedef {(Window|Document|Element|Array.<Element>|string|!jQuery|
  *     NodeList)}
  */
 var jQuerySelector;
@@ -217,6 +217,15 @@ jQuery.deferred.prototype.resolveWith = function( context, args ) {};
 
 /** @return {string} */
 jQuery.deferred.prototype.state = function() {};
+
+/**
+ * @constructor
+ * @extends {Event}
+ * @param {(string|Event|jQuery.Event)=} src
+ * @param {Object=} props
+ * @return {!jQuery.Event}
+ */
+jQuery.Event = jQuery.Event;
 
 /**
  * @expose
@@ -575,6 +584,16 @@ jQuery.animationOptions.prototype.queue;
 
 /** @type {Object.<string,string>} */
 jQuery.animationOptions.prototype.specialEasing;
+
+/**
+ * @constructor
+ * @param {Element} elem
+ * @param {jQuery.animationOptions} options
+ * @param {string} prop
+ * @param {number} end
+ * @param {string} easing
+ */
+jQuery.Tween = jQuery.Tween;
 
 /** @type {string} */
 jQuery.Tween.prototype.easing = "";

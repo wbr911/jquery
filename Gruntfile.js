@@ -521,10 +521,10 @@ module.exports = function( grunt ) {
 				compiled = "/**\n * @license" + intro.substring(6) + compiled.substr(endIndex + 1);
 				compiled = compiled.substr(0, compiled.lastIndexOf( "}" ));
 
-				compiled = compiled.replace(/\tdocument = window\.document,/,
-					"\t// document = window.document,");
-				compiled = compiled.replace(/\tlocation = window\.location,/,
-					"\t// location = window.location,");
+				//compiled = compiled.replace(/\tdocument = window\.document,/,
+				//	"\t// document = window.document,");
+				//compiled = compiled.replace(/\tlocation = window\.location,/,
+				//	"\t// location = window.location,");
 				compiled = compiled.replace(/window\.jQuery = window\.\$ = jQuery;/,
 					"// window.jQuery = window.$ = jQuery;");
 

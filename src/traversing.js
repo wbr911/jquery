@@ -68,7 +68,7 @@ jQuery.fn.extend({
 	},
 
 	/**
-	 * @param {(jQuerySelector|function(number)|Element|jQuery)} selector
+	 * @param {(jQuerySelector|function(number, Element=))} selector
 	 * @return {!jQuery}
 	 */
 	filter: function( selector ) {
@@ -76,7 +76,7 @@ jQuery.fn.extend({
 	},
 
 	/**
-	 * @param {(jQuerySelector|function(number)|jQuery|Element)} selector
+	 * @param {(jQuerySelector|function(number))} selector
 	 * @return {boolean}
 	 */
 	is: function( selector ) {
@@ -152,7 +152,7 @@ jQuery.fn.extend({
 		var set = typeof selector === "string" ?
 				jQuery( selector, context ) :
 				jQuery.makeArray( selector && selector.nodeType ? [ selector ] : selector ),
-			all = jQuery.merge( this.get(), set );
+			all = jQuery.merge( /** @type {Array.<*>} */ ( this.get() ), set );
 
 		return this.pushStack( jQuery.unique(all) );
 	},
@@ -248,7 +248,7 @@ jQuery.expandedEach({
 jQuery.extend({
 	/**
 	 * @param {string} expr
-	 * @param {Array.<Element>} elems
+	 * @param {Array.<Element>|!jQuery} elems
 	 * @param {boolean=} not
 	 * @return {!jQuery}
 	 */

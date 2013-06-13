@@ -186,7 +186,7 @@ jQuery.fn.load = function( url, params, callback ) {
 				responseText );
 
 		}).complete( callback && function( jqXHR, status ) {
-			self.each( callback, response || [ jqXHR.responseText, status, jqXHR ] );
+			jQuery.each(self, /** @type {function (...[?])} */ ( callback ), response || [ jqXHR.responseText, status, jqXHR ] );
 		});
 	}
 

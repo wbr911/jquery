@@ -1,9 +1,34 @@
+
+var
+	// Map over jQuery in case of overwrite
+	_jQuery = window[ "jQuery" ],
+
+	// Map over the $ in case of overwrite
+	_$ = window[ "$" ],
+	
+	// A central reference to the root jQuery(document)
+	rootjQuery;
+
+/**
+ * Define a local copy of jQuery
+ * @constructor
+ * @const
+ * @param {(jQuerySelector|Element|Object|Array.<Element>|jQuery|string|
+ *     function())=} selector
+ * @param {(Element|jQuery|Document|
+ *     Object.<string, (string|function(!Event=))>)=} context
+ * @return {!jQuery}
+ */
+var jQuery = function( selector, context ) {
+		// The jQuery object is actually just the init constructor 'enhanced'
+		return new jQuery.fn.init( selector, context, rootjQuery );
+	};
+
+(function() {
+
 var
 	// The deferred used on DOM ready
 	readyList,
-
-	// A central reference to the root jQuery(document)
-	rootjQuery,
 
 	// Support: IE<9
 	// For `typeof node.method` instead of `node.method !== undefined`
@@ -12,12 +37,6 @@ var
 	// Use the correct document accordingly with window argument (sandbox)
 	document = window.document,
 	location = window.location,
-
-	// Map over jQuery in case of overwrite
-	_jQuery = window[ "jQuery" ],
-
-	// Map over the $ in case of overwrite
-	_$ = window[ "$" ],
 
 	// [[Class]] -> type pairs
 	class2type = {},
@@ -34,23 +53,9 @@ var
 	core_indexOf = core_deletedIds.indexOf,
 	core_toString = class2type.toString,
 	core_hasOwn = class2type.hasOwnProperty,
-	core_trim = core_version.trim;
+	core_trim = core_version.trim,
 
-/**
- * Define a local copy of jQuery
- * @constructor
- * @param {(jQuerySelector|Element|Object|Array.<Element>|jQuery|string|
- *     function())=} selector
- * @param {(Element|jQuery|Document|
- *     Object.<string, (string|function(!jQuery.Event=))>)=} context
- * @return {!jQuery}
- */
-var jQuery = function( selector, context ) {
-		// The jQuery object is actually just the init constructor 'enhanced'
-		return new jQuery.fn.init( selector, context, rootjQuery );
-	};
-
-var core_pnum = /[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/.source,
+	core_pnum = /[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/.source,
 
 	// Used for splitting on whitespace
 	core_rnotwhite = /\S+/g,
@@ -102,239 +107,240 @@ var core_pnum = /[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/.source,
 		}
 	};
 
-jQuery.fn = jQuery.prototype = {
+jQuery.fn = jQuery.prototype;
+
 	// The current version of jQuery being used
-	jquery: core_version,
+jQuery.prototype.jquery = core_version;
 
-	constructor: jQuery,
-	init: /** @type {function(new:jQuery,?,?,?)} */ ( function( selector, context, rootjQuery ) {
-		var match, elem;
+jQuery.prototype.constructor = jQuery;
+jQuery.prototype.init = /** @type {function(new:jQuery,?,?,?)} */ ( function( selector, context, rootjQuery ) {
+	var match, elem;
 
-		// HANDLE: $(""), $(null), $(undefined), $(false)
-		if ( !selector ) {
-			return this;
+	// HANDLE: $(""), $(null), $(undefined), $(false)
+	if ( !selector ) {
+		return this;
+	}
+
+	// Handle HTML strings
+	if ( typeof selector === "string" ) {
+		if ( selector.charAt(0) === "<" && selector.charAt( selector.length - 1 ) === ">" && selector.length >= 3 ) {
+			// Assume that strings that start and end with <> are HTML and skip the regex check
+			match = [ null, selector, null ];
+
+		} else {
+			match = rquickExpr.exec( selector );
 		}
 
-		// Handle HTML strings
-		if ( typeof selector === "string" ) {
-			if ( selector.charAt(0) === "<" && selector.charAt( selector.length - 1 ) === ">" && selector.length >= 3 ) {
-				// Assume that strings that start and end with <> are HTML and skip the regex check
-				match = [ null, selector, null ];
+		// Match html or make sure no context is specified for #id
+		if ( match && (match[1] || !context) ) {
 
-			} else {
-				match = rquickExpr.exec( selector );
-			}
+			// HANDLE: $(html) -> $(array)
+			if ( match[1] ) {
+				context = context instanceof jQuery ? context[0] : context;
 
-			// Match html or make sure no context is specified for #id
-			if ( match && (match[1] || !context) ) {
+				// scripts is true for back-compat
+				jQuery.merge( /** @type {!jQuery} */ ( this ), jQuery.parseHTML(
+					match[1],
+					context && context.nodeType ? context.ownerDocument || context : document,
+					true
+				) );
 
-				// HANDLE: $(html) -> $(array)
-				if ( match[1] ) {
-					context = context instanceof jQuery ? context[0] : context;
+				// HANDLE: $(html, props)
+				if ( rsingleTag.test( match[1] ) && jQuery.isPlainObject( context ) ) {
+					for ( match in context ) {
+						// Properties of context are called as methods if possible
+						if ( jQuery.isFunction( this[ match ] ) ) {
+							this[ match ]( context[ match ] );
 
-					// scripts is true for back-compat
-					jQuery.merge( /** @type {!jQuery} */ ( this ), jQuery.parseHTML(
-						match[1],
-						context && context.nodeType ? context.ownerDocument || context : document,
-						true
-					) );
-
-					// HANDLE: $(html, props)
-					if ( rsingleTag.test( match[1] ) && jQuery.isPlainObject( context ) ) {
-						for ( match in context ) {
-							// Properties of context are called as methods if possible
-							if ( jQuery.isFunction( this[ match ] ) ) {
-								this[ match ]( context[ match ] );
-
-							// ...and otherwise set as attributes
-							} else {
-								this.attr( match, context[ match ] );
-							}
+						// ...and otherwise set as attributes
+						} else {
+							this.attr( match, context[ match ] );
 						}
 					}
-
-					return this;
-
-				// HANDLE: $(#id)
-				} else {
-					elem = document.getElementById( match[2] );
-
-					// Check parentNode to catch when Blackberry 4.6 returns
-					// nodes that are no longer in the document #6963
-					if ( elem && elem.parentNode ) {
-						// Handle the case where IE and Opera return items
-						// by name instead of ID
-						if ( elem.id !== match[2] ) {
-							return rootjQuery.find( selector );
-						}
-
-						// Otherwise, we inject the element directly into the jQuery object
-						this.length = 1;
-						this[0] = elem;
-					}
-
-					this.context = document;
-					this.selector = selector;
-					return this;
 				}
 
-			// HANDLE: $(expr, $(...))
-			} else if ( !context || context.jquery ) {
-				return ( context || rootjQuery ).find( selector );
+				return this;
 
-			// HANDLE: $(expr, context)
-			// (which is just equivalent to: $(context).find(expr)
+			// HANDLE: $(#id)
 			} else {
-				return this.constructor( context ).find( selector );
+				elem = document.getElementById( match[2] );
+
+				// Check parentNode to catch when Blackberry 4.6 returns
+				// nodes that are no longer in the document #6963
+				if ( elem && elem.parentNode ) {
+					// Handle the case where IE and Opera return items
+					// by name instead of ID
+					if ( elem.id !== match[2] ) {
+						return rootjQuery.find( selector );
+					}
+
+					// Otherwise, we inject the element directly into the jQuery object
+					this.length = 1;
+					this[0] = elem;
+				}
+
+				this.context = document;
+				this.selector = selector;
+				return this;
 			}
 
-		// HANDLE: $(DOMElement)
-		} else if ( selector.nodeType ) {
-			this.context = this[0] = selector;
-			this.length = 1;
-			return this;
+		// HANDLE: $(expr, $(...))
+		} else if ( !context || context.jquery ) {
+			return ( context || rootjQuery ).find( selector );
 
-		// HANDLE: $(function)
-		// Shortcut for document ready
-		} else if ( jQuery.isFunction( selector ) ) {
-			return rootjQuery.ready( selector );
+		// HANDLE: $(expr, context)
+		// (which is just equivalent to: $(context).find(expr)
+		} else {
+			return this.constructor( context ).find( selector );
 		}
 
-		if ( selector.selector !== undefined ) {
-			this.selector = selector.selector;
-			this.context = selector.context;
-		}
+	// HANDLE: $(DOMElement)
+	} else if ( selector.nodeType ) {
+		this.context = this[0] = selector;
+		this.length = 1;
+		return this;
 
-		return /** @type {!jQuery} */ ( jQuery.makeArray( selector, /** @type {!jQuery} */ ( this ) ) );
-	} ),
+	// HANDLE: $(function)
+	// Shortcut for document ready
+	} else if ( jQuery.isFunction( selector ) ) {
+		return rootjQuery.ready( selector );
+	}
 
-	// Start with an empty selector
-	selector: "",
+	if ( selector.selector !== undefined ) {
+		this.selector = selector.selector;
+		this.context = selector.context;
+	}
 
-	/** @type {number} The default length of a jQuery object is 0 */
-	length: 0,
+	return /** @type {!jQuery} */ ( jQuery.makeArray( selector, /** @type {!jQuery} */ ( this ) ) );
+} );
+
+// Start with an empty selector
+jQuery.prototype.selector = "";
+
+/** @type {number} The default length of a jQuery object is 0 */
+jQuery.prototype.length = 0;
 
 	/** @return {number} the number of elements contained in the matched element set */
-	size: function() {
+jQuery.prototype.size = function() {
 		return this.length;
-	},
+	};
 
 	/** @return {Array.<*>} */
-	toArray: function() {
-		return core_slice.call( this );
-	},
-
-	/**
-	 * Get the Nth element in the matched element set OR
-	 * Get the whole matched element set as a clean array
-	 * @param {number=} num
-	 * @return {(Element|Window|Document|Node|Array.<Element|Window|Document|Node>)}
-	 */
-	get: function( num ) {
-		return num == null ?
-
-			// Return a 'clean' array
-			this.toArray() :
-
-			// Return just the object
-			( num < 0 ? this[ this.length + num ] : this[ num ] );
-	},
-
-	/**
-	 * Take an array of elements and push it onto the stack
-	 * (returning the new matched element set)
-	 * @param {Array.<Element>} elems
-	 * @return {!jQuery}
-	 */
-	pushStack: function( elems ) {
-
-		// Build a new jQuery matched element set
-		var ret = /** @type {!jQuery} */ ( jQuery.merge( this.constructor(), elems ) );
-
-		// Add the old object onto the stack (as a reference)
-		ret.prevObject = this;
-		ret.context = this.context;
-
-		// Return the newly-formed element set
-		return ret;
-	},
-
-	/**
-	 * Execute a callback for every element in the matched set.
-	 * (You can seed the arguments with an array of args, but this is
-	 * only used internally.)
-	 * @param {function(this:Object,(number|string),Element)} callback
-	 * @param {Array=} args
-	 * @return {!jQuery}
-	 */
-	each: function( callback, args ) {
-		return /** @type {!jQuery} */ ( jQuery.each( this, callback, args ) );
-	},
-
-	/**
-	 * @param {function()=} fn
-	 * @return {!jQuery}
-	 */
-	ready: function( fn ) {
-		// Add the callback
-		jQuery.ready.promise().done( fn );
-
-		return this;
-	},
-
-	/**
-	 * @param {number} begin
-	 * @param {number=} end
-	 * @return {jQuery}
-	 */
-	slice: function( begin, end ) {
-		return this.pushStack( core_slice.apply( this, arguments ) );
-	},
-
-	/** @return {!jQuery} */
-	first: function() {
-		return this.eq( 0 );
-	},
-
-	/** @return {!jQuery} */
-	last: function() {
-		return this.eq( -1 );
-	},
-
-	/**
-	 * @param {number} i
-	 * @return {!jQuery}
-	 */
-	eq: function( i ) {
-		var len = this.length,
-			j = +i + ( i < 0 ? len : 0 );
-		return this.pushStack( j >= 0 && j < len ? [ this[j] ] : [] );
-	},
-
-	/**
-	 * @param {function(number,Element):*} callback
-	 * @return {*}
-	 */
-	map: function( callback ) {
-		return this.pushStack( jQuery.map(this, function( elem, i ) {
-			return callback.call( elem, i, elem );
-		}));
-	},
-
-	/** @return {!jQuery} */
-	end: function() {
-		return this.prevObject || this.constructor(null);
-	},
-
-	// For internal use only.
-	// Behaves like an Array's method, not like a jQuery method.
-	/** @private */
-	push: core_push,
-	/** @private */
-	sort: [].sort,
-	/** @private */
-	splice: [].splice
+jQuery.prototype.toArray = function() {
+	return core_slice.call( this );
 };
+
+/**
+ * Get the Nth element in the matched element set OR
+ * Get the whole matched element set as a clean array
+ * @param {number=} num
+ * @return {(Element|Window|Document|Node|Array.<Element|Window|Document|Node>)}
+ */
+jQuery.prototype.get = function( num ) {
+	return num == null ?
+
+		// Return a 'clean' array
+		this.toArray() :
+
+		// Return just the object
+		( num < 0 ? this[ this.length + num ] : this[ num ] );
+};
+
+/**
+ * Take an array of elements and push it onto the stack
+ * (returning the new matched element set)
+ * @param {Array.<Element>|!jQuery} elems
+ * @return {!jQuery}
+ */
+jQuery.prototype.pushStack = function( elems ) {
+
+	// Build a new jQuery matched element set
+	var ret = /** @type {!jQuery} */ ( jQuery.merge( this.constructor(), elems ) );
+
+	// Add the old object onto the stack (as a reference)
+	ret.prevObject = this;
+	ret.context = this.context;
+
+	// Return the newly-formed element set
+	return ret;
+};
+
+/**
+ * Execute a callback for every element in the matched set.
+ * (You can seed the arguments with an array of args, but this is
+ * only used internally.)
+ * @param {function(this:Element,(number|string),Element)} callback
+ * @param {Array=} args
+ * @return {!jQuery}
+ */
+jQuery.prototype.each = function( callback, args ) {
+	return /** @type {!jQuery} */ ( jQuery.each( this, callback, args ) );
+};
+
+/**
+ * @param {function()=} fn
+ * @return {!jQuery}
+ */
+jQuery.prototype.ready = function( fn ) {
+	// Add the callback
+	jQuery.ready.promise().done( fn );
+
+	return this;
+};
+
+/**
+ * @param {number} begin
+ * @param {number=} end
+ * @return {jQuery}
+ */
+jQuery.prototype.slice = function( begin, end ) {
+	return this.pushStack( core_slice.apply( this, arguments ) );
+};
+
+/** @return {!jQuery} */
+jQuery.prototype.first = function() {
+	return this.eq( 0 );
+};
+
+/** @return {!jQuery} */
+jQuery.prototype.last = function() {
+	return this.eq( -1 );
+};
+
+/**
+ * @param {number} i
+ * @return {!jQuery}
+ */
+jQuery.prototype.eq = function( i ) {
+	var len = this.length,
+		j = +i + ( i < 0 ? len : 0 );
+	return this.pushStack( j >= 0 && j < len ? [ this[j] ] : [] );
+};
+
+/**
+ * @param {function(number,Element):*} callback
+ * @return {*}
+ */
+jQuery.prototype.map = function( callback ) {
+	return this.pushStack( jQuery.map(this, function( elem, i ) {
+		return callback.call( elem, i, elem );
+	}));
+};
+
+/** @return {!jQuery} */
+jQuery.prototype.end = function() {
+	return this.prevObject || this.constructor(null);
+};
+
+// For internal use only.
+// Behaves like an Array's method, not like a jQuery method.
+/** @private */
+jQuery.prototype.push = core_push;
+/** @private */
+jQuery.prototype.sort = [].sort;
+/** @private */
+jQuery.prototype.splice = [].splice;
+//};
 
 jQuery.fn.init.prototype = jQuery.prototype;
 
@@ -704,7 +710,7 @@ jQuery.extend({
 
 	/**
 	 * @param {Object} obj
-	 * @param {function((number|string),?)} callback
+	 * @param {function(...[?])} callback
 	 * @param {?=} args is for internal usage only
 	 * @return {Object}
 	 */

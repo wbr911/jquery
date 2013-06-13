@@ -669,6 +669,7 @@ jQuery.removeEvent = document.removeEventListener ?
  * @extends {Event}
  * @param {(string|Event|jQuery.Event)=} src
  * @param {Object=} props
+ * @return {!jQuery.Event}
  */
 jQuery.Event = function( src, props ) {
 	// Allow instantiation without the 'new' keyword
@@ -701,6 +702,8 @@ jQuery.Event = function( src, props ) {
 
 	// Mark it as fixed
 	this[ jQuery.expando ] = true;
+
+	return this;
 };
 
 // jQuery.Event is based on DOM3 Events as specified by the ECMAScript Language Binding
@@ -709,6 +712,7 @@ jQuery.Event.prototype = {
 	isDefaultPrevented: returnFalse,
 	isPropagationStopped: returnFalse,
 	isImmediatePropagationStopped: returnFalse,
+	namespace: undefined,
 
 	preventDefault: function() {
 		var e = this.originalEvent;
@@ -917,7 +921,7 @@ if ( !jQuery.support.focusinBubbles ) {
 
 jQuery.fn.extend({
 	/**
-	 * @param {(string|Object.<string,*>)} types
+	 * @param {(string|Object.<string,function(!jQuery.Event=)>)} types
 	 * @param {*=} selector
 	 * @param {*=} data
 	 * @param {(function((!jQuery.Event)=)|number|boolean)=} fn
@@ -988,8 +992,8 @@ jQuery.fn.extend({
 		return this.on( types, selector, data, fn, 1 );
 	},
 	/**
-	 * @param {(string|Object.<string,*>|jQuery.Event)} types
-	 * @param {(string|function(!jQuery.Event=)|boolean)=} selector
+	 * @param {(string|Object.<string,function(!jQuery.Event=)>|jQuery.Event)} types
+	 * @param {(null|string|function(!jQuery.Event=)|boolean)=} selector
 	 * @param {(function(!jQuery.Event=)|boolean)=} fn
 	 * @return {!jQuery}
 	 */
@@ -1036,7 +1040,7 @@ jQuery.fn.extend({
 		return this.on( types, null, data, fn );
 	},
 	/**
-	 * @param {(string|function(!jQuery.Event=)|jQuery.Event)=} types
+	 * @param {(string|jQuery.Event)} types
 	 * @param {(function(!jQuery.Event=)|boolean)=} fn
 	 * @return {!jQuery}
 	 */
@@ -1056,13 +1060,15 @@ jQuery.fn.extend({
 	},
 	/**
 	 * @param {string=} selector
-	 * @param {(string|Object.<string,*>)=} types
+	 * @param {(string|Object.<string,function(!jQuery.Event=)>)|function(!jQuery.Event=)=} types
 	 * @param {function(!jQuery.Event=)=} fn
 	 * @return {!jQuery}
 	 */
 	undelegate: function( selector, types, fn ) {
 		// ( namespace ) or ( selector, types [, fn] )
-		return arguments.length === 1 ? this.off( selector, "**" ) : this.off( types, selector || "**", fn );
+		return arguments.length === 1 ?
+			this.off( /** @type {string} */ ( selector ) , "**" ) :
+			this.off( /** @type {string|Object.<string,function(!jQuery.Event=)>} */ ( types ), /** @type {string} */ ( selector ) || "**", fn );
 	},
 
 	/**

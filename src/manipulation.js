@@ -65,7 +65,7 @@ jQuery.fn.extend({
 	},
 
 	/**
-	 * @param {(string|jQuerySelector|Element|jQuery|function(this:jQuery,number):Element)} html
+	 * @param {(string|jQuerySelector|Element|jQuery|function(this:Element,(number|string)):Element)} html
 	 * @return {!jQuery}
 	 */
 	wrapAll: function( html ) {
@@ -98,7 +98,7 @@ jQuery.fn.extend({
 	},
 
 	/**
-	 * @param {(string|function(number))} html
+	 * @param {(string|function(this:Element,(number|string)):string)} html
 	 * @return {!jQuery}
 	 */
 	wrapInner: function( html ) {
@@ -113,7 +113,7 @@ jQuery.fn.extend({
 				contents = self.contents();
 
 			if ( contents.length ) {
-				contents.wrapAll( html );
+				contents.wrapAll( /** @type {string} */ ( html ) );
 
 			} else {
 				self.append( html );
@@ -122,14 +122,14 @@ jQuery.fn.extend({
 	},
 
 	/**
-	 * @param {(string|jQuerySelector|Element|jQuery|function(number))} html
+	 * @param {(jQuerySelector|function(this:Element,number):(jQuery|string))} html
 	 * @return {!jQuery}
 	 */
 	wrap: function( html ) {
 		var isFunction = jQuery.isFunction( html );
 
 		return this.each(function(i) {
-			jQuery( this ).wrapAll( isFunction ? html.call(this, i) : html );
+			jQuery( this ).wrapAll( /** @type {string} */ ( isFunction ? html.call(this, /** @type {number} */ ( i )) : html ) );
 		});
 	},
 
@@ -309,7 +309,7 @@ jQuery.fn.extend({
 	},
 
 	/**
-	 * @param {(string|Element|jQuery|function())} value
+	 * @param {(NodeList|string|Element|jQuery|function())} value
 	 * @return {!jQuery}
 	 */
 	replaceWith: function( value ) {
@@ -333,7 +333,7 @@ jQuery.fn.extend({
 	},
 
 	/**
-	 * @param {jQuerySelector=} selector
+	 * @param {string=} selector
 	 * @return {!jQuery}
 	 */
 	detach: function( selector ) {
@@ -357,7 +357,7 @@ jQuery.fn.extend({
 		// We can't cloneNode fragments that contain checked, in WebKit
 		if ( isFunction || !( l <= 1 || typeof value !== "string" || jQuery.support.checkClone || !rchecked.test( value ) ) ) {
 			return this.each(function( index ) {
-				var self = set.eq( index );
+				var self = set.eq( /** @type {number} */ ( index ) );
 				if ( isFunction ) {
 					args[0] = value.call( this, index, table ? self.html() : undefined );
 				}

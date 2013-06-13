@@ -44,7 +44,7 @@ function vendorPropName( style, name ) {
 }
 
 /**
- * @param {Element} elem
+ * @param {Element|number} elem
  * @param {Element=} el
  */
 function isHidden( elem, el ) {

@@ -57,7 +57,7 @@ jQuery.fn.extend({
 	},
 
 	/**
-	 * @param {(string|function(number,String))} value
+	 * @param {(string|function(number,string))} value
 	 * @return {!jQuery}
 	 */
 	addClass: function( value ) {
@@ -68,7 +68,7 @@ jQuery.fn.extend({
 
 		if ( jQuery.isFunction( value ) ) {
 			return this.each(function( j ) {
-				jQuery( this ).addClass( value.call( this, j, this.className ) );
+				jQuery( this ).addClass( value.call( this, /** @type {number} */ ( j ), this.className ) );
 			});
 		}
 
@@ -111,7 +111,7 @@ jQuery.fn.extend({
 
 		if ( jQuery.isFunction( value ) ) {
 			return this.each(function( j ) {
-				jQuery( this ).removeClass( value.call( this, j, this.className ) );
+				jQuery( this ).removeClass( value.call( this, /** @type {number} */ ( j ), this.className ) );
 			});
 		}
 		if ( proceed ) {
@@ -152,7 +152,7 @@ jQuery.fn.extend({
 
 		if ( jQuery.isFunction( value ) ) {
 			return this.each(function( i ) {
-				jQuery( this ).toggleClass( value.call(this, i, this.className, /** @type {boolean} */ ( stateVal ) ), stateVal );
+				jQuery( this ).toggleClass( value.call(this, /** @type {number} */ ( i ), this.className, /** @type {boolean} */ ( stateVal ) ), stateVal );
 			});
 		}
 
@@ -243,7 +243,7 @@ jQuery.fn.extend({
 			}
 
 			if ( isFunction ) {
-				val = value.call( this, i, self.val() );
+				val = value.call( this, /** @type {number} */ ( i ), self.val() );
 			} else {
 				val = value;
 			}
