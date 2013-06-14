@@ -702,8 +702,6 @@ jQuery.Event = function( src, props ) {
 
 	// Mark it as fixed
 	this[ jQuery.expando ] = true;
-
-	return this;
 };
 
 // jQuery.Event is based on DOM3 Events as specified by the ECMAScript Language Binding

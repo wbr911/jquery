@@ -15,13 +15,21 @@ You can also build your own version from source. Use the [same directions as bui
 How to build your jQuery code with closure-compiler
 ---------------------------------------------------
 Make sure to use the **--process\_jquery\_primitives** flag of the compiler. It won't compile correctly without it.
-You'll have to be work around collisions with local variables in jQuery since the function closure has been removed. You should use the following output wrapper with your code:
 
-    (function(window, document, location, undefined) { %output% })(window, window.document, window.location)
+Example compilation command:
+
+    java -jar compiler.jar
+      --compilation_level ADVANCED_OPTIMIZATIONS
+      --warning_level VERBOSE
+      --process_jquery_primitives
+      --js jquery.closure-compiler.js
+      --js myjqueryplugin.js
+      --output_wrapper "(function() {%output%})()"
+
 jQuery Types
 ------------
-* The jQuery function is a constructor - make sure to use the **new** keyword when calling it.
 * Closure-compiler doesn't handle aliases well so the **$** shortcut has been removed.
+* jQuery.Event and jQuery.Tween are constructors
 * **jQuery.Deferred** and **jQuery.Callbacks** return anonymous types which adhere to the **jQuery.deferred** and **jQuery.callbacks** interfaces. Neither is a constructor. **jQuery.deferred** and **jQuery.jqXHR** implement the **jQuery.promise** interface. Ancillary type information can be found in [https://github.com/ChadKillingsworth/jquery/blob/closure-compiler-1.9/src/closure-compiler.js](https://github.com/ChadKillingsworth/jquery/blob/closure-compiler-1.9/src/closure-compiler.js)
 
 Properties and Quotes
